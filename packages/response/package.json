@@ -1,0 +1,21 @@
+{
+  "name": "@algobitx/response",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Response Library",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}

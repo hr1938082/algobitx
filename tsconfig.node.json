@@ -1,0 +1,64 @@
+{
+    "compilerOptions": {
+        "target": "es2023",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "paths": {
+            "@algobitx/type-gen": [
+                "./packages/type-gen"
+            ],
+            "@algobitx/config-loader": [
+                "./packages/config-loader"
+            ],
+            "@algobitx/redis": [
+                "./packages/redis"
+            ],
+            "@algobitx/rate-limiter": [
+                "./packages/rate-limiter"
+            ],
+            "@algobitx/crypt": [
+                "./packages/crypt"
+            ],
+            "@algobitx/response": [
+                "./packages/response"
+            ],
+            "@algobitx/session": [
+                "./packages/session"
+            ],
+            "@algobitx/url": [
+                "./packages/url"
+            ],
+            "@algobitx/request": [
+                "./packages/request"
+            ],
+            "@algobitx/exception": [
+                "./packages/exception"
+            ],
+            "@algobitx/application": [
+                "./packages/application"
+            ],
+        }
+    },
+    "references": [
+        {
+            "path": [
+                "./packages/type-gen",
+                "./packages/config-loader",
+                "./packages/redis",
+                "./packages/rate-limiter",
+                "./packages/crypt",
+                "./packages/response",
+                "./packages/session",
+                "./packages/url",
+                "./packages/request",
+                "./packages/exception",
+                "./packages/application"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@algobitx/exception",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Exception Library",
+  "license": "UNLICENSED",
+  "files": [
+    "dist/**/*.js",
+    "package.json"
+  ],
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "dependencies": {
+    "@algobitx/response": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}

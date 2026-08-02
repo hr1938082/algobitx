@@ -1,0 +1,24 @@
+{
+  "name": "@algobitx/crypt",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Cryptography Library",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "dependencies": {
+    "@algobitx/config-loader": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}

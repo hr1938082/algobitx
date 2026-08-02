@@ -1,0 +1,33 @@
+{
+  "name": "@algobitx/application",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Application Library",
+  "license": "UNLICENSED",
+  "files": [
+    "dist/**/*.js",
+    "package.json"
+  ],
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "dependencies": {
+    "@algobitx/config-loader": "workspace:*",
+    "@algobitx/request": "workspace:*",
+    "@algobitx/response": "workspace:*",
+    "@algobitx/redis": "workspace:*",
+    "@algobitx/exception": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}

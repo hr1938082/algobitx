@@ -1,0 +1,33 @@
+{
+  "name": "@algobitx/session",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Session Library",
+  "license": "UNLICENSED",
+  "files": [
+    "dist/*.js",
+    "package.json"
+  ],
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "dependencies": {
+    "@algobitx/config-loader": "workspace:*",
+    "@algobitx/crypt": "workspace:*",
+    "@algobitx/redis": "workspace:*",
+    "@algobitx/response": "workspace:*",
+    "@algobitx/exception": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}
