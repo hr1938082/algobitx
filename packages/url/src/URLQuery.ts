@@ -5,30 +5,35 @@ class URLQuery {
         this.params = new URLSearchParams(init);
     }
 
-    get(key: string): string | string[] | null {
+    get(key: string): string | string[] | undefined {
         const values = this.params.getAll(key);
-        return values.length > 1 ? values : values[0] ?? null;
+        return values.length > 1 ? values : values[0] ?? undefined;
     }
 
-    only<K extends string>(...keys: K[]): Record<K, string | string[] | null> {
+    only<K extends string>(...keys: K[]): Record<K, string | string[] | undefined> {
 
-        const result: Record<string, string | string[] | null> = {};
+        const result: Record<string, string | string[] | undefined> = {};
+
+        if (this.params.size === 0) return result;
 
         for (const key of keys) {
             const values = this.params.getAll(key);
-            result[key] = values.length > 1 ? values : values[0] ?? null;
+            result[key] = values.length > 1 ? values : values[0] ?? undefined;
         }
 
         return result;
     }
 
-    all<T extends Record<string, string | string[] | null>>(): T {
-        const result: Record<string, string | string[] | null> = {};
+    all<T extends Record<string, string | string[] | undefined>>(): T {
+        const result: Record<string, string | string[] | undefined> = {};
+
+        if (this.params.size === 0) return result as T;
+
         const keys = new Set(this.params.keys());
 
         for (const k of keys) {
             const values = this.params.getAll(k);
-            result[k] = values.length > 1 ? values : values[0] ?? null;
+            result[k] = values.length > 1 ? values : values[0] ?? undefined;
         }
 
         return result as T;
