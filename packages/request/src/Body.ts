@@ -6,8 +6,6 @@ import RequestAbortedException from "@algobitx/exception/server/RequestAbortedEx
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 class Body {
-    private readonly raw: IncomingMessage;
-
     private static readonly noBodyMethods = new Set([
         "GET",
         "HEAD",
@@ -21,9 +19,7 @@ class Body {
     private _buffer?: Buffer;
     private _body?: Promise<unknown>;
 
-    constructor(raw: IncomingMessage) {
-        this.raw = raw;
-    }
+    constructor(private readonly request: IncomingMessage) { }
 
     get maxBodySize() {
         return this._maxBodySize;
@@ -56,12 +52,12 @@ class Body {
 
     private async doParse(): Promise<unknown> {
 
-        const method = (this.raw.method || "GET") as HttpMethod;
+        const method = (this.request.method || "GET") as HttpMethod;
 
         if (Body.noBodyMethods.has(method)) return;
 
-        const lengthHeader = this.raw.headers["content-length"];
-        const transferEncoding = this.raw.headers["transfer-encoding"];
+        const lengthHeader = this.request.headers["content-length"];
+        const transferEncoding = this.request.headers["transfer-encoding"];
 
         if (lengthHeader && transferEncoding)
             throw new BadRequestException(
@@ -92,7 +88,7 @@ class Body {
                 if (received > this._maxBodySize) {
                     const error = new PayloadTooLargeException();
                     cleanup();
-                    this.raw.destroy(error);
+                    this.request.destroy(error);
                     reject(error);
                     return;
                 }
@@ -116,16 +112,16 @@ class Body {
             }
 
             const cleanup = () => {
-                this.raw.off("data", onData);
-                this.raw.off("end", onEnd);
-                this.raw.off("error", onError);
-                this.raw.off("aborted", onAborted)
+                this.request.off("data", onData);
+                this.request.off("end", onEnd);
+                this.request.off("error", onError);
+                this.request.off("aborted", onAborted)
             };
 
-            this.raw.on("data", onData);
-            this.raw.once("end", onEnd);
-            this.raw.once("error", onError);
-            this.raw.once('aborted', onAborted)
+            this.request.on("data", onData);
+            this.request.once("end", onEnd);
+            this.request.once("error", onError);
+            this.request.once('aborted', onAborted)
         });
 
         if (received === 0) return;
@@ -134,7 +130,7 @@ class Body {
 
         if (this._cacheBuffer) this._buffer = raw;
 
-        let type = (this.raw.headers['content-type'] || "")
+        let type = (this.request.headers['content-type'] || "")
             .split(';')[0]
             .trim()
             .toLowerCase();
