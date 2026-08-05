@@ -71,9 +71,6 @@ class Application {
 
         new Route(options.routeOptions);
 
-        const maxBodySize = options.requestOptions?.maxBodySize;
-        if (maxBodySize) Request.setMaxBodySize(maxBodySize);
-
         const trustProxies = options.requestOptions?.trustProxies;
         if (trustProxies) Request.setTrustProxies(trustProxies);
 

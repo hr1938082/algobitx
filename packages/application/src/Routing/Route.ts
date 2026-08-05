@@ -201,8 +201,6 @@ class Route {
 
         if (!match) throw new NotFoundException();
 
-        await req.parseBody();
-
         let i = 0;
         const next: MiddlewareNext = async () => {
             if (i < match.middlewares.length) {
