@@ -2,12 +2,9 @@ import { IncomingMessage } from 'node:http';
 import Cookie from '@algobitx/session/Cookie';
 import Session from '@algobitx/session/Session';
 import Response from '@algobitx/response';
-import Config from '@algobitx/config-loader';
-import BadRequestException from '@algobitx/exception/http/BadRequestException';
-import PayloadTooLargeException from '@algobitx/exception/http/PayloadTooLargeException';
-import { isIP } from 'node:net';
-import RequestAbortedException from '@algobitx/exception/server/RequestAbortedException';
 import URL from '@algobitx/url';
+import Body from './Body';
+import { isIP } from 'node:net';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -80,33 +77,15 @@ type StrictHeaderKey = keyof StrictIncomingHttpHeaders;
 
 type StrictHeaderValue<K extends StrictHeaderKey> = StrictIncomingHttpHeaders[K];
 
-enum BodyStatus {
-    PENDING,
-    PARSING,
-    PARSED
-}
-
 export interface RequestOption {
     trustProxies?: '*' | string | string[],
-    maxBodySize?: number // MB
 }
 
 class Request {
     private readonly raw: IncomingMessage;
-
-    private static readonly noBodyMethods = new Set([
-        "GET",
-        "HEAD",
-        "OPTIONS",
-        "TRACE",
-        "CONNECT"
-    ]);
-
     private _url?: URL;
-    private bodyStatus: BodyStatus = BodyStatus.PENDING;
+    private _body?: Body;
     private static trustProxies: ReadonlyArray<string> = [];
-    private static maxBodySize: number = 1024 * 1024; // byte
-    private _body?: Record<string, unknown>;
     private _ip = "";
     private cookie?: Cookie;
     private _session?: Session;
@@ -122,6 +101,11 @@ class Request {
     get url() {
         if (!this._url) this._url = new URL(this.raw.url || "");
         return this._url;
+    }
+
+    get body() {
+        if (!this._body) this._body = new Body(this.raw);
+        return this._body;
     }
 
     header<K extends StrictHeaderKey>(key: K): StrictHeaderValue<K> {
@@ -194,134 +178,6 @@ class Request {
         this.trustProxies = [...list];
     }
 
-    static setMaxBodySize(size: number) {
-        this.maxBodySize = size * 1024 * 1024;
-    }
-
-    private static isPlainObject(value: unknown): value is Record<string, unknown> {
-        return (
-            typeof value === "object" &&
-            value !== null &&
-            !Array.isArray(value) &&
-            Object.getPrototypeOf(value) === Object.prototype
-        );
-    }
-
-    async parseBody(): Promise<void> {
-        if (this.bodyStatus !== BodyStatus.PENDING) return;
-
-        const method = this.method();
-
-        if (Request.noBodyMethods.has(method)) {
-            this.bodyStatus = BodyStatus.PARSED;
-            return;
-        }
-
-        this.bodyStatus = BodyStatus.PARSING;
-
-        try {
-            const lengthHeader = this.header("content-length");
-            if (lengthHeader) {
-                const length = Number(lengthHeader);
-
-                if (!Number.isFinite(length) || length < 0 || !Number.isInteger(length))
-                    throw new BadRequestException("Invalid Content-Length");
-
-                if (length > Request.maxBodySize) throw new PayloadTooLargeException();
-            }
-
-            const chunks: Buffer[] = [];
-            let received: number = 0;
-
-            await new Promise<void>((resolve, reject) => {
-                const onData = (chunk: Buffer) => {
-                    received += chunk.length;
-
-                    if (received > Request.maxBodySize) {
-                        cleanup();
-                        this.raw.destroy();
-                        reject(new PayloadTooLargeException());
-                        return;
-                    }
-
-                    chunks.push(chunk);
-                };
-
-                const onEnd = () => {
-                    cleanup();
-                    resolve();
-                };
-
-                const onError = (error: Error) => {
-                    cleanup();
-                    reject(error);
-                };
-
-                const onAborted = () => {
-                    cleanup();
-                    reject(new RequestAbortedException());
-                }
-
-                const cleanup = () => {
-                    this.raw.off("data", onData);
-                    this.raw.off("end", onEnd);
-                    this.raw.off("error", onError);
-                    this.raw.off("aborted", onAborted)
-                };
-
-                this.raw.on("data", onData);
-                this.raw.once("end", onEnd);
-                this.raw.once("error", onError);
-                this.raw.once('aborted', onAborted)
-            });
-
-            if (chunks.length === 0) return;
-
-            const raw = chunks.length === 1 ? chunks[0] : Buffer.concat(chunks);
-
-            let type = (this.header('content-type') || "")
-                .split(';')[0]
-                .trim()
-                .toLowerCase();
-
-            if (type === "" || type === 'application/json' || type.endsWith('+json')) {
-
-                let parsed: unknown;
-
-                try {
-                    parsed = JSON.parse(raw.toString());
-                } catch {
-                    throw new BadRequestException();
-                }
-
-                if (!Request.isPlainObject(parsed)) throw new BadRequestException();
-
-                this._body = parsed;
-            }
-        } finally {
-            this.bodyStatus = BodyStatus.PARSED;
-        }
-    }
-
-    body<T extends Record<string, unknown>>(): Partial<T>;
-    body<T = unknown>(key: string): T | undefined;
-    body<T extends Record<string, unknown>>(...keys: (keyof T)[]): Partial<T>;
-    body(...key: string[]) {
-        if (!this._body) {
-            if (key.length === 1) {
-                return undefined;
-            } else return {};
-        }
-
-        if (key.length === 1) return this._body[key[0]];
-
-        if (key.length === 0) return this._body;
-
-        const result: Record<string, unknown> = {};
-        for (const k of key) if (k in this._body) result[k] = this._body[k];
-
-        return result;
-    }
 
     private enableSession(res: Response) {
 
