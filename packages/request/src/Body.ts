@@ -6,7 +6,7 @@ import RequestAbortedException from "@algobitx/exception/server/RequestAbortedEx
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 class Body {
-    private raw: IncomingMessage;
+    private readonly raw: IncomingMessage;
 
     private static readonly noBodyMethods = new Set([
         "GET",
