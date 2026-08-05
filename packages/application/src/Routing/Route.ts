@@ -197,7 +197,7 @@ class Route {
     static delete(path: string, handler: Handler) { this.ins.addRoute('DELETE', path, handler) }
 
     static async resolve(req: Request, res: Response) {
-        const match = this.ins.routes.get(this.ins.routeKey(req.method(), req.url.path));
+        const match = this.ins.routes.get(this.ins.routeKey(req.method, req.url.path));
 
         if (!match) throw new NotFoundException();
 

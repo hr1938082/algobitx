@@ -1,5 +1,5 @@
 import Config, { Load } from "@algobitx/config-loader";
-import Request, { RequestOption } from "@algobitx/request";
+import Request from "@algobitx/request";
 import Response from "@algobitx/response";
 import { Server, createServer } from "node:http";
 import { NetworkInterfaceInfo, networkInterfaces } from "node:os";
@@ -9,17 +9,12 @@ import Exception from "@algobitx/exception/Exception";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import HttpException from "@algobitx/exception/http/HttpException";
 
-interface ApplicationOptions {
-    routeOptions: RouteConfig;
-    requestOptions?: RequestOption;
-}
-
 class Application {
     private server: Server;
     private shuttingDown = false;
     private isDev = false;
 
-    constructor(options: ApplicationOptions) {
+    constructor(options: RouteConfig) {
         this.server = this.configure(options)
     }
 
@@ -64,15 +59,12 @@ class Application {
         });
     }
 
-    private configure(options: ApplicationOptions) {
+    private configure(options: RouteConfig) {
         Load();
 
         this.isDev = Config('app.env') === 'development';
 
-        new Route(options.routeOptions);
-
-        const trustProxies = options.requestOptions?.trustProxies;
-        if (trustProxies) Request.setTrustProxies(trustProxies);
+        new Route(options);
 
         return this.configureServer();
     }

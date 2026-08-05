@@ -6,9 +6,9 @@ import TooManyAttemptsException from '@algobitx/exception/http/TooManyAttemptsEx
 
 const Throttle = (attempts: number, seconds: number): Middleware => {
     const middleware = async (req: Request, res: Response, next: MiddlewareNext) => {
-        const ip = req.ip();
+        const ip = req.ip.address;
         const url = req.url.path;
-        const method = req.method();
+        const method = req.method;
 
         const key = `${ip}|${method}|${url}`;
 
