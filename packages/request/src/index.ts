@@ -82,7 +82,6 @@ export interface RequestOption {
 }
 
 class Request {
-    private readonly raw: IncomingMessage;
     private _url?: URL;
     private _body?: Body;
     private static trustProxies: ReadonlyArray<string> = [];
@@ -90,9 +89,7 @@ class Request {
     private _cookie?: Cookie;
     private _session?: Session;
 
-    constructor(raw: IncomingMessage) {
-        this.raw = raw;
-    }
+    constructor(private readonly raw: IncomingMessage) { }
 
     method(): HttpMethod {
         return (this.raw.method || "GET") as HttpMethod;
