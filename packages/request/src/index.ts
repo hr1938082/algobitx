@@ -4,7 +4,8 @@ import Session from '@algobitx/session/Session';
 import Response from '@algobitx/response';
 import URL from '@algobitx/url';
 import Body from './Body';
-import { isIP } from 'node:net';
+import IP from './IP';
+import InternalServerException from '@algobitx/exception/http/InternalServerException';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -77,22 +78,26 @@ type StrictHeaderKey = keyof StrictIncomingHttpHeaders;
 
 type StrictHeaderValue<K extends StrictHeaderKey> = StrictIncomingHttpHeaders[K];
 
-export interface RequestOption {
-    trustProxies?: '*' | string | string[],
-}
-
 class Request {
     private _url?: URL;
     private _body?: Body;
-    private static trustProxies: ReadonlyArray<string> = [];
-    private _ip = "";
+    private _ip?: IP;
     private _cookie?: Cookie;
     private _session?: Session;
 
     constructor(private readonly raw: IncomingMessage) { }
 
-    method(): HttpMethod {
+    header<K extends StrictHeaderKey>(key: K): StrictHeaderValue<K> {
+        return this.raw.headers[key] as StrictHeaderValue<K>;
+    }
+
+    get method(): HttpMethod {
         return (this.raw.method || "GET") as HttpMethod;
+    }
+
+    get ip() {
+        if (!this._ip) this._ip = new IP(this.raw);
+        return this._ip;
     }
 
     get url() {
@@ -105,78 +110,7 @@ class Request {
         return this._body;
     }
 
-    header<K extends StrictHeaderKey>(key: K): StrictHeaderValue<K> {
-        return this.raw.headers[key] as StrictHeaderValue<K>;
-    }
-
-    private static isTrustedProxy(ip: string): boolean {
-        if (Request.trustProxies.length === 0) return false;
-        if (Request.trustProxies.includes("*")) return true;
-        return Request.trustProxies.includes(ip);
-    }
-
-    private static normalizeIP(ip: string): string {
-        ip = ip.trim();
-        if (ip.startsWith("::ffff:")) ip = ip.substring(7);
-        return ip;
-    }
-
-    ip(): string {
-        if (this._ip) return this._ip;
-
-        const remoteAddress = Request.normalizeIP(this.raw.socket.remoteAddress || "");
-        if (!Request.isTrustedProxy(remoteAddress)) return (this._ip = remoteAddress);
-
-        const forwarded = this.header("x-forwarded-for");
-
-        if (!forwarded) return (this._ip = remoteAddress);
-
-        let forwardedForArr = (
-            Array.isArray(forwarded)
-                ? forwarded.join(',')
-                : forwarded
-        ).split(',');
-
-        const validForwardedForArr: string[] = [];
-        for (const ip of forwardedForArr) {
-            const normalizedIP = Request.normalizeIP(ip);
-            if (isIP(normalizedIP) !== 0)
-                validForwardedForArr.push(normalizedIP)
-        }
-
-        if (validForwardedForArr.length === 0) return (this._ip = remoteAddress);
-
-        validForwardedForArr.push(remoteAddress);
-
-        for (let i = validForwardedForArr.length - 1; i >= 0; i--) {
-            if (!Request.isTrustedProxy(validForwardedForArr[i])) {
-                return (this._ip = validForwardedForArr[i]);
-            }
-        }
-
-        return (this._ip = validForwardedForArr[0]);
-    }
-
-    static setTrustProxies(proxies: string | string[]) {
-        if (this.trustProxies.length > 0)
-            throw new Error("Request.setTrustProxies() can only be called once.");
-
-        if (proxies === "*") {
-            this.trustProxies = ["*"];
-            return;
-        }
-
-        const list = Array.isArray(proxies) ? proxies : [proxies];
-
-        for (const proxy of list)
-            if (isIP(proxy) === 0)
-                throw new Error(`Invalid trusted proxy IP: ${proxy}`);
-
-        this.trustProxies = [...list];
-    }
-
-
-    private enableSession(res: Response) {
+    enableSession(res: Response) {
 
         if (!this._cookie) {
             this._cookie = new Cookie(res, this.header('cookie'));
@@ -187,21 +121,24 @@ class Request {
         }
     }
 
+    get cookie() {
+        if (!this._cookie)
+            throw new InternalServerException(
+                new Error("Cookie not enabled. Call enableSession() first.")
+            );
+
+        return this._cookie;
+    }
+
     get session() {
-        if (!this._session) {
-            throw new Error("Session not enabled");
-        }
+        if (!this._session)
+            throw new InternalServerException(
+                new Error("Session not enabled. Call enableSession() first.")
+            );
 
         return this._session;
     }
 
-    get cookie() {
-        if (!this._cookie) {
-            throw new Error("Cookie not enabled");
-        }
-
-        return this._cookie;
-    }
 }
 
 export default Request
