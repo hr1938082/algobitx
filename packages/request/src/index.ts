@@ -87,7 +87,7 @@ class Request {
     private _body?: Body;
     private static trustProxies: ReadonlyArray<string> = [];
     private _ip = "";
-    private cookie?: Cookie;
+    private _cookie?: Cookie;
     private _session?: Session;
 
     constructor(raw: IncomingMessage) {
@@ -181,12 +181,12 @@ class Request {
 
     private enableSession(res: Response) {
 
-        if (!this.cookie) {
-            this.cookie = new Cookie(res, this.header('cookie'));
+        if (!this._cookie) {
+            this._cookie = new Cookie(res, this.header('cookie'));
         }
 
-        if (!this._session && this.cookie) {
-            this._session = new Session(this.cookie);
+        if (!this._session && this._cookie) {
+            this._session = new Session(this._cookie);
         }
     }
 
@@ -196,6 +196,14 @@ class Request {
         }
 
         return this._session;
+    }
+
+    get cookie() {
+        if (!this._cookie) {
+            throw new Error("Cookie not enabled");
+        }
+
+        return this._cookie;
     }
 }
 
