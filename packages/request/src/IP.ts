@@ -7,11 +7,10 @@ type CIDR = [ipaddr.IPv4 | ipaddr.IPv6, number];
 type TrustedProxy = "*" | string | CIDR;
 
 class IP {
-    // private 
     private static trustProxies: Set<TrustedProxy>;
     private _address?: string;
     private _chain?: string[];
-
+    private _isTrustedProxy?: boolean;
 
     constructor(private readonly request: IncomingMessage) {
         if (!IP.trustProxies) IP.loadTrustProxies();
@@ -68,7 +67,9 @@ class IP {
 
         const remoteAddress = ipaddr.process(remote).toNormalizedString();
 
-        if (!IP.isTrustedProxy(remoteAddress)) {
+        this._isTrustedProxy = IP.isTrustedProxy(remoteAddress);
+
+        if (!this._isTrustedProxy) {
             this._chain = [remoteAddress];
             this._address = remoteAddress;
             return;
@@ -137,6 +138,11 @@ class IP {
     get forwardedChain(): string[] {
         this.resolve();
         return this._chain!.slice(0, -1);
+    }
+
+    get isTrustedProxy(): boolean {
+        this.resolve();
+        return this._isTrustedProxy!;
     }
 
 }
