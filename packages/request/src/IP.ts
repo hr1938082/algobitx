@@ -1,10 +1,14 @@
 import Config from "@algobitx/config-loader";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import ipaddr from "ipaddr.js";
 import { IncomingMessage } from "node:http";
-import { isIP } from "node:net";
+
+type CIDR = [ipaddr.IPv4 | ipaddr.IPv6, number];
+type TrustedProxy = "*" | string | CIDR;
 
 class IP {
-    private static trustProxies: Set<string>;
+    // private 
+    private static trustProxies: Set<TrustedProxy>;
     private _address?: string;
     private _chain?: string[];
 
@@ -28,25 +32,32 @@ class IP {
 
         const list = Array.isArray(proxies) ? proxies : [proxies];
 
-        for (const proxy of list)
-            if (isIP(proxy) === 0)
-                throw new InternalServerException(
-                    new Error(`Invalid trusted proxy IP: ${proxy}`)
-                );
+        const trustProxies = list.map(proxy => {
+            try {
+                return proxy.includes("/")
+                    ? ipaddr.parseCIDR(proxy)
+                    : ipaddr.process(proxy).toNormalizedString();
 
-        this.trustProxies = new Set(list.map(IP.normalizeIP));
+            } catch {
+                throw new InternalServerException(
+                    new Error(`Invalid trusted proxy IP/CIDR: ${proxy}`)
+                );
+            }
+        });
+
+        this.trustProxies = new Set(trustProxies);
     }
 
     private static isTrustedProxy(ip: string): boolean {
         if (this.trustProxies.size === 0) return false;
         if (this.trustProxies.has("*")) return true;
-        return this.trustProxies.has(ip);
-    }
+        if (this.trustProxies.has(ip)) return true;
 
-    private static normalizeIP(ip: string): string {
-        ip = ip.trim().toLowerCase();
-        if (ip.startsWith("::ffff:")) ip = ip.substring(7);
-        return ip;
+        const addr = ipaddr.process(ip);
+        for (const proxy of this.trustProxies)
+            if (Array.isArray(proxy) && addr.match(proxy)) return true;
+
+        return false;
     }
 
     private resolve() {
@@ -55,7 +66,7 @@ class IP {
         const remote = this.request.socket.remoteAddress;
         if (!remote) throw new InternalServerException("Unable to determine remote address");
 
-        const remoteAddress = IP.normalizeIP(remote);
+        const remoteAddress = ipaddr.process(remote).toNormalizedString();
 
         if (!IP.isTrustedProxy(remoteAddress)) {
             this._chain = [remoteAddress];
@@ -80,9 +91,11 @@ class IP {
 
         const forwardedAddresses: string[] = [];
         for (const ip of forwardedForArr) {
-            const normalizedIP = IP.normalizeIP(ip);
-            if (isIP(normalizedIP) !== 0)
-                forwardedAddresses.push(normalizedIP)
+            try {
+                forwardedAddresses.push(ipaddr.process(ip.trim()).toNormalizedString());
+            } catch {
+                // Ignore invalid forwarded IP
+            }
         }
 
         if (forwardedAddresses.length === 0) {
