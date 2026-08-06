@@ -16,10 +16,11 @@
   },
   "dependencies": {
     "@algobitx/config-loader": "workspace:*",
-    "@algobitx/url": "workspace:*",
     "@algobitx/exception": "workspace:*",
     "@algobitx/response": "workspace:*",
-    "@algobitx/session": "workspace:*"
+    "@algobitx/session": "workspace:*",
+    "@algobitx/url": "workspace:*",
+    "ipaddr.js": "^2.5.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
