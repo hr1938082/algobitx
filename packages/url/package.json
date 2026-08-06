@@ -4,13 +4,16 @@
   "author": "Algobitx",
   "description": "Algobitx URL Library",
   "license": "UNLICENSED",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "files": [
     "dist/*.js",
     "package.json"
   ],
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
     "./*": {
       "import": "./dist/*.js",
       "require": "./dist/*.js",
