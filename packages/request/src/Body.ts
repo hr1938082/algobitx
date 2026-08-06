@@ -51,9 +51,7 @@ class Body {
     }
 
     private async doParse(): Promise<unknown> {
-
         const method = (this.request.method || "GET") as HttpMethod;
-
         if (Body.noBodyMethods.has(method)) return;
 
         const lengthHeader = this.request.headers["content-length"];
@@ -65,7 +63,6 @@ class Body {
             );
 
         if (lengthHeader) {
-
             const length = Number(lengthHeader);
 
             if (!Number.isFinite(length) || length < 0 || !Number.isInteger(length))
