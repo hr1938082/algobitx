@@ -51,7 +51,9 @@ class Session {
     private setCookie(): void {
         const { name, lifetime, ...rest } = Session.config;
 
-        if (!this.id) throw new InternalServerException("Session has not been started");
+        if (!this.id) throw new InternalServerException(
+            new Error("Session has not been started")
+        );
 
         const encId = Buffer
             .from(Crypt.encrypt(this.id))
@@ -148,7 +150,9 @@ class Session {
             return;
         }
 
-        if (!this.id) throw new InternalServerException("Session has not been started");
+        if (!this.id) throw new InternalServerException(
+            new Error("Session has not been started")
+        );
 
         await Redis.connection().setex(
             this.id,
@@ -162,7 +166,9 @@ class Session {
     }
 
     async regenerate(): Promise<void> {
-        if (!this.id) throw new InternalServerException("Session has not been started");
+        if (!this.id) throw new InternalServerException(
+            new Error("Session has not been started")
+        );
         const oldId = this.id;
 
         this.id = this.generateId();
