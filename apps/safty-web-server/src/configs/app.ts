@@ -6,7 +6,8 @@ const app = {
     env: process.env.NODE_ENV || 'development',
     port: ValidatePort('app port', process.env.APP_PORT) || 8000,
     url: process.env.APP_URL || `http://localhost:${process.env.APP_PORT || 8000}`,
-    timezone: process.env.APP_TIMEZONE || 'UTC'
+    timezone: process.env.APP_TIMEZONE || 'UTC',
+    force_https: false
 }
 
 export default app;
