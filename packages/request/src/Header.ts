@@ -63,6 +63,13 @@ interface StrictIncomingHttpHeaders {
     "x-real-ip"?: string;
 }
 
-export type StrictHeaderKey = keyof StrictIncomingHttpHeaders;
+type StrictHeaderKey = keyof StrictIncomingHttpHeaders;
 
-export type StrictHeaderValue<K extends StrictHeaderKey> = StrictIncomingHttpHeaders[K];
+type StrictHeaderValue<K extends StrictHeaderKey> = StrictIncomingHttpHeaders[K];
+
+export type HeaderKey = StrictHeaderKey | Lowercase<string>;
+
+export type HeaderValue<K extends HeaderKey> =
+    K extends StrictHeaderKey
+    ? StrictHeaderValue<K>
+    : string | string[];

@@ -74,7 +74,15 @@ export interface StrictOutgoingHttpHeaders {
 
 type StrictHeaderKey = keyof StrictOutgoingHttpHeaders;
 
-type StrictHeaderValue<K extends StrictHeaderKey> = StrictOutgoingHttpHeaders[K];
+type StrictHeaderValue<K extends StrictHeaderKey> =
+    StrictOutgoingHttpHeaders[K];
+
+type HeaderKey = StrictHeaderKey | Lowercase<string>;
+
+type HeaderValue<K extends HeaderKey> =
+    K extends StrictHeaderKey
+    ? StrictHeaderValue<K>
+    : string | string[];
 
 class Response {
     private readonly raw: ServerResponse;
@@ -83,25 +91,30 @@ class Response {
         this.raw = raw;
     }
 
-    getHeader<K extends StrictHeaderKey>(key: K): StrictHeaderValue<K> | undefined {
-        return this.raw.getHeader(key) as (StrictHeaderValue<K> | undefined)
+    getHeader<K extends HeaderKey>(key: K): HeaderValue<K> | undefined {
+        return this.raw.getHeader(key) as (HeaderValue<K> | undefined)
     }
 
-    setHeader<K extends StrictHeaderKey>(name: K, value: StrictHeaderValue<K>) {
-        if (!this.raw.headersSent) this.raw.setHeader(name, value);
+    private get canWrite() {
+        return !this.raw.headersSent && !this.raw.writableEnded
+    }
+
+    setHeader<K extends HeaderKey>(name: K, value: HeaderValue<K>) {
+        if (this.canWrite) this.raw.setHeader(name, value);
         return this;
     }
 
-    status(code: number) {
-        if (!this.raw.headersSent) this.raw.statusCode = code;
+
+    private status(code: number) {
+        if (this.canWrite) this.raw.statusCode = code;
         return this;
     }
 
-    private end(data: any, callback?: () => void) {
+    private end(data: unknown, callback?: () => void) {
         this.raw.end(data, callback);
     }
 
-    json(data: any, statusCode: number = 200) {
+    json(data: unknown, statusCode: number = 200) {
         this.status(statusCode)
             .setHeader("content-type", "application/json; charset=utf-8")
             .end(JSON.stringify(data));

@@ -7,7 +7,7 @@ import URL from '@algobitx/url';
 import Body from './Body';
 import IP from './IP';
 import InternalServerException from '@algobitx/exception/http/InternalServerException';
-import { StrictHeaderKey, StrictHeaderValue } from './Header';
+import { HeaderKey, HeaderValue } from './Header';
 import Config from '@algobitx/config-loader';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -21,8 +21,8 @@ class Request {
 
     constructor(private readonly raw: IncomingMessage) { }
 
-    header<K extends StrictHeaderKey>(key: K): StrictHeaderValue<K> {
-        return this.raw.headers[key] as StrictHeaderValue<K>;
+    header<K extends HeaderKey>(key: K): HeaderValue<K> {
+        return this.raw.headers[key] as HeaderValue<K>;
     }
 
     get method(): HttpMethod {
