@@ -1,9 +1,11 @@
 abstract class Exception extends Error {
     constructor(
-        message: string
+        message: string,
+        options?: ErrorOptions
     ) {
-        super(message);
-        this.name = this.constructor.name;
+        super(message, options);
+        this.name = new.target.name;
+        Error.captureStackTrace?.(this, new.target)
     }
 
     abstract report(): void | Promise<void>
