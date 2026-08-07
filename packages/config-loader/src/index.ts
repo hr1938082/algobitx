@@ -82,7 +82,7 @@ const LoadConfig = () => ConfigLoader.loadConfig();
  * @typeParam P - A valid configuration path from {@link ConfigData}.
  * @param key Dot-separated configuration key.
  * @returns The configuration value associated with the specified key.
- * @returns undefined if the the configuration with the specified key not found.
+ * @returns `undefined` if the specified configuration key is not found.
  *
  * @throws {Error}
  * - If {@link Load} has not been called.
