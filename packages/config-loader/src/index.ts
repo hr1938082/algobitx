@@ -24,6 +24,8 @@ export type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}
  *
  * Load();
  * ```
+ * For environments where the process environment has already been
+ * initialized (such as worker threads), use {@link LoadConfig} instead.
  */
 const Load = () => ConfigLoader.load();
 
@@ -36,6 +38,12 @@ const Load = () => ConfigLoader.load();
  *
  * The `app.dir` property is automatically added and contains the
  * application's root directory.
+ * 
+ * Unlike {@link Load}, this function does **not** load the `.env` file.
+ * It assumes `APP_DIR` has already been initialized.
+ * 
+ * This is primarily intended for worker threads or other environments
+ * where the process environment has already been prepared.
  *
  * @throws {Error}
  * Thrown if the `configs` directory cannot be found.
@@ -57,6 +65,10 @@ const Load = () => ConfigLoader.load();
  *   mail: { ... }
  * }
  * ```
+ * 
+ * // Worker thread
+ * LoadConfig();
+ * 
  */
 const LoadConfig = () => ConfigLoader.loadConfig();
 
@@ -70,10 +82,10 @@ const LoadConfig = () => ConfigLoader.loadConfig();
  * @typeParam P - A valid configuration path from {@link ConfigData}.
  * @param key Dot-separated configuration key.
  * @returns The configuration value associated with the specified key.
+ * @returns undefined if the the configuration with the specified key not found.
  *
  * @throws {Error}
  * - If {@link Load} has not been called.
- * - If the specified configuration key does not exist.
  *
  * @example
  * ```ts

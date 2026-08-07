@@ -5,8 +5,14 @@ import { DotPath, PathValue } from ".";
 import TypeGen from "@algobitx/type-gen";
 
 class ConfigLoader {
+    private static readonly READABLE_EXTENSIONS = [
+        ".js",
+        ".cjs",
+        ".mjs",
+        ".ts",
+    ];
 
-    private static config: Record<string, any> = {};
+    private static config: ConfigData;
 
     private static getBaseDir() {
         let baseFileName: string | null = null;
@@ -54,6 +60,18 @@ class ConfigLoader {
         }
     }
 
+    private static deepFreeze<T>(obj: T): T {
+        if (obj && typeof obj === "object" && !Object.isFrozen(obj)) {
+            Object.freeze(obj);
+
+            for (const value of Object.values(obj)) {
+                ConfigLoader.deepFreeze(value);
+            }
+        }
+
+        return obj;
+    }
+
     static loadConfig() {
         let configDir = join(process.env.APP_DIR as string, 'configs');
 
@@ -61,11 +79,10 @@ class ConfigLoader {
             throw new Error(`ConfigLoader directory not found: ${configDir}`);
         }
 
-        const readableEXT = [".js", ".cjs", ".mjs", ".ts"];
+        const files = readdirSync(configDir)
+            .filter(file => this.READABLE_EXTENSIONS.includes(extname(file).toLowerCase()));
 
-        const files = readdirSync(configDir).filter(file => readableEXT.includes(extname(file).toLowerCase()));
-
-        const cfg: Record<string, any> = {};
+        const cfg: ConfigData = {};
 
         for (const file of files) {
             const fullPath = join(configDir, file);
@@ -76,7 +93,7 @@ class ConfigLoader {
 
         cfg.app = { ...(cfg.app ?? {}), dir: process.env["APP_DIR"] };
 
-        this.config = cfg as ConfigData;
+        this.config = this.deepFreeze(cfg);
     }
 
     static load() {
@@ -102,17 +119,15 @@ class ConfigLoader {
     }
 
     private static get<P extends DotPath<ConfigData>>(path: P): PathValue<ConfigData, P> {
-        if (!Object.keys(this.config).length) throw new Error("ConfigLoader not initialized. Call ConfigLoader.load() first.");
+        if (!this.config) throw new Error("ConfigLoader not initialized. Call ConfigLoader.load() first.");
         const parts = String(path).split(".");
         let cur: any = this.config;
-        let msg = ``;
         for (const seg of parts) {
-            msg += msg.length === 0 ? seg : ` ${seg}`;
             if (cur && typeof cur === "object" && seg in cur) {
                 cur = cur[seg];
             }
             else {
-                cur = undefined;
+                return undefined as PathValue<ConfigData, P>;
             }
         }
         return cur;
