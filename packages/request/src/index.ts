@@ -35,10 +35,18 @@ class Request {
     }
 
     get url() {
-        const hostname = this.header('host');
-        const scheme = 'http://';
-        const origin = hostname ? scheme + hostname : Config('app.url');
-        if (!this._url) this._url = new URL(this.raw.url || "", origin);
+        if (!this._url) {
+            let host = this.header('host');
+            let scheme = 'http://';
+
+            if (this.ip.isTrustedProxy) {
+                host = this.header('x-forwarded-host');
+                scheme = this.header('x-forwarded-proto') || scheme;
+            }
+
+            const origin = host ? scheme + host : Config('app.url');
+            this._url = new URL(this.raw.url || "", origin);
+        }
         return this._url;
     }
 
