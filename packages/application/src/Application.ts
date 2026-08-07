@@ -34,7 +34,7 @@ class Application {
             } catch (err) {
                 const ex = err instanceof Exception
                     ? err
-                    : new InternalServerException(err);
+                    : new InternalServerException(err as Error);
 
                 try {
                     await ex.report();

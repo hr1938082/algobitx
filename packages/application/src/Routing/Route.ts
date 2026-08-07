@@ -91,7 +91,9 @@ class Route {
             if (typeof mw === 'function') {
                 if (mw[ThrottleSymbol] === true) lastThrottle = mw;
                 else out.push(mw);
-            } else throw new InternalServerException("Invalid Middleware!");
+            } else throw new InternalServerException(
+                new Error("Invalid Middleware!")
+            );
         }
 
         return lastThrottle ? [lastThrottle, ...out] : out;
@@ -116,7 +118,9 @@ class Route {
         const fn = instance[handler];
 
         if (typeof fn !== "function") {
-            throw new InternalServerException(`Method "${handler}" not found in controller`);
+            throw new InternalServerException(
+                new Error(`Method "${handler}" not found in controller`)
+            );
         }
 
         return fn.bind(instance);
@@ -129,18 +133,28 @@ class Route {
     private addRoute(method: HttpMethod, path: string, handler: Handler) {
         let finalHandler: Action;
         if (typeof handler === "string") {
-            if (!this.currentController) throw new InternalServerException(`Controller not set for handler: ${handler}`);
+            if (!this.currentController) throw new InternalServerException(
+                new Error(`Controller not set for handler: ${handler}`)
+            );
             finalHandler = this.resolveHandler(this.currentController, handler);
         } else if (Array.isArray(handler)) {
-            if (handler.length !== 2) throw new InternalServerException("Invalid Handler Array");
-            if (!handler[0]) throw new InternalServerException("Controller not set for Handler Array");
-            if (typeof handler[1] !== "string") throw new InternalServerException("Method name must be a string in Handler Array");
-            if (handler[1].trim() === "") throw new InternalServerException("Method name cannot be empty in Handler Array");
+            if (handler.length !== 2) throw new InternalServerException(
+                new Error("Invalid Handler Array")
+            );
+            if (!handler[0]) throw new InternalServerException(
+                new Error("Controller not set for Handler Array")
+            );
+            if (typeof handler[1] !== "string") throw new InternalServerException(
+                new Error("Method name must be a string in Handler Array")
+            );
+            if (handler[1].trim() === "") throw new InternalServerException(
+                new Error("Method name cannot be empty in Handler Array")
+            );
             finalHandler = this.resolveHandler(handler[0], handler[1]);
         } else if (typeof handler === "function") {
             finalHandler = handler;
         } else {
-            throw new InternalServerException("Invalid Handler");
+            throw new InternalServerException(new Error("Invalid Handler"));
         }
 
         this.routes.set(

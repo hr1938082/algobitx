@@ -36,7 +36,9 @@ class Body {
     set cacheBuffer(value: boolean) {
         if (this._body)
             throw new InternalServerException(
-                "Cannot enable raw buffer caching after body parsing has started."
+                new Error(
+                    "Cannot enable raw buffer caching after body parsing has started."
+                )
             );
         this._cacheBuffer = value;
     }
@@ -149,7 +151,9 @@ class Body {
     async getBuffer(): Promise<Buffer | undefined> {
         if (!this._cacheBuffer)
             throw new InternalServerException(
-                "Raw buffer caching is disabled for this request."
+                new Error(
+                    "Raw buffer caching is disabled for this request."
+                )
             );
 
         if (this._buffer) return this._buffer;

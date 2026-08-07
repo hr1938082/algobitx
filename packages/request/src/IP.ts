@@ -63,7 +63,9 @@ class IP {
         if (this._chain) return;
 
         const remote = this.request.socket.remoteAddress;
-        if (!remote) throw new InternalServerException("Unable to determine remote address");
+        if (!remote) throw new InternalServerException(
+            new Error("Unable to determine remote address")
+        );
 
         const remoteAddress = ipaddr.process(remote).toNormalizedString();
 
