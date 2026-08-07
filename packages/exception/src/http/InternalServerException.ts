@@ -3,17 +3,21 @@ import HttpException from "./HttpException";
 
 class InternalServerException extends HttpException {
     constructor(err?: unknown) {
-        super("Internal Server Error", 500);
-        if (err instanceof Error) {
-            this.cause = err.cause;
-            this.stack = err.stack;
-        } else {
-            this.cause = err;
-        }
+        super(
+            "Internal Server Error",
+            500,
+            err instanceof Error
+                ? { cause: err }
+                : undefined
+        );
     }
 
     report(): void | Promise<void> {
-        console.error(this.stack ?? this.cause);
+        if (this.cause instanceof Error) {
+            console.error(this.cause);
+        } else {
+            console.error(this);
+        }
     }
 
     render(res: Response): void | Promise<void> {
