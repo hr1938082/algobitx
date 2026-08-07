@@ -11,7 +11,7 @@ class PayloadTooLargeException extends HttpException {
     }
 
     render(res: Response): void | Promise<void> {
-        res.json({ message: this.message }, 413);
+        res.json({ message: this.message }, this.status);
     }
 }
 
