@@ -2,22 +2,16 @@ import Response from "@algobitx/response";
 import HttpException from "./HttpException";
 
 class InternalServerException extends HttpException {
-    constructor(err?: unknown) {
+    constructor(err?: Error) {
         super(
             "Internal Server Error",
             500,
-            err instanceof Error
-                ? { cause: err }
-                : undefined
+            err ? { cause: err } : undefined
         );
     }
 
     report(): void | Promise<void> {
-        if (this.cause instanceof Error) {
-            console.error(this.cause);
-        } else {
-            console.error(this);
-        }
+        console.error(this);
     }
 
     render(res: Response): void | Promise<void> {
