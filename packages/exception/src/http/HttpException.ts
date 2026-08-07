@@ -11,7 +11,9 @@ abstract class HttpException extends Exception {
         super(message, options);
     }
 
-    abstract render(res: Response): void | Promise<void>
+    render(res: Response): void | Promise<void> {
+        res.json({ message: this.message }, this.status);
+    }
 }
 
 export default HttpException;
