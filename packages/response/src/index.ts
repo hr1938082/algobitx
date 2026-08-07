@@ -91,8 +91,8 @@ class Response {
         this.raw = raw;
     }
 
-    getHeader<K extends HeaderKey>(key: K): HeaderValue<K> | undefined {
-        return this.raw.getHeader(key) as (HeaderValue<K> | undefined)
+    getHeader<K extends HeaderKey>(key: K): HeaderValue<K> {
+        return this.raw.getHeader(key) as HeaderValue<K>;
     }
 
     private get canWrite() {
