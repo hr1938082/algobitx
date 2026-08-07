@@ -8,6 +8,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
+        "noImplicitOverride": true,
         "paths": {
             "@algobitx/type-gen": [
                 "./packages/type-gen"
