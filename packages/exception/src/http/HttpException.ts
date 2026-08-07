@@ -5,10 +5,10 @@ abstract class HttpException extends Exception {
 
     constructor(
         message: string,
-        protected readonly status: number = 500
+        protected readonly status: number = 500,
+        options?: ErrorOptions
     ) {
-        super(message);
-        this.name = this.constructor.name;
+        super(message, options);
     }
 
     abstract render(res: Response): void | Promise<void>
