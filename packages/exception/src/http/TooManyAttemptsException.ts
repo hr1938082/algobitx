@@ -10,7 +10,7 @@ class TooManyAttemptsException extends HttpException {
     }
 
     report(): void | Promise<void> {
-        console.error(this.message);
+        console.error(this);
     }
 
     render(res: Response): void | Promise<void> {
