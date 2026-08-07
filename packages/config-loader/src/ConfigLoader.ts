@@ -44,7 +44,9 @@ class ConfigLoader {
             const shouldTrimValue = (value.startsWith('"') && value.endsWith('"'))
                 || (value.startsWith("'") && value.endsWith("'"));
 
-            if (shouldTrimValue) value.slice(1, -1);
+            if (shouldTrimValue) {
+                value = value.slice(1, -1);
+            }
 
             const key = m[1];
 
