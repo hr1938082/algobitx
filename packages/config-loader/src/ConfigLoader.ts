@@ -109,7 +109,9 @@ class ConfigLoader {
             if (cur && typeof cur === "object" && seg in cur) {
                 cur = cur[seg];
             }
-            else throw new Error(`${msg} not found in collected config`);
+            else {
+                cur = undefined;
+            }
         }
         return cur;
     }
