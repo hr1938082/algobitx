@@ -110,7 +110,7 @@ class Response {
         return this;
     }
 
-    private end(data: unknown, callback?: () => void) {
+    private end(data?: string | Uint8Array, callback?: () => void) {
         this.raw.end(data, callback);
     }
 
