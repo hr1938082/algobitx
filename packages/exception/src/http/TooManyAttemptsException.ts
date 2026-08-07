@@ -13,7 +13,7 @@ class TooManyAttemptsException extends HttpException {
         console.error(this);
     }
 
-    render(res: Response): void | Promise<void> {
+    override render(res: Response): void | Promise<void> {
         res.json(
             {
                 message: this.message,
