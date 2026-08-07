@@ -14,6 +14,9 @@ export type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}
  * - Loads variables from the `.env` file.
  * - Loads all configuration files from the `configs` directory.
  * - Generates the `ConfigData` TypeScript interface in development mode.
+ * 
+ * For environments where the process environment has already been
+ * initialized (such as worker threads), use {@link LoadConfig} instead.
  *
  * @throws {Error}
  * Thrown if the `.env` file or configuration directory cannot be found.
@@ -24,8 +27,6 @@ export type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}
  *
  * Load();
  * ```
- * For environments where the process environment has already been
- * initialized (such as worker threads), use {@link LoadConfig} instead.
  */
 const Load = () => ConfigLoader.load();
 
