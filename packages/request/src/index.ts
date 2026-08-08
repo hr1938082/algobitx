@@ -39,8 +39,9 @@ class Request {
             let scheme = 'http://';
 
             if (this.ip.isTrustedProxy) {
-                host = this.header('x-forwarded-host');
-                scheme = this.header('x-forwarded-proto') || scheme;
+                host = this.header('x-forwarded-host') || host;
+                const rawScheme = this.header('x-forwarded-proto')
+                scheme = rawScheme ? `${rawScheme}://` : scheme;
             }
 
             const origin = host ? scheme + host : Config('app.url');

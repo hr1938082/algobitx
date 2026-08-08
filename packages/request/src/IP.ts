@@ -1,4 +1,5 @@
 import Config from "@algobitx/config-loader";
+import BadRequestException from "@algobitx/exception/http/BadRequestException";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import ipaddr from "ipaddr.js";
 import { IncomingMessage } from "node:http";
@@ -94,10 +95,20 @@ class IP {
 
         const forwardedAddresses: string[] = [];
         for (const ip of forwardedForArr) {
+            const value = ip.trim();
+
+            if (!value) throw new BadRequestException(
+                "Invalid X-Forwarded-For header."
+            );
+
             try {
-                forwardedAddresses.push(ipaddr.process(ip.trim()).toNormalizedString());
+                forwardedAddresses.push(
+                    ipaddr.process(value).toNormalizedString()
+                );
             } catch {
-                // Ignore invalid forwarded IP
+                throw new BadRequestException(
+                    "Invalid X-Forwarded-For header."
+                );
             }
         }
 

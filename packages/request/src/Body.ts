@@ -1,19 +1,10 @@
 import { IncomingMessage } from "node:http";
-import { HttpMethod } from ".";
 import BadRequestException from "@algobitx/exception/http/BadRequestException";
 import PayloadTooLargeException from "@algobitx/exception/http/PayloadTooLargeException";
 import RequestAbortedException from "@algobitx/exception/server/RequestAbortedException";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 class Body {
-    private static readonly noBodyMethods = new Set([
-        "GET",
-        "HEAD",
-        "OPTIONS",
-        "TRACE",
-        "CONNECT"
-    ]);
-
     private _maxBodySize: number = 1024 * 1024; // byte
     private _cacheBuffer: boolean = false;
     private _buffer?: Buffer;
@@ -26,6 +17,18 @@ class Body {
     }
 
     set maxBodySize(byte: number) {
+        if (this._body)
+            throw new InternalServerException(
+                new Error(
+                    "Cannot change maxBodySize after body parsing has started."
+                )
+            );
+
+        if (!Number.isSafeInteger(byte) || byte < 0)
+            throw new InternalServerException(
+                new RangeError("maxBodySize must be a non-negative integer.")
+            )
+
         this._maxBodySize = byte;
     }
 
@@ -53,21 +56,20 @@ class Body {
     }
 
     private async doParse(): Promise<unknown> {
-        const method = (this.request.method || "GET") as HttpMethod;
-        if (Body.noBodyMethods.has(method)) return;
-
         const lengthHeader = this.request.headers["content-length"];
         const transferEncoding = this.request.headers["transfer-encoding"];
 
-        if (lengthHeader && transferEncoding)
-            throw new BadRequestException(
-                "Content-Length and Transfer-Encoding cannot both be present."
-            );
+        if (lengthHeader && transferEncoding) throw new BadRequestException(
+            "Content-Length and Transfer-Encoding cannot both be present."
+        );
 
         if (lengthHeader) {
+            if (!/^\d+$/.test(lengthHeader))
+                throw new BadRequestException("Invalid Content-Length");
+
             const length = Number(lengthHeader);
 
-            if (!Number.isFinite(length) || length < 0 || !Number.isInteger(length))
+            if (!Number.isSafeInteger(length))
                 throw new BadRequestException("Invalid Content-Length");
 
             if (length > this._maxBodySize) throw new PayloadTooLargeException();
@@ -75,6 +77,14 @@ class Body {
             if (length === 0) return;
 
         } else if (!transferEncoding) return;
+
+        let type = (this.request.headers['content-type'] || "")
+            .split(';')[0]
+            .trim()
+            .toLowerCase();
+
+        if (type !== "" && type !== 'application/json' && !type.endsWith('+json'))
+            throw new BadRequestException("Unsupported Content-Type: " + type);
 
         const chunks: Buffer[] = [];
         let received: number = 0;
@@ -86,8 +96,8 @@ class Body {
 
                 if (received > this._maxBodySize) {
                     const error = new PayloadTooLargeException();
-                    cleanup();
                     this.request.destroy(error);
+                    cleanup();
                     reject(error);
                     return;
                 }
@@ -129,14 +139,6 @@ class Body {
 
         if (this._cacheBuffer) this._buffer = raw;
 
-        let type = (this.request.headers['content-type'] || "")
-            .split(';')[0]
-            .trim()
-            .toLowerCase();
-
-        if (type !== "" && type !== 'application/json' && !type.endsWith('+json'))
-            throw new BadRequestException("Unsupported Content-Type: " + type);
-
         try {
             return JSON.parse(raw.toString());
         } catch {
@@ -171,7 +173,9 @@ class Body {
     async get<T = unknown>(key: string): Promise<T | undefined> {
         const body = await this.parse();
         if (!body || !Body.isPlainObject(body)) return;
-        return (key in body ? body[key] : undefined) as T | undefined;
+        return Object.hasOwn(body, key)
+            ? body[key] as T
+            : undefined;
     };
 
     async only<T extends Record<string, unknown>>(...keys: (keyof T)[]): Promise<T> {
@@ -182,7 +186,7 @@ class Body {
         if (!body || !Body.isPlainObject(body)) return result as T;
 
         for (const key of keys)
-            if (key in body)
+            if (Object.hasOwn(body, key))
                 result[key as string] = body[key as string];
 
         return result as T;
@@ -191,7 +195,7 @@ class Body {
     async all<T extends Record<string, unknown>>(): Promise<T> {
         const body = await this.parse();
         if (!body || !Body.isPlainObject(body)) return {} as T;
-        return body as T;
+        return { ...body } as T;
     };
 }
 
