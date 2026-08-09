@@ -74,14 +74,11 @@ export interface StrictOutgoingHttpHeaders {
 
 type StrictHeaderKey = keyof StrictOutgoingHttpHeaders;
 
-type StrictHeaderValue<K extends StrictHeaderKey> =
-    StrictOutgoingHttpHeaders[K];
-
-type HeaderKey = StrictHeaderKey | Lowercase<string>;
+type HeaderKey = StrictHeaderKey | (string & {});
 
 type HeaderValue<K extends HeaderKey> =
     K extends StrictHeaderKey
-    ? StrictHeaderValue<K>
+    ? StrictOutgoingHttpHeaders[K]
     : string | string[];
 
 class Response {

@@ -65,11 +65,9 @@ interface StrictIncomingHttpHeaders {
 
 type StrictHeaderKey = keyof StrictIncomingHttpHeaders;
 
-type StrictHeaderValue<K extends StrictHeaderKey> = StrictIncomingHttpHeaders[K];
-
-export type HeaderKey = StrictHeaderKey | Lowercase<string>;
+export type HeaderKey = StrictHeaderKey | (string & {});
 
 export type HeaderValue<K extends HeaderKey> =
     K extends StrictHeaderKey
-    ? StrictHeaderValue<K>
+    ? StrictIncomingHttpHeaders[K]
     : string | string[];
