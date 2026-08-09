@@ -86,7 +86,7 @@ class ConfigLoader {
             const fullPath = join(configDir, file);
             const key = basename(file, extname(file));
             const mod = require(fullPath);
-            cfg[key] = mod.default || mod;
+            cfg[key] = "default" in mod ? mod.default : mod;
         }
 
         cfg.app = { ...(cfg.app ?? {}), dir: process.env["APP_DIR"] };
