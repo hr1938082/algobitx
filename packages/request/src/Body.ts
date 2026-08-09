@@ -48,9 +48,8 @@ class Body {
 
     private static isPlainObject(value: unknown): value is Record<string, unknown> {
         return (
-            typeof value === "object" &&
             value !== null &&
-            !Array.isArray(value) &&
+            typeof value === "object" &&
             Object.getPrototypeOf(value) === Object.prototype
         );
     }
