@@ -106,7 +106,6 @@ class ConfigLoader {
                 {
                     export: {
                         name: 'ConfigData',
-                        type: 'interface',
                         default: true
                     },
                     write: {
