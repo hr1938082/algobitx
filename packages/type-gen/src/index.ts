@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 export interface EmitDeclarationOptions {
@@ -74,7 +74,7 @@ class TypeGen {
                 if (value instanceof URL) return "URL";
 
                 if (value instanceof Map) {
-                    if (value.size === 0) return "Map<unknown,unknown>";
+                    if (value.size === 0) return "Map<unknown, unknown>";
 
                     const keyTypes = new Set<string>();
                     const valueTypes = new Set<string>();
@@ -157,6 +157,13 @@ class TypeGen {
         return `${keyword} interface ${options.name} ${types}`;
     }
 
+    private static isPlainObject(value: unknown): value is Record<string, unknown> {
+        if (value === null || typeof value !== "object") return false;
+
+        const prototype = Object.getPrototypeOf(value);
+        return prototype === Object.prototype || prototype === null;
+    }
+
     /**
      * Generates either a TypeScript type or interface declaration.
      *
@@ -176,9 +183,7 @@ class TypeGen {
      * );
      */
     static emitDeclaration(value: unknown, options: EmitDeclarationOptions) {
-        return value !== null &&
-            typeof value === "object" &&
-            Object.getPrototypeOf(value) === Object.prototype
+        return this.isPlainObject(value)
             ? this.emitInterface(value, options)
             : this.emitType(value, options);
     }
@@ -203,7 +208,6 @@ class TypeGen {
      *   },
      *   {
      *     export: {
-     *       type: "interface",
      *       name: "User"
      *     },
      *     write: {
@@ -215,6 +219,8 @@ class TypeGen {
      */
     static writeToFile(value: unknown, options: WriteToFileOptions): void {
         const { export: exportOptions, write } = options;
+
+        mkdirSync(write.path, { recursive: true });
 
         const outPath = join(write.path, `${write.name ?? exportOptions.name}.d.ts`);
         const dtsContent = this.emitDeclaration(value, exportOptions);
