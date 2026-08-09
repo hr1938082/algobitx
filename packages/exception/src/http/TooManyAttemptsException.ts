@@ -10,6 +10,7 @@ class TooManyAttemptsException extends HttpException {
     }
 
     override render(res: Response): void | Promise<void> {
+        res.setHeader('retry-after', this.retryTimeInSeconds.toString());
         res.json(
             {
                 message: this.message,
