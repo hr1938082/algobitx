@@ -1,13 +1,9 @@
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-export interface BaseEmitOptions {
+export interface EmitDeclarationOptions {
     name: string;
     default?: boolean;
-}
-
-export interface EmitDeclarationOptions extends BaseEmitOptions {
-    type: 'type' | 'interface';
 }
 
 export interface WriteConfig {
@@ -53,7 +49,7 @@ class TypeGen {
      * //     active: boolean;
      * // }
      */
-    static generate(value: unknown, depth: number = 0): string {
+    static generate(value: unknown, depth: number = 0, seen: WeakSet<object> = new WeakSet()): string {
         if (value === null) return "null";
         if (value === undefined) return "undefined";
 
@@ -66,58 +62,65 @@ class TypeGen {
         if (type === "symbol") return "symbol";
 
         if (type === "object") {
-            if (Buffer.isBuffer(value)) {
-                return "Buffer";
-            } else if (value instanceof RegExp) {
-                return "RegExp";
-            } else if (value instanceof Date) {
-                return "Date";
-            } else if (value instanceof URL) {
-                return "URL";
-            } else if (value instanceof Map) {
-                if (value.size === 0) return "Map<unknown,unknown>";
+            if (seen.has(value)) return "unknown";
+            seen.add(value);
 
-                const keyTypes = new Set();
-                const valueTypes = new Set();
+            try {
 
-                for (const [key, val] of value.entries()) {
-                    keyTypes.add(this.generate(key));
-                    valueTypes.add(this.generate(val));
+                if (Buffer.isBuffer(value)) return "Buffer";
+                if (value instanceof RegExp) return "RegExp";
+                if (value instanceof Date) return "Date";
+                if (value instanceof URL) return "URL";
+
+                if (value instanceof Map) {
+                    if (value.size === 0) return "Map<unknown,unknown>";
+
+                    const keyTypes = new Set();
+                    const valueTypes = new Set();
+
+                    for (const [key, val] of value.entries()) {
+                        keyTypes.add(this.generate(key, depth + 1, seen));
+                        valueTypes.add(this.generate(val, depth + 1, seen));
+                    }
+
+                    return `Map<${[...keyTypes].join(" | ")}, ${[...valueTypes].join(" | ")}>`;
                 }
 
-                return `Map<${[...keyTypes].join(" | ")}, ${[...valueTypes].join(" | ")}>`;
-            } else if (value instanceof Set) {
-                if (value.size === 0) return "Set<unknown>";
+                if (value instanceof Set) {
+                    if (value.size === 0) return "Set<unknown>";
 
-                const types = new Set();
+                    const types = new Set();
 
-                for (const item of value)
-                    types.add(this.generate(item, depth + 1));
+                    for (const item of value)
+                        types.add(this.generate(item, depth + 1, seen));
 
-                return `Set<${[...types].join(" | ")}>`;
-            } else if (Array.isArray(value)) {
-                if (value.length === 0) return "unknown[]";
+                    return `Set<${[...types].join(" | ")}>`;
+                }
 
-                const elementTypes: string[] = Array.from(
-                    new Set(
-                        value.map((v: unknown) =>
-                            this.generate(v, depth + 1)
+                if (Array.isArray(value)) {
+                    if (value.length === 0) return "unknown[]";
+
+                    const elementTypes: string[] = Array.from(
+                        new Set(
+                            value.map((v: unknown) =>
+                                this.generate(v, depth + 1, seen)
+                            )
                         )
-                    )
-                );
-
-                if (elementTypes.length === 1)
-                    return `${elementTypes[0]}[]`;
-
-                if (value.length <= 5) {
-                    const tuple = value.map((v: unknown) =>
-                        this.generate(v, depth + 1)
                     );
-                    return `[${tuple.join(", ")}]`;
-                } else {
-                    return `(${elementTypes.join(" | ")})[]`;
+
+                    if (elementTypes.length === 1)
+                        return `${elementTypes[0]}[]`;
+
+                    if (value.length <= 5) {
+                        const tuple = value.map((v: unknown) =>
+                            this.generate(v, depth + 1, seen)
+                        );
+                        return `[${tuple.join(", ")}]`;
+                    } else {
+                        return `(${elementTypes.join(" | ")})[]`;
+                    }
                 }
-            } else {
+
                 const obj = value as Record<string, unknown>
                 const keys = Object.keys(obj);
 
@@ -130,61 +133,28 @@ class TypeGen {
 
                     return `${this.indent(depth + 1)}${safeKey}: ${this.generate(
                         obj[k],
-                        depth + 1
+                        depth + 1,
+                        seen
                     )};`;
                 });
 
                 return `{\n${fields.join("\n")}\n${this.indent(depth)}}`;
+
+            } finally {
+                seen.delete(value);
             }
         }
 
         return "unknown";
     }
 
-
-    /**
-     * Generates an exported TypeScript type declaration.
-     *
-     * @param value The value used to infer the type.
-     * @param options Configuration for the generated type.
-     * @returns A complete TypeScript type declaration.
-     *
-     * @example
-     * TypeGen.emitType(
-     *   { id: 1, name: "John" },
-     *   { name: "User" }
-     * );
-     *
-     * // export type User = {
-     * //     id: number;
-     * //     name: string;
-     * // };
-     */
-    static emitType(value: any, options: BaseEmitOptions): string {
+    private static emitType(value: any, options: EmitDeclarationOptions): string {
         const keyword = options.default ? "export default" : "export";
         const types = this.generate(value);
         return `${keyword} type ${options.name} = ${types};`;
     }
 
-    /**
-     * Generates an exported TypeScript interface declaration.
-     *
-     * @param value The value used to infer the interface.
-     * @param options Configuration for the generated interface.
-     * @returns A complete TypeScript interface declaration.
-     *
-     * @example
-     * TypeGen.emitInterface(
-     *   { id: 1, name: "John" },
-     *   { name: "User" }
-     * );
-     *
-     * // export interface User {
-     * //     id: number;
-     * //     name: string;
-     * // }
-     */
-    static emitInterface(value: any, options: BaseEmitOptions): string {
+    private static emitInterface(value: any, options: EmitDeclarationOptions): string {
         const keyword = options.default ? "export default" : "export";
         const types = this.generate(value);
         return `${keyword} interface ${options.name} ${types}`;
@@ -193,8 +163,8 @@ class TypeGen {
     /**
      * Generates either a TypeScript type or interface declaration.
      *
-     * The declaration type is determined by the `type` property
-     * in the provided options.
+     * Plain objects are emitted as interfaces.
+     * All other values are emitted as type aliases.
      *
      * @param value The value used to infer the declaration.
      * @param options Declaration configuration.
@@ -204,15 +174,16 @@ class TypeGen {
      * TypeGen.emitDeclaration(
      *   { id: 1 },
      *   {
-     *     type: "interface",
      *     name: "User"
      *   }
      * );
      */
     static emitDeclaration(value: any, options: EmitDeclarationOptions) {
-        return options.type === 'type'
-            ? this.emitType(value, options)
-            : this.emitInterface(value, options);
+        return value !== null &&
+            typeof value === "object" &&
+            Object.getPrototypeOf(value) === Object.prototype
+            ? this.emitInterface(value, options)
+            : this.emitType(value, options);
     }
 
     /**
@@ -249,25 +220,11 @@ class TypeGen {
         const { export: exportOptions, write } = options;
 
         const outPath = join(write.path, `${write.name ?? exportOptions.name}.d.ts`);
-        const outExists = existsSync(outPath);
-
-        let oldContent = "";
-        if (outExists) {
-            oldContent = readFileSync(outPath, { encoding: "utf-8" });
-        }
-
         const dtsContent = this.emitDeclaration(value, exportOptions);
 
-        if (write.comparison && oldContent.trim() === dtsContent.trim()) {
-            return;
-        }
-
-        if (outExists) {
-            try {
-                unlinkSync(outPath);
-            } catch (err) {
-                console.warn(`Failed to delete existing ${outPath}:`, err);
-            }
+        if (write.comparison && existsSync(outPath)) {
+            const oldContent = readFileSync(outPath, { encoding: "utf-8" });
+            if (oldContent.trim() === dtsContent.trim()) return;
         }
 
         writeFileSync(outPath, dtsContent, "utf8");
