@@ -8,10 +8,6 @@ class InternalServerException extends HttpException {
             err ? { cause: err } : undefined
         );
     }
-
-    report(): void | Promise<void> {
-        console.error(this);
-    }
 }
 
 export default InternalServerException

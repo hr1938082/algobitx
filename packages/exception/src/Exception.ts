@@ -8,7 +8,9 @@ abstract class Exception extends Error {
         Error.captureStackTrace?.(this, new.target)
     }
 
-    abstract report(): void | Promise<void>
+    report() {
+        console.error(this);
+    }
 }
 
 export default Exception;

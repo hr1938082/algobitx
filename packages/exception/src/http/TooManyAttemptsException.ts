@@ -9,10 +9,6 @@ class TooManyAttemptsException extends HttpException {
         super("Too Many Attempts", 429);
     }
 
-    report(): void | Promise<void> {
-        console.error(this);
-    }
-
     override render(res: Response): void | Promise<void> {
         res.json(
             {

@@ -5,7 +5,7 @@ class RequestAbortedException extends Exception {
         super("Request Aborted");
     }
 
-    report(): void | Promise<void> { }
+    override report(): void { }
 
 }
 
