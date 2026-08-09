@@ -70,7 +70,13 @@ class ConfigLoader {
     }
 
     static loadConfig() {
-        let configDir = join(process.env.APP_DIR as string, 'configs');
+        const appDir = process.env.APP_DIR;
+
+        if (!appDir) throw new Error(
+            "APP_DIR is not initialized. Call Load() first."
+        );
+
+        let configDir = join(appDir, 'configs');
 
         if (!existsSync(configDir)) {
             throw new Error(`ConfigLoader directory not found: ${configDir}`);
