@@ -5,6 +5,7 @@ import { DotPath, PathValue } from ".";
 import TypeGen from "@algobitx/type-gen";
 
 class ConfigLoader {
+    private static loaded = false;
     private static readonly READABLE_EXTENSIONS = [
         ".js",
         ".ts",
@@ -52,8 +53,7 @@ class ConfigLoader {
             }
 
             const key = m[1];
-
-            process.env[key] = value;
+            process.env[key] ??= value;
         }
     }
 
@@ -69,14 +69,23 @@ class ConfigLoader {
         return obj;
     }
 
+    private static isPlainObject(value: unknown): value is Record<string, unknown> {
+        if (value === null || typeof value !== "object") return false;
+
+        const prototype = Object.getPrototypeOf(value);
+        return prototype === Object.prototype || prototype === null;
+    }
+
     static loadConfig() {
+        if (this.config) return;
+
         const appDir = process.env.APP_DIR;
 
         if (!appDir) throw new Error(
             "APP_DIR is not initialized. Call Load() first."
         );
 
-        let configDir = join(appDir, 'configs');
+        const configDir = join(appDir, 'configs');
 
         if (!existsSync(configDir)) {
             throw new Error(`ConfigLoader directory not found: ${configDir}`);
@@ -90,16 +99,26 @@ class ConfigLoader {
         for (const file of files) {
             const fullPath = join(configDir, file);
             const key = basename(file, extname(file));
+
+            if (Object.hasOwn(cfg, key)) throw new Error(
+                `Duplicate config name detected: ${key}`
+            );
+
             const mod = require(fullPath);
             cfg[key] = "default" in mod ? mod.default : mod;
         }
 
-        cfg.app = { ...(cfg.app ?? {}), dir: process.env["APP_DIR"] };
+        if (cfg.app !== undefined && !this.isPlainObject(cfg.app))
+            throw new Error("Config 'app' must export an object.");
+
+        cfg.app = { ...(cfg.app ?? {}), dir: appDir };
 
         this.config = this.deepFreeze(cfg);
     }
 
     static load() {
+        if (this.loaded) return;
+
         this.loadENV()
         this.loadConfig();
 
@@ -118,21 +137,23 @@ class ConfigLoader {
                 }
             )
         }
+
+        this.loaded = true;
     }
 
     private static get<P extends DotPath<ConfigData>>(path: P): PathValue<ConfigData, P> {
         if (!this.config) throw new Error("ConfigLoader not initialized. Call ConfigLoader.load() first.");
         const parts = String(path).split(".");
-        let cur: any = this.config;
+        let cur: unknown = this.config;
         for (const seg of parts) {
-            if (cur && typeof cur === "object" && seg in cur) {
-                cur = cur[seg];
+            if (cur && typeof cur === "object" && Object.hasOwn(cur, seg)) {
+                cur = (cur as Record<string, unknown>)[seg];
             }
             else {
                 return undefined as PathValue<ConfigData, P>;
             }
         }
-        return cur;
+        return cur as PathValue<ConfigData, P>;
     }
 }
 
