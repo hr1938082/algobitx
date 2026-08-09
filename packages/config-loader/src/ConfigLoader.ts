@@ -7,8 +7,6 @@ import TypeGen from "@algobitx/type-gen";
 class ConfigLoader {
     private static readonly READABLE_EXTENSIONS = [
         ".js",
-        ".cjs",
-        ".mjs",
         ".ts",
     ];
 
