@@ -53,8 +53,9 @@ class TypeGen {
      * //     active: boolean;
      * // }
      */
-    static generate(value: any, depth: number = 0): string {
+    static generate(value: unknown, depth: number = 0): string {
         if (value === null) return "null";
+        if (value === undefined) return "undefined";
 
         const type = typeof value;
 
@@ -62,41 +63,82 @@ class TypeGen {
         if (type === 'number') return 'number';
         if (type === 'bigint') return 'bigint';
         if (type === 'boolean') return 'boolean';
-        if (type === 'undefined') return 'undefined';
+        if (type === "symbol") return "symbol";
 
         if (type === "object") {
-            if (Array.isArray(value)) {
-                if (value.length === 0) return "any[]";
+            if (Buffer.isBuffer(value)) {
+                return "Buffer";
+            } else if (value instanceof RegExp) {
+                return "RegExp";
+            } else if (value instanceof Date) {
+                return "Date";
+            } else if (value instanceof URL) {
+                return "URL";
+            } else if (value instanceof Map) {
+                if (value.size === 0) return "Map<unknown,unknown>";
 
-                const elementTypes: string[] = Array.from(
-                    new Set(value.map((v: any) => this.generate(v, depth + 1)))
-                );
+                const keyTypes = new Set();
+                const valueTypes = new Set();
 
-                if (elementTypes.length === 1) {
-                    return `${elementTypes[0]}[]`;
+                for (const [key, val] of value.entries()) {
+                    keyTypes.add(this.generate(key));
+                    valueTypes.add(this.generate(val));
                 }
 
+                return `Map<${[...keyTypes].join(" | ")}, ${[...valueTypes].join(" | ")}>`;
+            } else if (value instanceof Set) {
+                if (value.size === 0) return "Set<unknown>";
+
+                const types = new Set();
+
+                for (const item of value)
+                    types.add(this.generate(item, depth + 1));
+
+                return `Set<${[...types].join(" | ")}>`;
+            } else if (Array.isArray(value)) {
+                if (value.length === 0) return "unknown[]";
+
+                const elementTypes: string[] = Array.from(
+                    new Set(
+                        value.map((v: unknown) =>
+                            this.generate(v, depth + 1)
+                        )
+                    )
+                );
+
+                if (elementTypes.length === 1)
+                    return `${elementTypes[0]}[]`;
+
                 if (value.length <= 5) {
-                    const tuple = value.map((v: any) => this.generate(v, depth + 1));
+                    const tuple = value.map((v: unknown) =>
+                        this.generate(v, depth + 1)
+                    );
                     return `[${tuple.join(", ")}]`;
                 } else {
                     return `(${elementTypes.join(" | ")})[]`;
                 }
             } else {
-                const keys = Object.keys(value);
+                const obj = value as Record<string, unknown>
+                const keys = Object.keys(obj);
 
-                if (keys.length === 0) return "{ [key: string]: any }";
+                if (keys.length === 0) return "{ [key: string]: unknown }";
 
                 const fields: string[] = keys.map((k) => {
-                    const safeKey = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k) ? k : JSON.stringify(k);
-                    return `${this.indent(depth + 1)}${safeKey}: ${this.generate(value[k], depth + 1)};`;
+                    const safeKey = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k)
+                        ? k
+                        : JSON.stringify(k);
+
+                    return `${this.indent(depth + 1)}${safeKey}: ${this.generate(
+                        obj[k],
+                        depth + 1
+                    )};`;
                 });
 
                 return `{\n${fields.join("\n")}\n${this.indent(depth)}}`;
             }
         }
 
-        return "any";
+        return "unknown";
     }
 
 
