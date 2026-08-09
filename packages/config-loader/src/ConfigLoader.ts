@@ -13,14 +13,13 @@ class ConfigLoader {
     private static config: ConfigData;
 
     private static getBaseDir() {
-        let baseFileName: string | null = null;
-        if (require.main?.filename) baseFileName = resolve(require.main.filename);
+        const fileName = process.argv[1] && !process.argv[1].startsWith("-")
+            ? process.argv[1]
+            : require.main?.filename;
 
-        if (process.argv[1] && !process.argv[1].startsWith("-")) baseFileName = resolve(process.argv[1]);
+        if (!fileName) throw new Error('Could not determine executed file.');
 
-        if (!baseFileName) throw new Error('Could not determine executed file.');
-
-        return dirname(baseFileName);
+        return dirname(resolve(fileName));
     }
 
     private static loadENV() {
