@@ -5,7 +5,7 @@ abstract class HttpException extends Exception {
 
     constructor(
         message: string,
-        protected readonly status: number = 500,
+        public readonly status: number = 500,
         options?: ErrorOptions
     ) {
         super(message, options);
