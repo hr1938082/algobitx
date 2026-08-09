@@ -60,6 +60,7 @@ class TypeGen {
         if (type === 'bigint') return 'bigint';
         if (type === 'boolean') return 'boolean';
         if (type === "symbol") return "symbol";
+        if (type === "function") return "(...args: unknown[]) => unknown";
 
         if (type === "object") {
             if (seen.has(value)) return "unknown";
@@ -75,8 +76,8 @@ class TypeGen {
                 if (value instanceof Map) {
                     if (value.size === 0) return "Map<unknown,unknown>";
 
-                    const keyTypes = new Set();
-                    const valueTypes = new Set();
+                    const keyTypes = new Set<string>();
+                    const valueTypes = new Set<string>();
 
                     for (const [key, val] of value.entries()) {
                         keyTypes.add(this.generate(key, depth + 1, seen));
@@ -89,7 +90,7 @@ class TypeGen {
                 if (value instanceof Set) {
                     if (value.size === 0) return "Set<unknown>";
 
-                    const types = new Set();
+                    const types = new Set<string>();
 
                     for (const item of value)
                         types.add(this.generate(item, depth + 1, seen));
@@ -100,25 +101,21 @@ class TypeGen {
                 if (Array.isArray(value)) {
                     if (value.length === 0) return "unknown[]";
 
-                    const elementTypes: string[] = Array.from(
-                        new Set(
-                            value.map((v: unknown) =>
-                                this.generate(v, depth + 1, seen)
-                            )
-                        )
+                    const types = value.map((v: unknown) =>
+                        this.generate(v, depth + 1, seen)
                     );
 
-                    if (elementTypes.length === 1)
+                    const elementTypes = [...new Set(types)];
+
+                    if (elementTypes.length === 1) {
                         return `${elementTypes[0]}[]`;
+                    }
 
                     if (value.length <= 5) {
-                        const tuple = value.map((v: unknown) =>
-                            this.generate(v, depth + 1, seen)
-                        );
-                        return `[${tuple.join(", ")}]`;
-                    } else {
-                        return `(${elementTypes.join(" | ")})[]`;
+                        return `[${types.join(", ")}]`;
                     }
+
+                    return `(${elementTypes.join(" | ")})[]`;
                 }
 
                 const obj = value as Record<string, unknown>
@@ -148,13 +145,13 @@ class TypeGen {
         return "unknown";
     }
 
-    private static emitType(value: any, options: EmitDeclarationOptions): string {
+    private static emitType(value: unknown, options: EmitDeclarationOptions): string {
         const keyword = options.default ? "export default" : "export";
         const types = this.generate(value);
         return `${keyword} type ${options.name} = ${types};`;
     }
 
-    private static emitInterface(value: any, options: EmitDeclarationOptions): string {
+    private static emitInterface(value: unknown, options: EmitDeclarationOptions): string {
         const keyword = options.default ? "export default" : "export";
         const types = this.generate(value);
         return `${keyword} interface ${options.name} ${types}`;
@@ -178,7 +175,7 @@ class TypeGen {
      *   }
      * );
      */
-    static emitDeclaration(value: any, options: EmitDeclarationOptions) {
+    static emitDeclaration(value: unknown, options: EmitDeclarationOptions) {
         return value !== null &&
             typeof value === "object" &&
             Object.getPrototypeOf(value) === Object.prototype
@@ -216,7 +213,7 @@ class TypeGen {
      *   }
      * );
      */
-    static writeToFile(value: any, options: WriteToFileOptions): void {
+    static writeToFile(value: unknown, options: WriteToFileOptions): void {
         const { export: exportOptions, write } = options;
 
         const outPath = join(write.path, `${write.name ?? exportOptions.name}.d.ts`);
