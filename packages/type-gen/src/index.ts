@@ -195,8 +195,8 @@ class TypeGen {
      */
     static emitDeclaration(value: unknown, options: EmitDeclarationOptions) {
         if (
-            !/^[A-Za-z_$][\w$]*$/.test(options.name) &&
-            !this.RESERVED_WORDS.has(options.name)
+            !/^[A-Za-z_$][\w$]*$/.test(options.name) ||
+            this.RESERVED_WORDS.has(options.name)
         ) throw new TypeError(
             `Invalid TypeScript declaration name: ${options.name}`
         );
