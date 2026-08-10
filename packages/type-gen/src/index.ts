@@ -18,6 +18,21 @@ export interface WriteToFileOptions {
 }
 
 class TypeGen {
+    private static readonly RESERVED_WORDS = new Set([
+        "break", "case", "catch", "class", "const",
+        "continue", "debugger", "default", "delete",
+        "do", "else", "enum", "export", "extends",
+        "false", "finally", "for", "function", "if",
+        "import", "in", "instanceof", "new", "null",
+        "return", "super", "switch", "this", "throw",
+        "true", "try", "typeof", "var", "void",
+        "while", "with", "yield",
+        "interface", "implements", "package",
+        "private", "protected", "public", "static",
+        "let", "await", "async", "readonly",
+        "keyof", "namespace", "declare", "abstract"
+    ]);
+
     private static indent(n: number) {
         return '    '.repeat(n);
     }
@@ -29,7 +44,6 @@ class TypeGen {
      * - Primitive types
      * - Objects
      * - Arrays
-     * - Tuples (for small heterogeneous arrays)
      * - Union arrays
      *
      * @param value The value to analyze.
@@ -180,7 +194,10 @@ class TypeGen {
      * );
      */
     static emitDeclaration(value: unknown, options: EmitDeclarationOptions) {
-        if (!/^[A-Za-z_$][\w$]*$/.test(options.name)) throw new TypeError(
+        if (
+            !/^[A-Za-z_$][\w$]*$/.test(options.name) &&
+            !this.RESERVED_WORDS.has(options.name)
+        ) throw new TypeError(
             `Invalid TypeScript declaration name: ${options.name}`
         );
 
