@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 export interface EmitDeclarationOptions {
     name: string;
@@ -111,10 +111,6 @@ class TypeGen {
                         return `${elementTypes[0]}[]`;
                     }
 
-                    if (value.length <= 5) {
-                        return `[${types.join(", ")}]`;
-                    }
-
                     return `(${elementTypes.join(" | ")})[]`;
                 }
 
@@ -124,7 +120,7 @@ class TypeGen {
                 if (keys.length === 0) return "{ [key: string]: unknown }";
 
                 const fields: string[] = keys.map((k) => {
-                    const safeKey = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(k)
+                    const safeKey = /^[A-Za-z_$][\w$]*$/.test(k)
                         ? k
                         : JSON.stringify(k);
 
@@ -148,13 +144,14 @@ class TypeGen {
     private static emitType(value: unknown, options: EmitDeclarationOptions): string {
         const keyword = options.default ? "export default" : "export";
         const types = this.generate(value);
-        return `${keyword} type ${options.name} = ${types};`;
+        return `${keyword} type ${options.name} = ${types};\n`;
     }
 
     private static emitInterface(value: unknown, options: EmitDeclarationOptions): string {
+
         const keyword = options.default ? "export default" : "export";
         const types = this.generate(value);
-        return `${keyword} interface ${options.name} ${types}`;
+        return `${keyword} interface ${options.name} ${types}\n`;
     }
 
     private static isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -183,6 +180,10 @@ class TypeGen {
      * );
      */
     static emitDeclaration(value: unknown, options: EmitDeclarationOptions) {
+        if (!/^[A-Za-z_$][\w$]*$/.test(options.name)) throw new TypeError(
+            `Invalid TypeScript declaration name: ${options.name}`
+        );
+
         return this.isPlainObject(value)
             ? this.emitInterface(value, options)
             : this.emitType(value, options);
@@ -220,14 +221,22 @@ class TypeGen {
     static writeToFile(value: unknown, options: WriteToFileOptions): void {
         const { export: exportOptions, write } = options;
 
+        const rawName = write.name ?? exportOptions.name;
+
+        const fileName = rawName.endsWith(".d.ts") ? rawName : `${rawName}.d.ts`;
+
+        if (basename(fileName) !== fileName) throw new Error(
+            "Write name must not contain path separators."
+        );
+
         mkdirSync(write.path, { recursive: true });
 
-        const outPath = join(write.path, `${write.name ?? exportOptions.name}.d.ts`);
+        const outPath = join(write.path, fileName);
         const dtsContent = this.emitDeclaration(value, exportOptions);
 
         if (write.comparison && existsSync(outPath)) {
             const oldContent = readFileSync(outPath, { encoding: "utf-8" });
-            if (oldContent.trim() === dtsContent.trim()) return;
+            if (oldContent === dtsContent) return;
         }
 
         writeFileSync(outPath, dtsContent, "utf8");
