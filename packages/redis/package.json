@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@algobitx/config-loader": "workspace:*",
+    "@algobitx/exception": "workspace:*",
     "ioredis": "^5.11.1"
   },
   "devDependencies": {
