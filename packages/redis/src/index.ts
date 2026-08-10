@@ -31,9 +31,7 @@ class Redis {
     }
 
     private static createInstance(key: keyof RedisKeys, opt: RedisOptions) {
-        if (this.connections.has(key)) {
-            return;
-        }
+        if (this.connections.has(key)) return;
 
         const client = new IORedis({
             lazyConnect: true,
@@ -49,6 +47,11 @@ class Redis {
     }
 
     static connection(key?: keyof RedisKeys) {
+        if (this.isShuttingDown) {
+            throw new Error(
+                "Redis is shutting down and cannot accept new connections."
+            );
+        }
         if (!this.initialized) this.init();
         const client = this.connections.get(key || 'default');
         if (!client) throw new Error(`Redis connection "${String(key)}" not found`);
