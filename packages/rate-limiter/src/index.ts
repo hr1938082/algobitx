@@ -22,15 +22,32 @@ class RateLimiter {
     static async increment(key: string, attempts: number, seconds: number): Promise<number> {
         const actualKey = this.getActualKey(key);
 
-        const tx = Redis.connection().multi();
-        tx.incr(actualKey);
-        tx.ttl(actualKey);
-        const results = await tx.exec();
-        if (!results) throw new Error("RateLimiter transaction aborted");
-        const [incrResult, ttlResult] = results as [[null, number], [null, number]];
+        const current = await Redis.connection().eval(
+            `
+                local current = tonumber(redis.call('GET', KEYS[1]) or '0')
+                local limit = tonumber(ARGV[1])
+                local increment = 1
 
-        if (ttlResult[1] === -1) await Redis.connection().expire(actualKey, seconds);
-        return Math.max(attempts - incrResult[1], 0);
+                if current + increment > limit then
+                    return limit
+                end
+
+                local newCount = redis.call('INCRBY', KEYS[1], increment)
+
+                if current == 0 then
+                    redis.call('EXPIRE', KEYS[1], ARGV[2])
+                end
+
+                return newCount
+
+            `,
+            1,
+            actualKey,
+            attempts,
+            seconds
+        );
+
+        return Number(current);
     }
 
     static async remaining(key: string, attempts: number): Promise<number> {
