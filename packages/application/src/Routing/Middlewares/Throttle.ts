@@ -12,14 +12,8 @@ const Throttle = (attempts: number, seconds: number): Middleware => {
 
         const key = `${ip}|${method}|${url}`;
 
-        const remaining = await RateLimiter.remaining(key, attempts);
-
-        if (remaining <= 0) {
-            const timeInSeconds = await RateLimiter.availableIn(key);
-            throw new TooManyAttemptsException(key, timeInSeconds);
-        }
-
-        await RateLimiter.increment(key, attempts, seconds);
+        const attempt = await RateLimiter.attempt(key, attempts, seconds);
+        if (!attempt.status) throw new TooManyAttemptsException(key, attempt.retry_after);
 
         await next();
     }
