@@ -29,7 +29,7 @@ class RateLimiter {
                 local increment = 1
 
                 if current + increment > limit then
-                    return limit
+                    return limit + 1
                 end
 
                 local newCount = redis.call('INCRBY', KEYS[1], increment)
@@ -48,6 +48,11 @@ class RateLimiter {
         );
 
         return Number(current);
+    }
+
+    static async attempt(key: string, attempts: number, seconds: number) {
+        const inc = await this.increment(key, attempts, seconds);
+        return inc <= attempts;
     }
 
     static async remaining(key: string, attempts: number): Promise<number> {
