@@ -12,21 +12,45 @@ class RateLimiter {
     private constructor() { }
 
     private static getActualKey(key: string) {
+        if (!key)
+            throw new TypeError("Rate limiter key must be a valid string");
+
         return `${this.prefix}|${key}`;
     }
 
+    private static validateAttempts(attempts: number) {
+        if (!Number.isInteger(attempts) || attempts <= 0)
+            throw new TypeError(
+                "Rate limiter attempts must be a positive integer."
+            );
+    }
+
+    private static validate(attempts: number, seconds: number): void {
+
+        this.validateAttempts(attempts);
+
+        if (!Number.isInteger(seconds) || seconds <= 0)
+            throw new TypeError(
+                "Rate limiter seconds must be a positive integer."
+            );
+    }
+
     static async isAvailable(key: string, attempts: number): Promise<boolean> {
-        const raw = await Redis.connection().get(this.getActualKey(key));
+        key = this.getActualKey(key);
+        this.validateAttempts(attempts);
+        const raw = await Redis.connection().get(key);
         const current = raw ? parseInt(raw, 10) : 0;
         return current < attempts;
     }
 
     static async availableIn(key: string): Promise<number> {
-        return await Redis.connection().ttl(this.getActualKey(key)) || 0;
+        key = this.getActualKey(key);
+        return await Redis.connection().ttl(key) || 0;
     }
 
     static async increment(key: string, attempts: number, seconds: number): Promise<number> {
-        const actualKey = this.getActualKey(key);
+        key = this.getActualKey(key);
+        this.validate(attempts, seconds);
         const current = await Redis.connection().eval(
             `
                 local current = tonumber(redis.call('GET', KEYS[1]) or '0')
@@ -47,7 +71,7 @@ class RateLimiter {
 
             `,
             1,
-            actualKey,
+            key,
             attempts,
             seconds
         );
@@ -56,7 +80,9 @@ class RateLimiter {
     }
 
     static async remaining(key: string, attempts: number): Promise<number> {
-        const remaining = await Redis.connection().get(this.getActualKey(key));
+        key = this.getActualKey(key);
+        this.validateAttempts(attempts);
+        const remaining = await Redis.connection().get(key);
         const current = parseInt(remaining || "0", 10);
         return Math.max(attempts - current, 0);
     }
@@ -66,7 +92,8 @@ class RateLimiter {
         attempts: number,
         seconds: number
     ): Promise<AttemptMethodResult> {
-        const actualKey = this.getActualKey(key);
+        key = this.getActualKey(key);
+        this.validate(attempts, seconds);
         const res = await Redis.connection().eval(
             `
                 local current = tonumber(redis.call('GET', KEYS[1]) or '0')
@@ -95,12 +122,12 @@ class RateLimiter {
                 })
             `,
             1,
-            actualKey,
+            key,
             attempts,
             seconds
         );
 
-        return JSON.parse(res as string) as AttemptMethodResult
+        return JSON.parse(res as string) as AttemptMethodResult;
     }
 }
 
