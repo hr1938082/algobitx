@@ -108,7 +108,7 @@ class Response {
     }
 
     private end(data?: string | Uint8Array, callback?: () => void) {
-        this.raw.end(data, callback);
+        if (this.canWrite) this.raw.end(data, callback);
     }
 
     json(data: unknown, statusCode: number = 200) {
