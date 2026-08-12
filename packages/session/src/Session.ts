@@ -77,14 +77,27 @@ class Session {
         return Crypt.encrypt(JSON.stringify(this.data));
     }
 
+    private isPlainObject(value: unknown): value is Record<string, unknown> {
+        if (value === null || typeof value !== "object") return false;
+
+        const prototype = Object.getPrototypeOf(value);
+        return prototype === Object.prototype || prototype === null;
+    }
+
     private deserialize(value: string) {
-        this.data = JSON.parse(Crypt.decrypt(value));
+        const data = JSON.parse(Crypt.decrypt(value));
+
+        if (!this.isPlainObject(data))
+            throw new InternalServerException(
+                new TypeError("Invalid session data")
+            );
+
+        this.data = data;
     }
 
     async start(): Promise<void> {
         if (this.started) return;
-        this.started = true;
-        const id = this.resolveId();
+        let id = this.resolveId();
 
         const redis = Redis.connection();
 
@@ -98,27 +111,28 @@ class Session {
             );
 
             this.setCookie();
-            return;
+        } else {
+            try {
+                this.deserialize(payload);
+            } catch {
+                await redis.del(id);
+
+                id = this.id = this.generateId();
+                this.data = this.createDefaultData();
+
+                await redis.setex(
+                    this.id,
+                    Session.config.lifetime,
+                    this.serialize()
+                );
+            }
+
+            await redis.expire(id, Session.config.lifetime);
+
+            this.setCookie();
         }
 
-        try {
-            this.deserialize(payload);
-        } catch {
-            await redis.del(id);
-
-            this.id = this.generateId();
-            this.data = this.createDefaultData();
-
-            await redis.setex(
-                this.id,
-                Session.config.lifetime,
-                this.serialize()
-            );
-        }
-
-        await redis.expire(this.resolveId(), Session.config.lifetime);
-
-        this.setCookie();
+        this.started = true;
     }
 
     get<T = any>(key: string, defaultValue?: T): T {
