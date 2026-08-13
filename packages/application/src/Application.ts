@@ -37,7 +37,7 @@ class Application {
                     : new InternalServerException(err as Error);
 
                 try {
-                    await ex.report();
+                    ex.report();
                 } catch { }
 
                 if (ex instanceof HttpException) {
@@ -47,7 +47,7 @@ class Application {
 
                         console.error(ex);
 
-                        if (!res.headersSent) {
+                        if (!res.headersSent && !res.writableEnded) {
                             res.statusCode = 500;
                             res.end();
                         }
