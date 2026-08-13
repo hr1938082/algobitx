@@ -40,8 +40,17 @@ class Request {
 
             if (this.ip.isTrustedProxy) {
                 host = this.header('x-forwarded-host') || host;
-                const rawScheme = this.header('x-forwarded-proto')
-                scheme = rawScheme ? `${rawScheme}://` : scheme;
+                const rawScheme = this.header('x-forwarded-proto');
+                if (rawScheme) {
+                    const forwardedProto = rawScheme
+                        .split(',')[0]
+                        .trim()
+                        .toLowerCase();
+
+                    if (forwardedProto === 'http' || forwardedProto === 'https')
+                        scheme = `${forwardedProto}://`;
+
+                }
             }
 
             const origin = host ? scheme + host : Config('app.url');
