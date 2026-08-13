@@ -15,12 +15,13 @@ export interface CookieConfig {
 }
 
 class Cookie {
+    private static key: string;
     private cookies: Map<string, string> = new Map();
-    private readonly key: string = Config("app.key");
     private outgoing: string[] = [];
     private res: Response
 
     constructor(res: Response, cookie?: string) {
+        if (!Cookie.key) Cookie.key = Config("app.key");
         this.res = res;
 
         if (!cookie) return;
@@ -28,12 +29,17 @@ class Cookie {
         for (const pair of cookie.split(";")) {
             const [name, ...rest] = pair.trim().split("=");
             if (!name) continue;
-            this.cookies.set(decodeURIComponent(name), decodeURIComponent(rest.join("=")));
+
+            try {
+                this.cookies.set(decodeURIComponent(name), decodeURIComponent(rest.join("=")));
+            } catch {
+                continue;
+            }
         }
     }
 
     private sign(value: string): string {
-        return createHmac("sha256", this.key).update(value).digest("base64url");
+        return createHmac("sha256", Cookie.key).update(value).digest("base64url");
     }
 
     private serialize(name: string, value: string, options: CookieConfig = {}): string {
