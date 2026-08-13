@@ -1,3 +1,3 @@
 export default interface ConfigData {
-     [key: string]: any
+     [key: string]: unknown
 }
