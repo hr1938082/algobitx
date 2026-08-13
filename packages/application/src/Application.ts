@@ -32,7 +32,7 @@ class Application {
             try {
                 await Route.resolve(request, response);
             } catch (err) {
-                const ex = err instanceof Exception
+                const ex = err instanceof HttpException
                     ? err
                     : new InternalServerException(err as Error);
 
@@ -40,17 +40,15 @@ class Application {
                     ex.report();
                 } catch { }
 
-                if (ex instanceof HttpException) {
-                    try {
-                        await ex.render(response);
-                    } catch (ex) {
+                try {
+                    await ex.render(response);
+                } catch (ex) {
 
-                        console.error(ex);
+                    console.error(ex);
 
-                        if (!res.headersSent && !res.writableEnded) {
-                            res.statusCode = 500;
-                            res.end();
-                        }
+                    if (!res.headersSent && !res.writableEnded) {
+                        res.statusCode = 500;
+                        res.end();
                     }
                 }
             } finally {
