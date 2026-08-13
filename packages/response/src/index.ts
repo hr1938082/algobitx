@@ -112,9 +112,10 @@ class Response {
     }
 
     json(data: unknown, statusCode: number = 200) {
+        const json = JSON.stringify(data)
         this.status(statusCode)
             .setHeader("content-type", "application/json; charset=utf-8")
-            .end(JSON.stringify(data));
+            .end(json);
     }
 
     text(data: string, statusCode: number = 200) {
