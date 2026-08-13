@@ -1,9 +1,8 @@
 import Request from "@algobitx/request";
 import Response from "@algobitx/response";
-import { MiddlewareNext } from "../Route"
 
 const Web = async (req: Request, res: Response) => {
-    (req as any).enableSession(res);
+    req.enableSession(res);
     await req.session.start();
 }
 
