@@ -47,19 +47,37 @@
     },
     "references": [
         {
-            "path": [
-                "./packages/type-gen",
-                "./packages/config-loader",
-                "./packages/redis",
-                "./packages/rate-limiter",
-                "./packages/crypt",
-                "./packages/response",
-                "./packages/session",
-                "./packages/url",
-                "./packages/request",
-                "./packages/exception",
-                "./packages/application"
-            ]
+            "path": "./packages/type-gen"
+        },
+        {
+            "path": "./packages/config-loader"
+        },
+        {
+            "path": "./packages/redis"
+        },
+        {
+            "path": "./packages/rate-limiter"
+        },
+        {
+            "path": "./packages/crypt"
+        },
+        {
+            "path": "./packages/response"
+        },
+        {
+            "path": "./packages/session"
+        },
+        {
+            "path": "./packages/url"
+        },
+        {
+            "path": "./packages/request"
+        },
+        {
+            "path": "./packages/exception"
+        },
+        {
+            "path": "./packages/application"
         }
     ]
 }
