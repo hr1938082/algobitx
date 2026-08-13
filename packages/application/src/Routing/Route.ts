@@ -5,12 +5,12 @@ import Response from "@algobitx/response";
 import NotFoundException from '@algobitx/exception/http/NotFoundException'
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
-export type MiddlewareNext = () => Promise<any> | any
+export type MiddlewareNext = () => Promise<void> | void
 
 export const ThrottleSymbol = Symbol('throttle');
 
 export interface Middleware {
-    (req: Request, res: Response, next: MiddlewareNext): unknown;
+    (req: Request, res: Response): unknown;
 
     [ThrottleSymbol]?: boolean;
 }
@@ -215,17 +215,9 @@ class Route {
 
         if (!match) throw new NotFoundException();
 
-        let i = 0;
-        const next: MiddlewareNext = async () => {
-            if (i < match.middlewares.length) {
-                const mw = match.middlewares[i++];
-                await mw(req, res, next);
-            } else {
-                await match.action(req, res);
-            }
-        };
+        for (const mw of match.middlewares) await mw(req, res);
 
-        await next();
+        await match.action(req, res);
     }
 }
 
