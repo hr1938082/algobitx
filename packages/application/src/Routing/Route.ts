@@ -44,7 +44,11 @@ class Route {
     private static ins: Route;
 
     constructor(config: RouteConfig) {
-        if (Route.ins) return;
+        if (Route.ins)
+            throw new InternalServerException(
+                new Error("Route has already been initialized")
+            );
+
         Route.ins = this;
 
         const baseDir = Config('app.dir')
@@ -66,16 +70,13 @@ class Route {
 
         try {
             require(path);
-        } catch (err) {
-            console.warn(`Failed to load Route file: ${path}`, err);
+        } finally {
+            this.prefixStack = [];
+            this.currentPrefix = '';
+            this.middlewareStack = [];
+            this.currentMiddlewares = [];
+            this.currentController = null;
         }
-
-        this.prefixStack = [];
-        this.currentPrefix = '';
-        this.middlewareStack = [];
-        this.currentMiddlewares = [];
-        this.currentController = null;
-
     }
 
     private normalizePath(path: string) {
@@ -157,10 +158,28 @@ class Route {
             throw new InternalServerException(new Error("Invalid Handler"));
         }
 
+        const key = this.routeKey(
+            method,
+            this.normalizePath(
+                this.prefixStack.join('') +
+                this.currentPrefix +
+                path
+            )
+        );
+
+        if (this.routes.has(key))
+            throw new InternalServerException(
+                new Error(`Duplicate route: ${method} ${path}`)
+            );
+
+
         this.routes.set(
-            this.routeKey(method, this.normalizePath(this.prefixStack.join('') + this.currentPrefix + path)),
+            key,
             {
-                middlewares: this.resolveManyMiddlewares([...this.middlewareStack, ...this.currentMiddlewares]),
+                middlewares: this.resolveManyMiddlewares([
+                    ...this.middlewareStack,
+                    ...this.currentMiddlewares
+                ]),
                 action: finalHandler
             }
         );
@@ -195,11 +214,13 @@ class Route {
         this.ins.currentPrefix = "";
         this.ins.currentMiddlewares = [];
 
-        callback();
-
-        this.ins.prefixStack = prevStack.prefix;
-        this.ins.middlewareStack = prevStack.middlewares;
-        this.ins.currentController = null;
+        try {
+            callback();
+        } finally {
+            this.ins.prefixStack = prevStack.prefix;
+            this.ins.middlewareStack = prevStack.middlewares;
+            this.ins.currentController = null;
+        }
 
         return this;
     }
