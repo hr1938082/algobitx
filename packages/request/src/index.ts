@@ -20,8 +20,8 @@ class Request {
 
     constructor(private readonly raw: IncomingMessage) { }
 
-    header<K extends HeaderKey>(key: K): HeaderValue<K> {
-        return this.raw.headers[key] as HeaderValue<K>;
+    header<K extends HeaderKey>(key: K): HeaderValue<K> | undefined {
+        return this.raw.headers[key] as HeaderValue<K> | undefined;
     }
 
     get method(): HttpMethod {
