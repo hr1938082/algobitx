@@ -184,26 +184,35 @@ class Session {
             new Error("Session has not been started")
         );
         const oldId = this.id;
+        const newId = this.generateId();
+        try {
+            const result = await Redis.connection().multi()
+                .setex(
+                    newId,
+                    Session.config.lifetime,
+                    this.serialize()
+                )
+                .del(oldId)
+                .exec();
 
-        this.id = this.generateId();
+            if (!result)
+                throw new Error(
+                    "Redis session regeneration transaction failed"
+                )
 
-        await Redis.connection().multi()
-            .setex(
-                this.id,
-                Session.config.lifetime,
-                this.serialize()
-            )
-            .del(oldId)
-            .exec();
+            for (const [error] of result) if (error) throw error;
 
-        this.setCookie();
-
-        this.dirty = false;
+            this.id = newId;
+            this.setCookie();
+            this.dirty = false;
+        } catch (error) {
+            this.id = oldId;
+            throw new InternalServerException(error);
+        }
     }
 
     async destroy(): Promise<void> {
         this.data = this.createDefaultData();
-
         await this.regenerate()
     }
 }
