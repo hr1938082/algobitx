@@ -5,8 +5,6 @@ import Response from "@algobitx/response";
 import NotFoundException from '@algobitx/exception/http/NotFoundException'
 import BootException from "@algobitx/exception/server/BootException";
 
-export type MiddlewareNext = () => Promise<void> | void
-
 export const ThrottleSymbol = Symbol('throttle');
 
 export interface Middleware {
@@ -274,7 +272,10 @@ class Route {
 
         if (!match) throw new NotFoundException();
 
-        for (const mw of match.middlewares) await mw(req, res);
+        for (const mw of match.middlewares) {
+            await mw(req, res);
+            if (res.ended) return;
+        }
 
         await match.action(req, res);
     }
