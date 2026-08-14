@@ -3,7 +3,6 @@ import Request, { HttpMethod } from "@algobitx/request";
 import { join } from "node:path";
 import Response from "@algobitx/response";
 import NotFoundException from '@algobitx/exception/http/NotFoundException'
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import BootException from "@algobitx/exception/server/BootException";
 
 export type MiddlewareNext = () => Promise<void> | void
@@ -99,7 +98,7 @@ class Route {
             if (typeof mw === 'function') {
                 if (mw[ThrottleSymbol] === true) lastThrottle = mw;
                 else out.push(mw);
-            } else throw new InternalServerException(
+            } else throw new BootException(
                 new Error("Invalid Middleware!")
             );
         }
@@ -126,7 +125,7 @@ class Route {
         const fn = instance[handler];
 
         if (typeof fn !== "function") {
-            throw new InternalServerException(
+            throw new BootException(
                 new Error(`Method "${handler}" not found in controller`)
             );
         }
@@ -141,28 +140,28 @@ class Route {
     private addRoute(method: HttpMethod, path: string, handler: Handler) {
         let finalHandler: Action;
         if (typeof handler === "string") {
-            if (!this.currentController) throw new InternalServerException(
+            if (!this.currentController) throw new BootException(
                 new Error(`Controller not set for handler: ${handler}`)
             );
             finalHandler = this.resolveHandler(this.currentController, handler);
         } else if (Array.isArray(handler)) {
-            if (handler.length !== 2) throw new InternalServerException(
+            if (handler.length !== 2) throw new BootException(
                 new Error("Invalid Handler Array")
             );
-            if (!handler[0]) throw new InternalServerException(
+            if (!handler[0]) throw new BootException(
                 new Error("Controller not set for Handler Array")
             );
-            if (typeof handler[1] !== "string") throw new InternalServerException(
+            if (typeof handler[1] !== "string") throw new BootException(
                 new Error("Method name must be a string in Handler Array")
             );
-            if (handler[1].trim() === "") throw new InternalServerException(
+            if (handler[1].trim() === "") throw new BootException(
                 new Error("Method name cannot be empty in Handler Array")
             );
             finalHandler = this.resolveHandler(handler[0], handler[1]);
         } else if (typeof handler === "function") {
             finalHandler = handler;
         } else {
-            throw new InternalServerException(new Error("Invalid Handler"));
+            throw new BootException(new Error("Invalid Handler"));
         }
 
         const key = this.routeKey(
@@ -175,7 +174,7 @@ class Route {
         );
 
         if (this.routes.has(key))
-            throw new InternalServerException(
+            throw new BootException(
                 new Error(`Duplicate route: ${method} ${path}`)
             );
 
