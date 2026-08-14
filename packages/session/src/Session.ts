@@ -12,7 +12,7 @@ export interface SessionConfig extends SessionCookieConfig {
     lifetime: number;
 }
 
-type SessionData = Record<string, any>;
+type SessionData = Record<string, unknown>;
 
 class Session {
     private static config: SessionConfig;
@@ -96,7 +96,11 @@ class Session {
     }
 
     async start(): Promise<void> {
+
         if (this.started) return;
+
+        this.cookie.assertWritable();
+
         let id = this.resolveId();
 
         const redis = Redis.connection();
@@ -109,8 +113,6 @@ class Session {
                 Session.config.lifetime,
                 this.serialize()
             );
-
-            this.setCookie();
         } else {
             try {
                 this.deserialize(payload);
@@ -129,21 +131,23 @@ class Session {
 
             await redis.expire(id, Session.config.lifetime);
 
-            this.setCookie();
         }
 
+        this.setCookie();
         this.started = true;
     }
 
-    get<T = any>(key: string, defaultValue?: T): T {
-        return this.data[key] ?? defaultValue;
+    get<T = unknown>(key: string): T | undefined;
+    get<T>(key: string, defaultValue: T): T;
+    get<T = unknown>(key: string, defaultValue?: T): T | undefined {
+        return (this.data[key] as T | undefined) ?? defaultValue;
     }
 
     has(key: string): boolean {
         return key in this.data;
     }
 
-    set(key: string, value: any) {
+    set(key: string, value: unknown) {
         this.data[key] = value;
         this.dirty = true;
         return this;
@@ -160,9 +164,9 @@ class Session {
     }
 
     async save(): Promise<void> {
-        if (!this.dirty) {
-            return;
-        }
+        if (!this.dirty) return;
+
+        this.cookie.assertWritable();
 
         if (!this.id) throw new InternalServerException(
             new Error("Session has not been started")
@@ -180,9 +184,12 @@ class Session {
     }
 
     async regenerate(): Promise<void> {
+        this.cookie.assertWritable();
+
         if (!this.id) throw new InternalServerException(
             new Error("Session has not been started")
         );
+
         const oldId = this.id;
         const newId = this.generateId();
         try {
