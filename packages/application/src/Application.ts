@@ -8,6 +8,7 @@ import Route, { RouteConfig } from "./Routing/Route";
 import Exception from "@algobitx/exception/Exception";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import HttpException from "@algobitx/exception/http/HttpException";
+import BootException from "@algobitx/exception/server/BootException";
 
 class Application {
     private server: Server;
@@ -19,7 +20,7 @@ class Application {
     }
 
     private configureServer() {
-        return createServer(async (req, res) => {
+        const server = createServer(async (req, res) => {
             let timer: string | undefined;
 
             if (this.isDev) {
@@ -52,6 +53,13 @@ class Application {
                 if (timer) console.timeEnd(timer);
             }
         });
+
+        server.on('error', (err) => {
+            new BootException(err).report();
+            process.exit(1);
+        })
+
+        return server;
     }
 
     private configure(options: RouteConfig) {
