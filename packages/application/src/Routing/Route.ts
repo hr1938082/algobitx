@@ -4,6 +4,7 @@ import { join } from "node:path";
 import Response from "@algobitx/response";
 import NotFoundException from '@algobitx/exception/http/NotFoundException'
 import BootException from "@algobitx/exception/server/BootException";
+import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 export const ThrottleSymbol = Symbol('throttle');
 
@@ -278,6 +279,10 @@ class Route {
         }
 
         await match.action(req, res);
+
+        if (!res.ended) throw new InternalServerException(
+            new Error("Response Expected")
+        );
     }
 }
 
