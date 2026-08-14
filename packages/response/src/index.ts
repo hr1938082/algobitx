@@ -92,7 +92,7 @@ class Response {
         return this.raw.getHeader(key) as HeaderValue<K> | undefined;
     }
 
-    private get canWrite() {
+    get canWrite() {
         return !this.raw.headersSent && !this.raw.writableEnded
     }
 
@@ -119,6 +119,7 @@ class Response {
     }
 
     text(data: string, statusCode: number = 200) {
+
         this.status(statusCode)
             .setHeader("content-type", "text/plain; charset=utf-8")
             .end(data);
