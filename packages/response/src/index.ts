@@ -92,23 +92,27 @@ class Response {
         return this.raw.getHeader(key) as HeaderValue<K> | undefined;
     }
 
-    get canWrite() {
-        return !this.raw.headersSent && !this.raw.writableEnded
+    get ended() {
+        return this.raw.writableEnded;
+    }
+
+    get endable() {
+        return !this.raw.headersSent && !this.ended;
     }
 
     setHeader<K extends HeaderKey>(name: K, value: HeaderValue<K>) {
-        if (this.canWrite) this.raw.setHeader(name, value);
+        if (this.endable) this.raw.setHeader(name, value);
         return this;
     }
 
 
     private status(code: number) {
-        if (this.canWrite) this.raw.statusCode = code;
+        if (this.endable) this.raw.statusCode = code;
         return this;
     }
 
     private end(data?: string | Uint8Array, callback?: () => void) {
-        if (this.canWrite) this.raw.end(data, callback);
+        if (this.endable) this.raw.end(data, callback);
     }
 
     json(data: unknown, statusCode: number = 200) {
