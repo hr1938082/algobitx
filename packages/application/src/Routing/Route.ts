@@ -4,6 +4,7 @@ import { join } from "node:path";
 import Response from "@algobitx/response";
 import NotFoundException from '@algobitx/exception/http/NotFoundException'
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import BootException from "@algobitx/exception/server/BootException";
 
 export type MiddlewareNext = () => Promise<void> | void
 
@@ -41,27 +42,33 @@ class Route {
     private middlewareStack: Middleware[] = [];
     private controllerCache: Map<any, any> = new Map();
     private currentController: any = null;
-    private static ins: Route;
+    private static ins?: Route;
 
     constructor(config: RouteConfig) {
         if (Route.ins)
-            throw new InternalServerException(
+            throw new BootException(
                 new Error("Route has already been initialized")
             );
 
         Route.ins = this;
 
-        const baseDir = Config('app.dir')
-        if (Array.isArray(config)) {
-            for (const cf of config) {
-                const fullPath = join(baseDir, cf.path);
-                this.resolveRouteFiles(fullPath, cf.prefix, cf.middleware);
+        try {
+
+            const baseDir = Config('app.dir')
+            if (Array.isArray(config)) {
+                for (const cf of config) {
+                    const fullPath = join(baseDir, cf.path);
+                    this.resolveRouteFiles(fullPath, cf.prefix, cf.middleware);
+                }
+            } else {
+                const fullPath = join(baseDir, config.path);
+                this.resolveRouteFiles(fullPath, config.prefix, config.middleware);
             }
-        } else {
-            const fullPath = join(baseDir, config.path);
-            this.resolveRouteFiles(fullPath, config.prefix, config.middleware);
+            this.controllerCache.clear();
+        } catch (error) {
+            Route.ins = undefined;
+            throw new BootException(error);
         }
-        this.controllerCache.clear();
     }
 
     private resolveRouteFiles(path: string, prefix?: string, mw?: Middleware | Middleware[]) {
@@ -187,52 +194,84 @@ class Route {
         return this;
     }
 
+    private static getIns() {
+        if (!this.ins) throw new BootException(
+            new Error("Route has not been initialized call new Route() first")
+        );
+
+        return this.ins
+    }
+
     static prefix(prefix: string) {
-        this.ins.currentPrefix = this.ins.normalizePath(prefix);
+        const ins = this.getIns();
+        ins.currentPrefix = ins.normalizePath(prefix);
         return this;
     }
 
     static middleware(mw: Middleware | Middleware[]) {
-        this.ins.currentMiddlewares = [...(Array.isArray(mw) ? mw : [mw])];
+        const ins = this.getIns();
+        ins.currentMiddlewares = [...(Array.isArray(mw) ? mw : [mw])];
         return this;
     }
 
     static controller(controller: any) {
-        this.ins.currentController = controller;
+        const ins = this.getIns();
+        ins.currentController = controller;
         return this;
     }
 
     static group(callback: () => void) {
+        const ins = this.getIns();
         const prevStack = {
-            prefix: [...this.ins.prefixStack],
-            middlewares: [...this.ins.middlewareStack]
+            prefix: [...ins.prefixStack],
+            middlewares: [...ins.middlewareStack]
         }
 
-        this.ins.prefixStack.push(this.ins.currentPrefix);
-        this.ins.middlewareStack.push(...this.ins.currentMiddlewares);
+        ins.prefixStack.push(ins.currentPrefix);
+        ins.middlewareStack.push(...ins.currentMiddlewares);
 
-        this.ins.currentPrefix = "";
-        this.ins.currentMiddlewares = [];
+        ins.currentPrefix = "";
+        ins.currentMiddlewares = [];
 
         try {
             callback();
         } finally {
-            this.ins.prefixStack = prevStack.prefix;
-            this.ins.middlewareStack = prevStack.middlewares;
-            this.ins.currentController = null;
+            ins.prefixStack = prevStack.prefix;
+            ins.middlewareStack = prevStack.middlewares;
+            ins.currentController = null;
         }
 
         return this;
     }
 
-    static get(path: string, handler: Handler) { this.ins.addRoute('GET', path, handler) }
-    static post(path: string, handler: Handler) { this.ins.addRoute('POST', path, handler) }
-    static put(path: string, handler: Handler) { this.ins.addRoute('PUT', path, handler) }
-    static patch(path: string, handler: Handler) { this.ins.addRoute('PATCH', path, handler) }
-    static delete(path: string, handler: Handler) { this.ins.addRoute('DELETE', path, handler) }
+    static get(path: string, handler: Handler) {
+        const ins = this.getIns();
+        ins.addRoute('GET', path, handler)
+    }
+
+    static post(path: string, handler: Handler) {
+        const ins = this.getIns();
+        ins.addRoute('POST', path, handler)
+    }
+
+    static put(path: string, handler: Handler) {
+        const ins = this.getIns();
+        ins.addRoute('PUT', path, handler)
+    }
+
+    static patch(path: string, handler: Handler) {
+        const ins = this.getIns();
+        ins.addRoute('PATCH', path, handler)
+    }
+
+    static delete(path: string, handler: Handler) {
+        const ins = this.getIns();
+        ins.addRoute('DELETE', path, handler)
+    }
 
     static async resolve(req: Request, res: Response) {
-        const match = this.ins.routes.get(this.ins.routeKey(req.method, req.url.path));
+        const ins = this.getIns();
+        const match = ins.routes.get(ins.routeKey(req.method, req.url.path));
 
         if (!match) throw new NotFoundException();
 
