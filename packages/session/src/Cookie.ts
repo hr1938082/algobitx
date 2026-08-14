@@ -79,9 +79,13 @@ class Cookie {
         return timingSafeEqual(bufA, bufB) ? val : undefined;
     }
 
-    set(name: string, value: string, options: CookieConfig = {}) {
+    assertWritable() {
         if (!this.res.endable)
             throw new InternalServerException("Header is not Writeable");
+    }
+
+    set(name: string, value: string, options: CookieConfig = {}) {
+        this.assertWritable();
 
         if (options.signed) {
             const signature = this.sign(value);
@@ -94,8 +98,7 @@ class Cookie {
     }
 
     delete(name: string, options: CookieConfig = {}) {
-        if (!this.res.endable)
-            throw new InternalServerException("Header is not Writeable");
+        this.assertWritable();
 
         const deleteOptions: CookieConfig = {
             ...options,
