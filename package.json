@@ -10,10 +10,11 @@
     "packages/**"
   ],
   "scripts": {
-    "clean": "pnpm -r run clean && rimraf node_modules && rimraf pnpm-lock.yaml && pnpm install",
+    "clean": "pnpm -r run clean && rimraf node_modules",
+    "clean-install": "pnpm clean && rimraf pnpm-lock.yaml && pnpm install",
     "build": "pnpm -r run build  && pnpm install",
     "bundle": "pnpm install --frozen-lockfile && pnpm -r run bundle",
-    "clean-build": "pnpm clean && pnpm build",
+    "clean-build": "pnpm clean-install && pnpm build",
     "clean-build-bundle": "pnpm clean-build && pnpm bundle",
     "safty-web-server": "pnpm --filter @algobitx/safty-web-server dev",
     "safty-web-clinet": "pnpm --filter @algobitx/safty-web-client dev"
