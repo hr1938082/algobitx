@@ -73,21 +73,18 @@ class Application {
     }
 
     private setupGracefulShutdown() {
-        const shutdown = async (signal: NodeJS.Signals) => {
+        const shutdown = (signal: NodeJS.Signals) => {
             if (this.shuttingDown) return;
             this.shuttingDown = true;
 
             console.log(`\nReceived ${signal}, shutting down gracefully...`);
 
-            const redisShutdown = Redis.shutdown().catch(err => {
-                console.error('Redis shutdown error:', err);
-            });
-
-            this.server.close((err) => {
+            this.server.close(async (err) => {
                 if (err) {
                     console.error('Error during shutdown:', err);
                     process.exit(1);
                 }
+                await Redis.shutdown();
 
                 console.log('All connections closed, exiting.');
             });
@@ -99,8 +96,6 @@ class Application {
                 this.server.closeAllConnections();
                 process.exit(0);
             }, 10_000).unref();
-
-            await redisShutdown
         };
 
         process.once('SIGINT', () => shutdown('SIGINT'));
