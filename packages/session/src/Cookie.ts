@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import Config from '@algobitx/config-loader';
 import Response from '@algobitx/response';
+import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 export interface CookieConfig {
     maxAge?: number;
@@ -59,7 +60,7 @@ class Cookie {
 
     get(name: string, signed: boolean = false) {
         const value = this.cookies.get(name);
-        if (!value) return undefined;
+        if (value == undefined) return undefined;
         if (!signed) return value;
 
         const index = value.lastIndexOf(".");
@@ -79,6 +80,9 @@ class Cookie {
     }
 
     set(name: string, value: string, options: CookieConfig = {}) {
+        if (!this.res.endable)
+            throw new InternalServerException("Header is not Writeable");
+
         if (options.signed) {
             const signature = this.sign(value);
             value = `${value}.${signature}`;
@@ -90,6 +94,9 @@ class Cookie {
     }
 
     delete(name: string, options: CookieConfig = {}) {
+        if (!this.res.endable)
+            throw new InternalServerException("Header is not Writeable");
+
         const deleteOptions: CookieConfig = {
             ...options,
             expires: new Date(0),
