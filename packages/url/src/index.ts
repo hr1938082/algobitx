@@ -8,27 +8,10 @@ class URL {
 
     constructor(url: string | globalThis.URL, base?: string | globalThis.URL) {
         URL._forceHttps ??= Config('app.force_https') ?? false;
-        if (URL._forceHttps === true) {
-            url = URL.ensureHttps(url)!;
-            base = URL.ensureHttps(base);
-        }
         this._url = new globalThis.URL(url, base);
-    }
-
-    private static ensureHttps(value?: string | globalThis.URL) {
-        if (!value) return value;
-
-        if (typeof value === "string") {
-            return value.startsWith("http://")
-                ? "https://" + value.slice(7)
-                : value;
+        if (URL._forceHttps && this._url.protocol === 'http:') {
+            this._url.protocol = 'https:'
         }
-
-        if (value.protocol === "http:") {
-            return new globalThis.URL(value.href.replace(/^http:/, "https:"));
-        }
-
-        return value;
     }
 
     get scheme() {
