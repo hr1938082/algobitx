@@ -43,9 +43,6 @@ class Application {
                 try {
                     await ex.render(response);
                 } catch (ex) {
-
-                    console.error(ex);
-
                     if (!res.headersSent && !res.writableEnded) {
                         res.statusCode = 500;
                         res.end();
