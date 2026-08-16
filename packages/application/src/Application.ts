@@ -127,14 +127,16 @@ class Application {
     }
 
     start() {
+        this.setupGracefulShutdown();
+
         const port = Config('app.port');
+
         this.server.listen(port, '0.0.0.0', () => {
             for (const ip of this.getLocalIPs())
                 this.consoleServerInfo(ip, port);
 
             this.consoleServerInfo('127.0.0.1', port);
             this.consoleServerInfo('localhost', port);
-            this.setupGracefulShutdown();
         });
     }
 }
