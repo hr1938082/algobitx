@@ -4,6 +4,7 @@ import Crypt from "@algobitx/crypt";
 import Redis from "@algobitx/redis";
 import Cookie, { CookieConfig } from "./Cookie";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import UnAuthenticatedException from "@algobitx/exception/http/UnAuthenticatedException";
 
 type SessionCookieConfig = Omit<CookieConfig, "signed" | "maxAge" | "expires">;
 
@@ -18,9 +19,7 @@ class Session {
     private static config: SessionConfig;
     private readonly cookie: Cookie;
     private id?: string;
-    private started = false;
     private data: SessionData = this.createDefaultData();
-    private dirty = false;
 
     constructor(cookie: Cookie) {
         if (!Session.config) Session.config = Config("session") as SessionConfig
@@ -97,7 +96,7 @@ class Session {
 
     async start(): Promise<void> {
 
-        if (this.started) return;
+        if (this.id) return;
 
         this.cookie.assertWritable();
 
@@ -105,36 +104,47 @@ class Session {
 
         const redis = Redis.connection();
 
-        const payload = await redis.get(id);
+        const payload = await redis.eval(
+            `
+                local value = redis.call("GET", KEYS[1])
 
-        if (!payload) {
+                if not value then
+                    local session = ARGV[1]
+
+                    redis.call(
+                        "SETEX",
+                        KEYS[1],
+                        ARGV[2],
+                        session
+                    )
+
+                    return session
+                end
+
+                return value
+            `,
+            1,
+            id,
+            this.serialize(),
+            Session.config.lifetime
+        ) as string;
+
+        try {
+            this.deserialize(payload);
+        } catch {
+            await redis.del(id);
+
+            id = this.id = this.generateId();
+            this.data = this.createDefaultData();
+
             await redis.setex(
-                id,
+                this.id,
                 Session.config.lifetime,
                 this.serialize()
             );
-        } else {
-            try {
-                this.deserialize(payload);
-            } catch {
-                await redis.del(id);
-
-                id = this.id = this.generateId();
-                this.data = this.createDefaultData();
-
-                await redis.setex(
-                    this.id,
-                    Session.config.lifetime,
-                    this.serialize()
-                );
-            }
-
-            await redis.expire(id, Session.config.lifetime);
-
         }
 
         this.setCookie();
-        this.started = true;
     }
 
     get<T = unknown>(key: string): T | undefined;
@@ -147,40 +157,61 @@ class Session {
         return key in this.data;
     }
 
-    set(key: string, value: unknown) {
+    async set(key: string, value: unknown) {
         this.data[key] = value;
-        this.dirty = true;
-        return this;
+        await this.save();
     }
 
-    forget(key: string) {
+    async forget(key: string) {
         delete this.data[key];
-        this.dirty = true;
-        return this;
+        await this.save();
     }
 
     all(): SessionData {
-        return structuredClone(this.data);
+        return { ...this.data };
     }
 
-    async save(): Promise<void> {
-        if (!this.dirty) return;
-
+    private async save(): Promise<void> {
         this.cookie.assertWritable();
 
         if (!this.id) throw new InternalServerException(
             new Error("Session has not been started")
         );
 
-        await Redis.connection().setex(
+        const auth = this.get('auth');
+
+        const result = await Redis.connection().eval(
+            `
+                if redis.call("EXISTS", KEYS[1]) == 0 then
+                    return 0
+                end
+
+                redis.call(
+                    "SETEX",
+                    KEYS[1],
+                    ARGV[2],
+                    ARGV[1]
+                )
+
+                return 1
+            `,
+            1,
             this.id,
-            Session.config.lifetime,
-            this.serialize()
-        );
+            this.serialize(),
+            Session.config.lifetime
+        )
+
+        if (result !== 1) {
+            await this.destroy();
+            if (auth) {
+                throw new UnAuthenticatedException(
+                    new Error("Session Expired")
+                );
+            }
+            return;
+        }
 
         this.setCookie();
-
-        this.dirty = false;
     }
 
     async regenerate(): Promise<void> {
@@ -211,7 +242,6 @@ class Session {
 
             this.id = newId;
             this.setCookie();
-            this.dirty = false;
         } catch (error) {
             this.id = oldId;
             throw new InternalServerException(error);
