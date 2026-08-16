@@ -45,7 +45,8 @@ class RateLimiter {
 
     static async availableIn(key: string): Promise<number> {
         key = this.getActualKey(key);
-        return await Redis.connection().ttl(key) || 0;
+        const ttl = await Redis.connection().ttl(key);
+        return ttl > 0 ? ttl : 0;
     }
 
     static async increment(key: string, attempts: number, seconds: number): Promise<number> {
