@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "files": [
     "dist/**/*.js",
+    "dist/**/*.d.ts",
     "package.json"
   ],
   "exports": {

@@ -5,7 +5,8 @@
   "description": "Algobitx Session Library",
   "license": "UNLICENSED",
   "files": [
-    "dist/*.js",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "package.json"
   ],
   "exports": {
