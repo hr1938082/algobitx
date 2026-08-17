@@ -24,7 +24,7 @@
     "@algobitx/config-loader": "workspace:*",
     "@algobitx/request": "workspace:*",
     "@algobitx/response": "workspace:*",
-    "@algobitx/redis": "workspace:*",
+    "@algobitx/rate-limiter": "workspace:*",
     "@algobitx/exception": "workspace:*"
   },
   "devDependencies": {
