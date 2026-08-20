@@ -1,0 +1,26 @@
+{
+  "name": "@algobitx/validator",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Application Library",
+  "license": "UNLICENSED",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "package.json"
+  ],
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
