@@ -6,22 +6,22 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc -b",
     "clean": "rimraf dist && rimraf node_modules && rimraf bundle",
     "bundle": "pnpm --filter @algobitx/safty-web-server --prod deploy ./bundle --legacy"
   },
   "dependencies": {
+    "@algobitx/application": "workspace:*",
     "@algobitx/config-loader": "workspace:*",
-    "@algobitx/session": "workspace:*",
     "@algobitx/request": "workspace:*",
     "@algobitx/response": "workspace:*",
-    "@algobitx/application": "workspace:*"
+    "@algobitx/session": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
     "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.23.12",
     "typescript": "^7.0.2"
   }
 }
