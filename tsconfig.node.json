@@ -11,73 +11,73 @@
         "noImplicitOverride": true,
         "paths": {
             "@algobitx/type-gen": [
-                "./packages/type-gen"
+                "./packages/node/type-gen"
             ],
             "@algobitx/config-loader": [
-                "./packages/config-loader"
+                "./packages/node/config-loader"
             ],
             "@algobitx/redis": [
-                "./packages/redis"
+                "./packages/node/redis"
             ],
             "@algobitx/rate-limiter": [
-                "./packages/rate-limiter"
+                "./packages/node/rate-limiter"
             ],
             "@algobitx/crypt": [
-                "./packages/crypt"
+                "./packages/node/crypt"
             ],
             "@algobitx/response": [
-                "./packages/response"
+                "./packages/node/response"
             ],
             "@algobitx/session": [
-                "./packages/session"
+                "./packages/node/session"
             ],
             "@algobitx/url": [
-                "./packages/url"
+                "./packages/node/url"
             ],
             "@algobitx/request": [
-                "./packages/request"
+                "./packages/node/request"
             ],
             "@algobitx/exception": [
-                "./packages/exception"
+                "./packages/node/exception"
             ],
             "@algobitx/application": [
-                "./packages/application"
+                "./packages/node/application"
             ],
         }
     },
     "references": [
         {
-            "path": "./packages/type-gen"
+            "path": "./packages/node/type-gen"
         },
         {
-            "path": "./packages/config-loader"
+            "path": "./packages/node/config-loader"
         },
         {
-            "path": "./packages/redis"
+            "path": "./packages/node/redis"
         },
         {
-            "path": "./packages/rate-limiter"
+            "path": "./packages/node/rate-limiter"
         },
         {
-            "path": "./packages/crypt"
+            "path": "./packages/node/crypt"
         },
         {
-            "path": "./packages/response"
+            "path": "./packages/node/response"
         },
         {
-            "path": "./packages/session"
+            "path": "./packages/node/session"
         },
         {
-            "path": "./packages/url"
+            "path": "./packages/node/url"
         },
         {
-            "path": "./packages/request"
+            "path": "./packages/node/request"
         },
         {
-            "path": "./packages/exception"
+            "path": "./packages/node/exception"
         },
         {
-            "path": "./packages/application"
+            "path": "./packages/node/application"
         }
     ]
 }
