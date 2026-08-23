@@ -1,1 +1,5 @@
-console.log("Hellow World");
+class Validator {
+
+}
+
+export default Validator;
