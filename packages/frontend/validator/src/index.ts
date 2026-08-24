@@ -1,13 +1,10 @@
-import Basic from "./RuleKeyPairs/Basic";
-import Key from "./RuleKeyPairs/Key";
-import KeyValue from "./RuleKeyPairs/KeyValue";
-import Value from "./RuleKeyPairs/Value";
 
+import RuleKeyPairs from "./RuleKeyPairs";
 
-type BasicRules = typeof Basic[number];
-type ValuesRules = typeof Value[number];
-type KeyRules = typeof Key[number];
-type KeyValueRules = typeof KeyValue[number];
+type BasicRules = typeof RuleKeyPairs.basic[number];
+type ValuesRules = typeof RuleKeyPairs.value[number];
+type KeyRules = typeof RuleKeyPairs.key[number];
+type KeyValueRules = typeof RuleKeyPairs.key_value[number];
 
 type Keys = BasicRules | ValuesRules | KeyRules | KeyValueRules;
 
