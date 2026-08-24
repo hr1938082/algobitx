@@ -1,10 +1,10 @@
 
 import RuleKeyPairs from "./RuleKeyPairs";
 
-type BasicRules = typeof RuleKeyPairs.basic[number];
-type ValuesRules = typeof RuleKeyPairs.value[number];
-type KeyRules = typeof RuleKeyPairs.key[number];
-type KeyValueRules = typeof RuleKeyPairs.key_value[number];
+type BasicRules = keyof typeof RuleKeyPairs.basic[number];
+type ValuesRules = keyof typeof RuleKeyPairs.value[number];
+type KeyRules = keyof typeof RuleKeyPairs.key[number];
+type KeyValueRules = keyof typeof RuleKeyPairs.key_value[number];
 
 type Keys = BasicRules | ValuesRules | KeyRules | KeyValueRules;
 
