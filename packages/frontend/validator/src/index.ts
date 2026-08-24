@@ -1,7 +1,7 @@
-import Basic from "./Keys/Basic";
-import Key from "./Keys/Key";
-import KeyValue from "./Keys/KeyValue";
-import Value from "./Keys/Value";
+import Basic from "./RuleKeyPairs/Basic";
+import Key from "./RuleKeyPairs/Key";
+import KeyValue from "./RuleKeyPairs/KeyValue";
+import Value from "./RuleKeyPairs/Value";
 
 
 type BasicRules = typeof Basic[number];
@@ -25,26 +25,57 @@ type KeysWithParam<T> = BasicRules
 
 
 export type Rules<T> = {
-    [k in keyof T]?: KeysWithParam<T>[]
+    [k in keyof T]: KeysWithParam<T>[]
 }
 
 type Message<T> = {
-    [K in keyof T]?: {
+    [K in keyof T]: {
         [Rule in Keys]?: string;
     };
 };
 
 type Error<T> = {
-    [K in keyof T]?: any
+    [K in keyof T]: string | string[]
 }
 
 export interface Options<T extends Record<string, any>> {
     values: T;
-    rules?: Rules<T>;
+    rules: Rules<T>;
     message?: Message<Rules<T>>;
 }
 
-class Validator {
+class Validator<T extends Record<string, any>> {
+
+    private values: T;
+    private rules: Rules<T>;
+    private messges?: Message<T>
+    private fails = true;
+    private validated: Partial<T> = {};
+    private errors: Partial<Error<T>> = {};
+
+    constructor(options: Options<T>) {
+        if (!options.values && Object.keys(options.values))
+            throw new Error("Expecting values for validation");
+        if (!options.rules && Object.keys(options.rules))
+            throw new Error("Expecting rules defination for validation");
+
+        this.values = options.values;
+        this.rules = options.rules;
+        this.messges = options.message;
+    }
+
+    validate() {
+        for (const [key, ruleArr] of Object.entries(this.rules)) {
+            for (const rule of ruleArr) {
+                const ruleKeyValue = rule.split(':');
+                if (ruleKeyValue.length === 0) throw new Error(`Invalid Rule ${rule}`);
+
+                const ruleKey = ruleKeyValue[0];
+                const ruleParam = ruleKeyValue[1]?.split(',') ?? [];
+
+            }
+        }
+    }
 
 }
 
