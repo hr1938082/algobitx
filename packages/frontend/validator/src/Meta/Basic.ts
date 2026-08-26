@@ -1,0 +1,27 @@
+import { MetaRecord } from ".";
+
+const Basic = {
+    accepted: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    alpha: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    alpha_numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    alpha_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    alpha_numeric_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    array: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    ascii: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    boolean: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    declined: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    required: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    date: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    email: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    must_contains_upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    small_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    must_contains_small_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    must_contains_numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    must_contains_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+} as const satisfies MetaRecord;
+
+export default Basic
+
