@@ -5,6 +5,6 @@ const Accepted: Validate = (value: unknown, params: string[]): boolean => value 
     value === 1 ||
     value === "1" ||
     value === true ||
-    value === "true"
+    value === "true";
 
 export default Accepted

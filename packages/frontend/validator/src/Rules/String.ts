@@ -1,8 +1,4 @@
-const String = (value: unknown, params: string[]): value is string => {
-    if (typeof value === 'string') {
-        return false;
-    }
-    return true;
-}
+const String = (value: unknown, params: string[]): value is string =>
+    typeof value === 'string';
 
-export default String
+export default String;
