@@ -13,6 +13,7 @@ import Date from "../Rules/Date";
 import Declined from "../Rules/Declined";
 import Email from "../Rules/Email";
 import LowerCase from "../Rules/LowerCase";
+import Numeric from "../Rules/Numeric";
 import Required from "../Rules/Required";
 import String from "../Rules/String";
 import UpperCase from "../Rules/UpperCase";
@@ -34,7 +35,7 @@ const Basic = {
     contains_upper_case: { validate: ContainsUpperCase, params: 0 },
     lower_case: { validate: LowerCase, params: 0 },
     contains_lower_case: { validate: ContainsLowerCase, params: 0 },
-    numeric: { validate: (value: unknown) => true, params: 0 },
+    numeric: { validate: Numeric, params: 0 },
     contains_numeric: { validate: (value: unknown) => true, params: 0 },
     symbols: { validate: (value: unknown) => true, params: 0 },
     string: { validate: String, params: 0 },
