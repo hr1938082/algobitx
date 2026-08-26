@@ -26,15 +26,15 @@ const Basic = {
     required: { validate: Required, params: 0 },
     date: { validate: Date, params: 0 },
     email: { validate: Email, params: 0 },
-    upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
-    must_contains_upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
-    small_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
-    must_contains_small_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
-    numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
-    must_contains_numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
-    symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    upper_case: { validate: (value: unknown) => true, params: 0 },
+    must_contains_upper_case: { validate: (value: unknown) => true, params: 0 },
+    small_case: { validate: (value: unknown) => true, params: 0 },
+    must_contains_small_case: { validate: (value: unknown) => true, params: 0 },
+    numeric: { validate: (value: unknown) => true, params: 0 },
+    must_contains_numeric: { validate: (value: unknown) => true, params: 0 },
+    symbols: { validate: (value: unknown) => true, params: 0 },
     string: { validate: String, params: 0 },
-    must_contains_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    must_contains_symbols: { validate: (value: unknown) => true, params: 0 },
 } as const satisfies MetaRecord;
 
 export default Basic

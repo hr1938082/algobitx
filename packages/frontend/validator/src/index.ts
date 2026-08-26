@@ -57,9 +57,10 @@ interface ValidationResult<T> {
 
 const metaCollection = {
     ...Meta.basic,
+    ...Meta.value,
+    ...Meta.two_values,
     ...Meta.key,
     ...Meta.key_value,
-    ...Meta.value
 } as const;
 
 
@@ -130,7 +131,7 @@ class Validator<T extends Record<string, unknown>> {
                 const meta = metaCollection[ruleKey as keyof typeof metaCollection];
                 if (!meta || meta.params !== ruleParams.length) throw error;
 
-                const res = meta.validate(this._values[key], ruleParams);
+                const res = meta.validate(this._values[key], ...ruleParams);
 
                 if (!res) {
                     currentFails = true;

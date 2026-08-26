@@ -4,7 +4,7 @@ import KeyValueRules from "./KeyValue";
 import TwoValues from "./TwoValues";
 import ValueRules from "./Value";
 
-export type Validate = (value: unknown, params: string[]) => boolean
+export type Validate = (value: unknown, ...params: string[]) => boolean
 export type MetaRecord = Record<string, { validate: Validate, params: number }>;
 
 const Meta = {
