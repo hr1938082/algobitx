@@ -1,5 +1,6 @@
 import { MetaRecord } from ".";
 import Accepted from "../Rules/Accepted";
+import String from "../Rules/String";
 
 const Basic = {
     accepted: { validate: Accepted, params: 0 },
@@ -21,6 +22,7 @@ const Basic = {
     numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
     must_contains_numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
     symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    string: { validate: String, params: 0 },
     must_contains_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
 } as const satisfies MetaRecord;
 
