@@ -1,10 +1,11 @@
 import { MetaRecord } from ".";
+import Max from "../Rules/Max";
 import Min from "../Rules/Min";
 import Regex from "../Rules/Regex";
 
 const Value = {
     min: { validate: Min, params: 1 },
-    max: { validate: (value: unknown) => true, params: 1 },
+    max: { validate: Max, params: 1 },
     regex: { validate: Regex, params: 1 },
     date_equals_to: { validate: (value: unknown) => true, params: 1 },
     date_greater_than: { validate: (value: unknown) => true, params: 1 },
