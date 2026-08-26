@@ -7,6 +7,7 @@ import AlphaSymbol from "../Rules/AlphaSymbol";
 import Array from "../Rules/Array";
 import Ascii from "../Rules/Ascii";
 import Boolean from "../Rules/Boolean";
+import ContainsLowerCase from "../Rules/ContainsLowerCase";
 import ContainsUpperCase from "../Rules/ContainsUpperCase";
 import Date from "../Rules/Date";
 import Declined from "../Rules/Declined";
@@ -32,7 +33,7 @@ const Basic = {
     upper_case: { validate: UpperCase, params: 0 },
     contains_upper_case: { validate: ContainsUpperCase, params: 0 },
     lower_case: { validate: LowerCase, params: 0 },
-    contains_lower_case: { validate: (value: unknown) => true, params: 0 },
+    contains_lower_case: { validate: ContainsLowerCase, params: 0 },
     numeric: { validate: (value: unknown) => true, params: 0 },
     contains_numeric: { validate: (value: unknown) => true, params: 0 },
     symbols: { validate: (value: unknown) => true, params: 0 },
