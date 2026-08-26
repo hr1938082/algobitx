@@ -8,6 +8,7 @@ import Array from "../Rules/Array";
 import Ascii from "../Rules/Ascii";
 import Boolean from "../Rules/Boolean";
 import Declined from "../Rules/Declined";
+import Required from "../Rules/Required";
 import String from "../Rules/String";
 
 const Basic = {
@@ -20,7 +21,7 @@ const Basic = {
     ascii: { validate: Ascii, params: 0 },
     boolean: { validate: Boolean, params: 0 },
     declined: { validate: Declined, params: 0 },
-    required: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    required: { validate: Required, params: 0 },
     date: { validate: (value: unknown, params: string[]) => true, params: 0 },
     email: { validate: (value: unknown, params: string[]) => true, params: 0 },
     upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
