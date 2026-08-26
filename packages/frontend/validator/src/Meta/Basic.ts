@@ -5,6 +5,7 @@ import AlphaNumeric from "../Rules/AlphaNumeric";
 import AlphaNumericSymbol from "../Rules/AlphaNumericSymbol";
 import AlphaSymbol from "../Rules/AlphaSymbol";
 import Array from "../Rules/Array";
+import Ascii from "../Rules/Ascii";
 import String from "../Rules/String";
 
 const Basic = {
@@ -14,7 +15,7 @@ const Basic = {
     alpha_symbols: { validate: AlphaSymbol, params: 0 },
     alpha_numeric_symbols: { validate: AlphaNumericSymbol, params: 0 },
     array: { validate: Array, params: 0 },
-    ascii: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    ascii: { validate: Ascii, params: 0 },
     boolean: { validate: (value: unknown, params: string[]) => true, params: 0 },
     declined: { validate: (value: unknown, params: string[]) => true, params: 0 },
     required: { validate: (value: unknown, params: string[]) => true, params: 0 },
