@@ -12,6 +12,7 @@ import Declined from "../Rules/Declined";
 import Email from "../Rules/Email";
 import Required from "../Rules/Required";
 import String from "../Rules/String";
+import UpperCase from "../Rules/UpperCase";
 
 const Basic = {
     accepted: { validate: Accepted, params: 0 },
@@ -26,7 +27,7 @@ const Basic = {
     required: { validate: Required, params: 0 },
     date: { validate: Date, params: 0 },
     email: { validate: Email, params: 0 },
-    upper_case: { validate: (value: unknown) => true, params: 0 },
+    upper_case: { validate: UpperCase, params: 0 },
     must_contains_upper_case: { validate: (value: unknown) => true, params: 0 },
     small_case: { validate: (value: unknown) => true, params: 0 },
     must_contains_small_case: { validate: (value: unknown) => true, params: 0 },
