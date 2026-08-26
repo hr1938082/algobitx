@@ -1,6 +1,6 @@
 import { Validate } from "../Meta";
 
-const Array: Validate = (value: unknown): boolean =>
+const Array = (value: unknown): value is unknown[] =>
     globalThis.Array.isArray(value);
 
 export default Array
