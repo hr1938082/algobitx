@@ -1,10 +1,11 @@
 import { MetaRecord } from ".";
 import Accepted from "../Rules/Accepted";
+import Alpha from "../Rules/Alpha";
 import String from "../Rules/String";
 
 const Basic = {
     accepted: { validate: Accepted, params: 0 },
-    alpha: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    alpha: { validate: Alpha, params: 0 },
     alpha_numeric: { validate: (value: unknown, params: string[]) => true, params: 0 },
     alpha_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
     alpha_numeric_symbols: { validate: (value: unknown, params: string[]) => true, params: 0 },
