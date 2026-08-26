@@ -1,6 +1,6 @@
 import { Validate } from "../Meta";
 
-const Declined: Validate = (value: unknown, params: string[]): boolean => value === "no" ||
+const Declined: Validate = (value: unknown): boolean => value === "no" ||
     value === "off" ||
     value === 0 ||
     value === "0" ||

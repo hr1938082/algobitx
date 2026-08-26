@@ -1,6 +1,6 @@
 import { Validate } from "../Meta";
 
-const Boolean: Validate = (value: unknown, params: string[]): boolean => value === true ||
+const Boolean: Validate = (value: unknown): boolean => value === true ||
     value === false ||
     value === 'true' ||
     value === 'false' ||
