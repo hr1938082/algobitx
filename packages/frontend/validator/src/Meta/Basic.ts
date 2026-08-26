@@ -8,6 +8,7 @@ import Array from "../Rules/Array";
 import Ascii from "../Rules/Ascii";
 import Boolean from "../Rules/Boolean";
 import ContainsLowerCase from "../Rules/ContainsLowerCase";
+import ContainsNumeric from "../Rules/ContainsNumeric";
 import ContainsUpperCase from "../Rules/ContainsUpperCase";
 import Date from "../Rules/Date";
 import Declined from "../Rules/Declined";
@@ -36,10 +37,10 @@ const Basic = {
     lower_case: { validate: LowerCase, params: 0 },
     contains_lower_case: { validate: ContainsLowerCase, params: 0 },
     numeric: { validate: Numeric, params: 0 },
-    contains_numeric: { validate: (value: unknown) => true, params: 0 },
+    contains_numeric: { validate: ContainsNumeric, params: 0 },
     symbols: { validate: (value: unknown) => true, params: 0 },
-    string: { validate: String, params: 0 },
     contains_symbols: { validate: (value: unknown) => true, params: 0 },
+    string: { validate: String, params: 0 },
 } as const satisfies MetaRecord;
 
 export default Basic
