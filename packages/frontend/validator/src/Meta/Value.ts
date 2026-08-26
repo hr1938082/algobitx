@@ -1,4 +1,5 @@
 import { MetaRecord } from ".";
+import DateEquals from "../Rules/DateEquals";
 import Max from "../Rules/Max";
 import Min from "../Rules/Min";
 import Regex from "../Rules/Regex";
@@ -7,7 +8,7 @@ const Value = {
     min: { validate: Min, params: 1 },
     max: { validate: Max, params: 1 },
     regex: { validate: Regex, params: 1 },
-    date_equals: { validate: (value: unknown) => true, params: 1 },
+    date_equals: { validate: DateEquals, params: 1 },
     date_before: { validate: (value: unknown) => true, params: 1 },
     date_before_or_equals: { validate: (value: unknown) => true, params: 1 },
     date_after: { validate: (value: unknown) => true, params: 1 },
