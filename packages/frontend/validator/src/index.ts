@@ -1,27 +1,35 @@
-import Meta from "./Meta";
+import Meta, { MetaCollection } from "./Meta";
 import Messages from "./Messages";
 
 type BasicRules = keyof typeof Meta.basic;
 type ValuesRules = keyof typeof Meta.value;
 type TwoValuesRules = keyof typeof Meta.two_values;
+type MultipleValues = keyof typeof Meta.multipe_values;
 type KeyRules = keyof typeof Meta.key;
 type KeyValueRules = keyof typeof Meta.key_value;
 
-export type Keys = BasicRules | ValuesRules | TwoValuesRules | KeyRules | KeyValueRules;
+export type Keys = BasicRules |
+    ValuesRules |
+    TwoValuesRules |
+    MultipleValues |
+    KeyRules |
+    KeyValueRules;
 
 type CommaSeparatedKeyValue<T> = `${Extract<keyof T, string>},value`;
 
 type ValueRulesWithParams = `${ValuesRules}:value`;
 type TwoValuesRulesWithParams = `${TwoValuesRules}:value,value`;
+type MultipleValuesRulesWithParams = `${MultipleValues}:value,...`;
 type KeyRulesWithParam<T> = `${KeyRules}:${Extract<keyof T, string>}`;
 type KeyValueRuleWithParams<T> = `${KeyValueRules}:${CommaSeparatedKeyValue<T>}`
 
-type KeysWithParam<T> = BasicRules
-    | ValueRulesWithParams
-    | TwoValuesRulesWithParams
-    | KeyRulesWithParam<T>
-    | KeyValueRuleWithParams<T>
-    | (`${string}` & {});
+type KeysWithParam<T> = BasicRules |
+    ValueRulesWithParams |
+    TwoValuesRulesWithParams |
+    MultipleValuesRulesWithParams |
+    KeyRulesWithParam<T> |
+    KeyValueRuleWithParams<T> |
+    (`${string}` & {});
 
 
 export type Rules<T> = {
@@ -54,14 +62,6 @@ interface ValidationResult<T> {
     validated: Partial<T>;
     errors: ValidationError<T>;
 }
-
-const metaCollection = {
-    ...Meta.basic,
-    ...Meta.value,
-    ...Meta.two_values,
-    ...Meta.key,
-    ...Meta.key_value,
-} as const;
 
 
 class Validator<T extends Record<string, unknown>> {
@@ -122,13 +122,13 @@ class Validator<T extends Record<string, unknown>> {
                     : rule.slice(0, separator);
 
                 const error = new Error(`Invalid Rule ${rule}`);
-                if (!ruleKey || !(ruleKey in metaCollection)) throw error;
+                if (!ruleKey || !(ruleKey in MetaCollection)) throw error;
 
                 const ruleParams = separator === -1
                     ? []
                     : rule.slice(separator + 1).split(',');
 
-                const meta = metaCollection[ruleKey as keyof typeof metaCollection];
+                const meta = MetaCollection[ruleKey as keyof typeof MetaCollection];
                 if (!meta || meta.params !== ruleParams.length) throw error;
 
                 const res = meta.validate(this._values[key], ...ruleParams);
@@ -204,6 +204,6 @@ Validator.define({
         test: '124'
     },
     rules: {
-        test: ['required', 'between:1,2']
+        test: ['required', 'between:1,2',]
     }
 })

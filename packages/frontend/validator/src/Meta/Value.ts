@@ -2,7 +2,6 @@ import { MetaRecord } from ".";
 import Regex from "../Rules/Regex";
 
 const Value = {
-    contains: { validate: (value: unknown) => true, params: 1 },
     min: { validate: (value: unknown) => true, params: 1 },
     max: { validate: (value: unknown) => true, params: 1 },
     regex: { validate: Regex, params: 1 },
