@@ -94,13 +94,17 @@ class Validator<T extends Record<string, unknown>> {
         return new Validator(options);
     }
 
-    validate(): ValidationResult<T> {
+    validate(...fields: Extract<keyof T, string>[]): ValidationResult<T> {
         this._failed = false;
         this._validated = {};
         this._errors = {};
 
         for (const key of Object.keys(this.rules) as (keyof T)[]) {
+            if (fields.length > 0 && !fields.some(field => field === key))
+                continue;
+
             let currentFails = false;
+
             const shouldBail = typeof this.bail === 'boolean'
                 ? this.bail
                 : this.bail[key] ?? true;
