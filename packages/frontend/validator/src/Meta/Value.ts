@@ -1,5 +1,6 @@
 import { MetaRecord } from ".";
 import DateAfter from "../Rules/DateAfter";
+import DateAfterOrEquals from "../Rules/DateAfterOrEquals";
 import DateBefore from "../Rules/DateBefore";
 import DateBeforeOrEquals from "../Rules/DateBeforeOrEquals";
 import DateEquals from "../Rules/DateEquals";
@@ -15,7 +16,7 @@ const Value = {
     date_before: { validate: DateBefore, params: 1 },
     date_before_or_equals: { validate: DateBeforeOrEquals, params: 1 },
     date_after: { validate: DateAfter, params: 1 },
-    date_after_or_equals: { validate: (value: unknown) => true, params: 1 },
+    date_after_or_equals: { validate: DateAfterOrEquals, params: 1 },
 } as const satisfies MetaRecord;
 
 export default Value
