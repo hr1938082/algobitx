@@ -1,7 +1,6 @@
 import { Validate } from "../Meta";
-import String from "./String";
+import Regex from "./Regex";
 
-const Alpha: Validate = (value: unknown): boolean =>
-    String(value) && new RegExp("^[A-Za-z]+$").test(value);
+const Alpha: Validate = (value: unknown): boolean => Regex(value, "^[A-Za-z]+$")
 
 export default Alpha
