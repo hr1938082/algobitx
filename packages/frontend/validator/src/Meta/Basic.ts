@@ -9,6 +9,7 @@ import Ascii from "../Rules/Ascii";
 import Boolean from "../Rules/Boolean";
 import Date from "../Rules/Date";
 import Declined from "../Rules/Declined";
+import Email from "../Rules/Email";
 import Required from "../Rules/Required";
 import String from "../Rules/String";
 
@@ -24,7 +25,7 @@ const Basic = {
     declined: { validate: Declined, params: 0 },
     required: { validate: Required, params: 0 },
     date: { validate: Date, params: 0 },
-    email: { validate: (value: unknown, params: string[]) => true, params: 0 },
+    email: { validate: Email, params: 0 },
     upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
     must_contains_upper_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
     small_case: { validate: (value: unknown, params: string[]) => true, params: 0 },
