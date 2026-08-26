@@ -1,7 +1,8 @@
 import { MetaRecord } from ".";
+import Between from "../Rules/Between";
 
 const TwoValues = {
-    between: { validate: (value: unknown) => true, params: 2 }
+    between: { validate: Between, params: 2 }
 } as const satisfies MetaRecord;
 
 export default TwoValues
