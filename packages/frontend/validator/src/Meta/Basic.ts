@@ -17,7 +17,7 @@ import LowerCase from "../Rules/LowerCase";
 import Numeric from "../Rules/Numeric";
 import Required from "../Rules/Required";
 import String from "../Rules/String";
-import Symbols from "../Rules/Symbols";
+import Symbol from "../Rules/Symbol";
 import UpperCase from "../Rules/UpperCase";
 
 const Basic = {
@@ -39,7 +39,7 @@ const Basic = {
     contains_lower_case: { validate: ContainsLowerCase, params: 0 },
     numeric: { validate: Numeric, params: 0 },
     contains_numeric: { validate: ContainsNumeric, params: 0 },
-    symbols: { validate: Symbols, params: 0 },
+    symbols: { validate: Symbol, params: 0 },
     contains_symbols: { validate: (value: unknown) => true, params: 0 },
     string: { validate: String, params: 0 },
 } as const satisfies MetaRecord;
