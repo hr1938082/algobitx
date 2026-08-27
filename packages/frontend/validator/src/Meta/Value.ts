@@ -1,12 +1,12 @@
 import { MetaRecord } from ".";
-import DateAfter from "../Rules/DateAfter";
-import DateAfterOrEquals from "../Rules/DateAfterOrEquals";
-import DateBefore from "../Rules/DateBefore";
-import DateBeforeOrEquals from "../Rules/DateBeforeOrEquals";
-import DateEquals from "../Rules/DateEquals";
-import Max from "../Rules/Max";
-import Min from "../Rules/Min";
-import Regex from "../Rules/Regex";
+import DateAfter from "../Rules/Public/DateAfter";
+import DateAfterOrEquals from "../Rules/Public/DateAfterOrEquals";
+import DateBefore from "../Rules/Public/DateBefore";
+import DateBeforeOrEquals from "../Rules/Public/DateBeforeOrEquals";
+import DateEquals from "../Rules/Public/DateEquals";
+import Max from "../Rules/Public/Max";
+import Min from "../Rules/Public/Min";
+import Regex from "../Rules/Public/Regex";
 
 const Value = {
     min: { validate: Min, params: 1, type: 'public' },

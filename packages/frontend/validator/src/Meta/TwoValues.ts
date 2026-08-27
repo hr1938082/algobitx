@@ -1,5 +1,5 @@
 import { MetaRecord } from ".";
-import Between from "../Rules/Between";
+import Between from "../Rules/Public/Between";
 
 const TwoValues = {
     between: { validate: Between, params: 2, type: 'public' }
