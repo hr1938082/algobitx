@@ -1,7 +1,7 @@
 import { Validate } from "../Meta";
 import Date from "./Date";
 
-const DateAfterOrEquals: Validate = (value: unknown, param: string): boolean =>
+const DateAfterOrEquals: Validate = (value: unknown, param: unknown): boolean =>
     Date(value) && Date(param) &&
     new globalThis.Date(value).getTime()
     >= new globalThis.Date(param).getTime()

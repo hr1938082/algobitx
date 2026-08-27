@@ -2,7 +2,7 @@ import { Validate } from "../Meta";
 import Array from "./Array";
 import Numeric from "./Numeric";
 
-const Min: Validate = (value: unknown, param: string): boolean => {
+const Min: Validate = (value: unknown, param: unknown): boolean => {
     if (!Numeric(param))
         throw new Error(`Invalid min expecting number found ${param}`);
 

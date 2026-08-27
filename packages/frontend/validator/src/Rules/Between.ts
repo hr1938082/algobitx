@@ -3,7 +3,7 @@ import Array from "./Array";
 import Numeric from "./Numeric";
 import String from "./String";
 
-const Between: Validate = (value: unknown, ...params: string[]): boolean => {
+const Between: Validate = (value: unknown, ...params: unknown[]): boolean => {
     if (params.length !== 2 && !Numeric(params[0]) && !Numeric(params[1]))
         throw new Error(`Invalid Between expecting two numbers found ${params.length}`);
 
