@@ -5,7 +5,7 @@ import MultipleValues from "./MultipleValues";
 import TwoValues from "./TwoValues";
 import ValueRules from "./Value";
 
-export type Validate = (...params: unknown[]) => boolean
+export type Validate = (value: unknown, ...params: unknown[]) => boolean
 export type MetaRecord = Record<string, { validate: Validate, params: number }>;
 
 const Meta = {
