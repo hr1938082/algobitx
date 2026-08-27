@@ -1,15 +1,15 @@
 import { MetaRecord } from ".";
-import AcceptedIf from "../Rules/Internal/AcceptedIf";
-import DeclinedIf from "../Rules/Internal/DeclinedIf";
-import RequiredIf from "../Rules/Internal/RequiredIf";
+import AcceptedIfAccepted from "../Rules/Internal/AcceptedIfAccepted";
+import DeclinedIfDeclined from "../Rules/Internal/DeclinedIfDeclined";
+import RequiredIfRequired from "../Rules/Internal/RequiredIfRequired";
 import RequiredIfAccepted from "../Rules/Internal/RequiredIfAccepted";
 import RequiredIfDeclined from "../Rules/Internal/RequiredIfDeclined";
 import Same from "../Rules/Internal/Same";
 
 const Key = {
-    accepted_if: { validate: AcceptedIf, params: 1, type: 'internal' },
-    declined_if: { validate: DeclinedIf, params: 1, type: 'internal' },
-    required_if: { validate: RequiredIf, params: 1, type: 'internal' },
+    accepted_if_accepted: { validate: AcceptedIfAccepted, params: 1, type: 'internal' },
+    declined_if_declined: { validate: DeclinedIfDeclined, params: 1, type: 'internal' },
+    required_if_required: { validate: RequiredIfRequired, params: 1, type: 'internal' },
     required_if_accepted: { validate: RequiredIfAccepted, params: 1, type: 'internal' },
     required_if_declined: { validate: RequiredIfDeclined, params: 1, type: 'internal' },
     same: { validate: Same, params: 1, type: 'internal' },
