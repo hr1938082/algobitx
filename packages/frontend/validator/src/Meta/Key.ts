@@ -1,7 +1,8 @@
 import { MetaRecord } from ".";
+import AcceptedIf from "../Rules/Internal/AcceptedIf";
 
 const Key = {
-    accepted_if: { validate: (value: unknown) => true, params: 1, type: 'internal' },
+    accepted_if: { validate: AcceptedIf, params: 1, type: 'internal' },
     declined_if: { validate: (value: unknown) => true, params: 1, type: 'internal' },
     required_if: { validate: (value: unknown) => true, params: 1, type: 'internal' },
     required_if_accepted: { validate: (value: unknown) => true, params: 1, type: 'internal' },
