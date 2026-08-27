@@ -1,31 +1,23 @@
-import BasicRules from "./Basic";
-import KeyRules from "./Key";
-import KeyValueRules from "./KeyValue";
+import Basic from "./Basic";
+import Key from "./Key";
+import KeyValue from "./KeyValue";
 import MultipleValues from "./MultipleValues";
 import TwoValues from "./TwoValues";
-import ValueRules from "./Value";
+import Value from "./Value";
+
+type ValidateType = 'internal' | 'public'
 
 export type Validate = (value: unknown, ...params: unknown[]) => boolean
-export type MetaRecord = Record<string, { validate: Validate, params: number }>;
+export type MetaRecord = Record<string, { validate: Validate, params: number, type: ValidateType }>;
+
 
 const Meta = {
-    basic: BasicRules,
-    value: ValueRules,
-    two_values: TwoValues,
-    multipe_values: MultipleValues,
-    key: KeyRules,
-    key_value: KeyValueRules,
-}
-
-const MetaCollection = {
-    ...Meta.basic,
-    ...Meta.value,
-    ...Meta.two_values,
-    ...Meta.multipe_values,
-    ...Meta.key,
-    ...Meta.key_value,
+    ...Basic,
+    ...Value,
+    ...TwoValues,
+    ...MultipleValues,
+    ...Key,
+    ...KeyValue,
 } as const;
-
-export { MetaCollection }
 
 export default Meta;

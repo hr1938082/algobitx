@@ -1,12 +1,18 @@
-import Meta, { MetaCollection } from "./Meta";
+import Meta from "./Meta";
 import Messages from "./Messages";
+import Basic from "./Meta/Basic";
+import Value from "./Meta/Value";
+import TwoValues from "./Meta/TwoValues";
+import MultipleValues from "./Meta/MultipleValues";
+import Key from "./Meta/Key";
+import KeyValue from "./Meta/KeyValue";
 
-type BasicRules = keyof typeof Meta.basic;
-type ValuesRules = keyof typeof Meta.value;
-type TwoValuesRules = keyof typeof Meta.two_values;
-type MultipleValues = keyof typeof Meta.multipe_values;
-type KeyRules = keyof typeof Meta.key;
-type KeyValueRules = keyof typeof Meta.key_value;
+type BasicRules = keyof typeof Basic;
+type ValuesRules = keyof typeof Value;
+type TwoValuesRules = keyof typeof TwoValues;
+type MultipleValues = keyof typeof MultipleValues;
+type KeyRules = keyof typeof Key;
+type KeyValueRules = keyof typeof KeyValue;
 
 export type Keys = BasicRules |
     ValuesRules |
@@ -122,16 +128,18 @@ class Validator<T extends Record<string, unknown>> {
                     : rule.slice(0, separator);
 
                 const error = new Error(`Invalid Rule ${rule}`);
-                if (!ruleKey || !(ruleKey in MetaCollection)) throw error;
+                if (!ruleKey || !(ruleKey in Meta)) throw error;
 
                 const ruleParams = separator === -1
                     ? []
                     : rule.slice(separator + 1).split(',');
 
-                const meta = MetaCollection[ruleKey as keyof typeof MetaCollection];
+                const meta = Meta[ruleKey as keyof typeof Meta];
                 if (!meta || meta.params !== ruleParams.length) throw error;
 
-                const res = meta.validate(this._values[key], ...ruleParams);
+                const res = meta.type === 'public'
+                    ? meta.validate(this._values[key], ...ruleParams)
+                    : meta.validate(this._values[key], this._values, ...ruleParams);
 
                 if (!res) {
                     currentFails = true;
