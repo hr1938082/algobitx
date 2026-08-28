@@ -7,7 +7,7 @@ const KeyValueCheck = (values: unknown, ...params: unknown[]) => {
 
     if (!PlainObject(values)) throw new Error("Invalid Values");
 
-    for (let index = 0; index < params.length; index + 2) {
+    for (let index = 0; index < params.length; index += 2) {
         const valueToMatchKey = params[index];
         if (!String(valueToMatchKey))
             throw new Error(`Invalid Key expecting string found ${valueToMatchKey}`);
