@@ -6,6 +6,7 @@ import TwoValues from "./Meta/TwoValues";
 import MultipleValues from "./Meta/MultipleValues";
 import Key from "./Meta/Key";
 import KeyValue from "./Meta/KeyValue";
+import PlainObject from "./Rules/Public/PlainObject";
 
 type BasicRules = keyof typeof Basic;
 type ValuesRules = keyof typeof Value;
@@ -80,10 +81,7 @@ class Validator<T extends Record<string, unknown>> {
     private _errors: ValidationError<T> = {};
 
     constructor(options: Options<T>) {
-        if (!options.values ||
-            typeof options.values !== 'object' ||
-            Array.isArray(options.values)
-        )
+        if (!options.values || PlainObject(options.values))
             throw new Error("Expecting values for validation");
         if (!options.rules || Object.keys(options.rules).length === 0)
             throw new Error("Expecting rules defination for validation");
