@@ -1,11 +1,9 @@
-import { Validate } from "../../Meta";
 import String from "./String";
 
-const Date = (value: unknown): value is Date => {
+const Date = (value: unknown): value is string => {
     if (!String(value)) return false;
     const date = new globalThis.Date(value);
-    if (!isNaN(date.getTime())) return false;
-    return true;
+    return !Number.isNaN(date.getTime());
 }
 
 export default Date;
