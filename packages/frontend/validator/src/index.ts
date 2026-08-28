@@ -167,7 +167,12 @@ class Validator<T extends Record<string, unknown>> {
     }
 
     update(values: T) {
+        if (!PlainObject(values))
+            throw new Error("Expecting values for validation");
         this._values = values;
+        this._failed = false;
+        this._validated = {};
+        this._errors = {};
         return this;
     }
 
@@ -203,13 +208,3 @@ class Validator<T extends Record<string, unknown>> {
 }
 
 export default Validator;
-
-
-Validator.define({
-    values: {
-        test: '124'
-    },
-    rules: {
-        test: ['required', 'between:1,2',]
-    }
-})
