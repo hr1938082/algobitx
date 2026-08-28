@@ -81,7 +81,7 @@ class Validator<T extends Record<string, unknown>> {
     private _errors: ValidationError<T> = {};
 
     constructor(options: Options<T>) {
-        if (!options.values || PlainObject(options.values))
+        if (!options.values || !PlainObject(options.values))
             throw new Error("Expecting values for validation");
         if (!options.rules || Object.keys(options.rules).length === 0)
             throw new Error("Expecting rules defination for validation");
