@@ -4,7 +4,7 @@ import Numeric from "./Numeric";
 
 const Max: Validate = (value: unknown, param: unknown): boolean => {
     if (!Numeric(param))
-        throw new Error(`Invalid man expecting number found ${param}`);
+        throw new Error(`Invalid max expecting number found ${param}`);
 
     if (Numeric(value) && value <= param) return true;
     if (Array(value) && value.length <= param) return true;
