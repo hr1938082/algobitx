@@ -74,7 +74,7 @@ interface ValidationResult<T> {
 class Validator<T extends Record<string, unknown>> {
     private _values: T;
     private rules: Rules<T>;
-    private messages?: Message<T>
+    private messages?: Message<T>;
     private bail: boolean | Bail<T>;
     private _failed = false;
     private _validated: Partial<T> = {};
