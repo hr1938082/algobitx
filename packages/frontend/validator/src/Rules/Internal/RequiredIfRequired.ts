@@ -9,10 +9,10 @@ const RequiredIfRequired: Validate = (value: unknown, values: unknown, ...params
 
     for (const key of params) {
         if (!String(key)) throw new Error(`Invalid Key expecting string found ${key}`);
-        if (!Required(values[key])) return false;
+        if (!Required(values[key])) return true;
     }
-    if (!Required(value)) return false;
-    return true;
+
+    return Required(value);
 }
 
 export default RequiredIfRequired

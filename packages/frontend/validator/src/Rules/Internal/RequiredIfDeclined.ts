@@ -11,10 +11,10 @@ const RequiredIfDeclined: Validate = (value: unknown, values: unknown, ...params
 
     for (const key of params) {
         if (!String(key)) throw new Error(`Invalid Key expecting string found ${key}`);
-        if (!Declined(values[key])) return false;
+        if (!Declined(values[key])) return true;
     }
-    if (!Required(value)) return false;
-    return true;
+    if (Required(value)) return true;
+    return false;
 }
 
 export default RequiredIfDeclined
