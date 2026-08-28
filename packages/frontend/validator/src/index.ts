@@ -195,11 +195,11 @@ class Validator<T extends Record<string, unknown>> {
     }
 
     private get validated() {
-        return structuredClone(this._validated);
+        return this._validated;
     }
 
     private get errors() {
-        return structuredClone(this._errors);
+        return this._errors;
     }
 
 }
