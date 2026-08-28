@@ -2,7 +2,7 @@ import PlainObject from "../Public/PlainObject";
 import String from "../Public/String";
 
 const KeyValueCheck = (values: unknown, ...params: unknown[]) => {
-    if (params.length === 0 && params.length % 2 !== 0)
+    if (params.length === 0 || params.length % 2 !== 0)
         throw new Error("Invalid key value");
 
     if (!PlainObject(values)) throw new Error("Invalid Values");
