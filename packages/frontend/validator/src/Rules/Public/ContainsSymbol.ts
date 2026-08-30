@@ -1,6 +1,6 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
-const ContainsSymbol: Validate = (value: unknown): boolean => Regex(value, ".*[!-/:-@[-`{-~].*");
+const ContainsSymbol: PublicRuleDefinition = (value) => Regex(value, ".*[!-/:-@[-`{-~].*");
 
 export default ContainsSymbol;

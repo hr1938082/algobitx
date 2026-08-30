@@ -1,7 +1,7 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
-const AlphaSymbol: Validate = (value: unknown): boolean =>
+const AlphaSymbol: PublicRuleDefinition = (value) =>
     Regex(value, "^[A-Za-z!@#\\$%\\^\\&*\\)\\(+=._-]+$");
 
 export default AlphaSymbol;

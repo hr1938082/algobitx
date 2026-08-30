@@ -1,6 +1,6 @@
-import { Validate } from "../../Meta"
+import { PublicRuleDefinition } from "../../Meta";
 
-const Accepted: Validate = (value: unknown): boolean => value === "yes" ||
+const Accepted: PublicRuleDefinition = (value) => value === "yes" ||
     value === "on" ||
     value === 1 ||
     value === "1" ||

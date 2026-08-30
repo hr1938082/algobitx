@@ -1,6 +1,6 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
-const AlphaNumeric: Validate = (value: unknown): boolean => Regex(value, "^[A-Za-z0-9]+$")
+const AlphaNumeric: PublicRuleDefinition = (value) => Regex(value, "^[A-Za-z0-9]+$")
 
 export default AlphaNumeric

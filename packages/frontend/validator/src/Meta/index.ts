@@ -1,23 +1,67 @@
 import Basic from "./Basic";
-import Key from "./Key";
-import KeyValue from "./KeyValue";
+import Key, { KeyRuleValue } from "./Key";
+import MultipleKeys, { MultipleKeyRuleValue } from "./MultipleKeys";
+import MultipleKeyValues, { MultipleKeyValuesRulesValue } from "./MultipleKeyValues";
 import MultipleValues from "./MultipleValues";
 import TwoValues from "./TwoValues";
 import Value from "./Value";
 
-type ValidateType = 'internal' | 'public'
+export type PublicRuleDefinition<
+    TParams extends readonly unknown[] = []
+> = (value: unknown, ...params: TParams) => boolean;
 
-export type Validate = (value: unknown, ...params: unknown[]) => boolean
-export type MetaRecord = Record<string, { validate: Validate, params: number, type: ValidateType }>;
+type PublicRuleParams<T> =
+    T extends (...args: infer P) => boolean
+    ? P extends [unknown, ...infer R]
+    ? R
+    : never
+    : never;
+
+type PublicRuleValue<T> =
+    PublicRuleParams<T> extends []
+    ? true
+    : PublicRuleParams<T> extends [infer P]
+    ? P
+    : PublicRuleParams<T>;
 
 
-const Meta = {
+type PublicRules = {
+    [K in keyof typeof PublicMeta]?: PublicRuleValue<typeof PublicMeta[K]>;
+}
+
+type KeyRules<T extends Record<string, unknown>> = {
+    [K in keyof typeof Key]?: KeyRuleValue<T>;
+}
+type MultipleKeysRules<T extends Record<string, unknown>> = {
+    [K in keyof typeof MultipleKeys]?: MultipleKeyRuleValue<T>;
+}
+
+type MultipleKeyValuesRules<T extends Record<string, unknown>> = {
+    [K in keyof typeof MultipleKeyValues]?: MultipleKeyValuesRulesValue<T>;
+}
+
+type PrivateRules<T extends Record<string, unknown>> = KeyRules<T> &
+    MultipleKeysRules<T> &
+    MultipleKeyValuesRules<T>
+
+export type AnyRules<T extends Record<string, unknown>> = PublicRules & PrivateRules<T>;
+
+export const PublicMeta = {
     ...Basic,
     ...Value,
     ...TwoValues,
     ...MultipleValues,
+}
+
+export const PrivateMeta = {
     ...Key,
-    ...KeyValue,
+    ...MultipleKeys,
+    ...MultipleKeyValues,
+}
+
+const Meta = {
+    ...PublicMeta,
+    ...PrivateMeta
 } as const;
 
 export default Meta;

@@ -1,7 +1,7 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import String from "./String";
 
-const Regex: Validate = (value: unknown, pattern: unknown): boolean =>
-    String(value) && String(pattern) && new RegExp(pattern).test(value)
+const Regex: PublicRuleDefinition<[string]> = (value, pattern) =>
+    String(value) && new RegExp(pattern).test(value)
 
 export default Regex

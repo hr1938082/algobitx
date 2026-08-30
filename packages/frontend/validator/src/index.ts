@@ -1,59 +1,22 @@
-import Meta from "./Meta";
+import Meta, { AnyRules, PrivateMeta, PublicMeta } from "./Meta";
 import Messages from "./Messages";
-import Basic from "./Meta/Basic";
-import Value from "./Meta/Value";
-import TwoValues from "./Meta/TwoValues";
-import MultipleValues from "./Meta/MultipleValues";
-import Key from "./Meta/Key";
-import KeyValue from "./Meta/KeyValue";
 import PlainObject from "./Rules/Public/PlainObject";
 
-type BasicRules = keyof typeof Basic;
-type ValuesRules = keyof typeof Value;
-type TwoValuesRules = keyof typeof TwoValues;
-type MultipleValues = keyof typeof MultipleValues;
-type KeyRules = keyof typeof Key;
-type KeyValueRules = keyof typeof KeyValue;
-
-export type Keys = BasicRules |
-    ValuesRules |
-    TwoValuesRules |
-    MultipleValues |
-    KeyRules |
-    KeyValueRules;
-
-type CommaSeparatedKeyValue<T> = `${Extract<keyof T, string>},value`;
-
-type ValueRulesWithParams = `${ValuesRules}:value`;
-type TwoValuesRulesWithParams = `${TwoValuesRules}:value,value`;
-type MultipleValuesRulesWithParams = `${MultipleValues}:value,...`;
-type KeyRulesWithParam<T> = `${KeyRules}:${Extract<keyof T, string>}`;
-type KeyValueRuleWithParams<T> = `${KeyValueRules}:${CommaSeparatedKeyValue<T>}`
-
-type KeysWithParam<T> = BasicRules |
-    ValueRulesWithParams |
-    TwoValuesRulesWithParams |
-    MultipleValuesRulesWithParams |
-    KeyRulesWithParam<T> |
-    KeyValueRuleWithParams<T> |
-    (`${string}` & {});
-
-
-export type Rules<T> = {
-    [k in keyof T]?: KeysWithParam<T>[]
+export type Rules<T extends Record<string, unknown>> = {
+    [k in keyof T]?: AnyRules<T>
 }
 
-type Message<T> = {
+type Message<T extends Record<string, unknown>> = {
     [K in keyof T]?: {
-        [Rule in Keys]?: string;
+        [Rule in keyof typeof Meta]?: string;
     };
 };
 
-type ValidationError<T> = {
+type ValidationError<T extends Record<string, unknown>> = {
     [K in keyof T]?: string[];
 }
 
-type Bail<T> = {
+type Bail<T extends Record<string, unknown>> = {
     [K in keyof T]?: boolean;
 }
 
@@ -64,7 +27,7 @@ export interface Options<T extends Record<string, unknown>> {
     bail?: boolean | Bail<T>
 }
 
-interface ValidationResult<T> {
+interface ValidationResult<T extends Record<string, unknown>> {
     failed: boolean;
     validated: Partial<T>;
     errors: ValidationError<T>;
@@ -114,35 +77,41 @@ class Validator<T extends Record<string, unknown>> {
                 ? this.bail
                 : this.bail[key] ?? true;
 
-            const ruleArr = this.rules[key];
+            const ruleObj = this.rules[key];
 
-            if (!ruleArr) continue;
+            if (!ruleObj) continue;
 
-            for (const rule of ruleArr) {
-                const separator = rule.indexOf(':');
+            for (const [ruleKey, ruleParams] of Object.entries(ruleObj)) {
 
-                const ruleKey = separator === -1
-                    ? rule
-                    : rule.slice(0, separator);
-
-                const error = new Error(`Invalid Rule ${rule}`);
-                if (!ruleKey || !(ruleKey in Meta)) throw error;
-
-                const ruleParams = separator === -1
+                const ruleParamProcessed = ruleParams === true
                     ? []
-                    : rule.slice(separator + 1).split(',');
+                    : Array.isArray(ruleParams)
+                        ? ruleParams
+                        : [ruleParams]
 
-                const meta = Meta[ruleKey as keyof typeof Meta];
-                if (!meta || meta.params !== ruleParams.length) throw error;
+                let res: boolean = false;
 
-                const res = meta.type === 'public'
-                    ? meta.validate(this._values[key], ...ruleParams)
-                    : meta.validate(this._values[key], this._values, ...ruleParams);
+                if (ruleKey in PublicMeta) {
+                    const meta = Meta[ruleKey as keyof typeof PublicMeta] as (
+                        value: unknown,
+                        ...params: unknown[]
+                    ) => boolean;
+                    res = meta(this._values[key], ...ruleParamProcessed);
+                } else if (ruleKey in PrivateMeta) {
+                    const meta = Meta[ruleKey as keyof typeof PrivateMeta] as (
+                        value: unknown,
+                        values: T,
+                        ...params: unknown[]
+                    ) => boolean;
+                    res = meta(this._values[key], this._values, ...ruleParamProcessed);
+                } else {
+                    throw new Error(`Invalid Rule ${ruleKey}`);
+                }
 
                 if (!res) {
                     currentFails = true;
                     this._failed = true;
-                    const msg = this.resolveMessage(String(key), ruleKey, ruleParams);
+                    const msg = this.resolveMessage(String(key), ruleKey, ruleParamProcessed);
 
                     let errMsg = this._errors[key];
                     if (errMsg) {
@@ -176,18 +145,26 @@ class Validator<T extends Record<string, unknown>> {
         return this;
     }
 
-    private resolveMessage(key: string, rule: string, params: string[]) {
+    private resolveMessage(key: string, rule: string, params: unknown[]) {
         let message =
-            this.messages?.[key]?.[rule as Keys] ??
-            Messages[rule as Keys] ??
+            this.messages?.[key]?.[rule as keyof typeof Meta] ??
+            Messages[rule as keyof typeof Meta] ??
             `${key} is invalid`;
+
+        const formatParam = (param: unknown): string => {
+            if (Array.isArray(param)) {
+                return param.map(formatParam).join(', ');
+            }
+
+            return String(param);
+        };
 
         message = message.replaceAll(':key', key);
 
-        message = message.replaceAll(':params', params.join(', '));
+        message = message.replaceAll(':params', params.map(formatParam).join(', '));
 
         params.forEach((param, index) => {
-            message = message.replaceAll(`:param${index}`, param);
+            message = message.replaceAll(`:param${index}`, formatParam(param));
         });
 
         return message;

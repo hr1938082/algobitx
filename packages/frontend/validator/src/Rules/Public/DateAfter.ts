@@ -1,9 +1,9 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Date from "./Date";
 
-const DateAfter: Validate = (value: unknown, param: unknown): boolean =>
+const DateAfter: PublicRuleDefinition<[string | number]> = (value, param) =>
     Date(value) && Date(param) &&
-    new globalThis.Date(value).getTime()
+    new globalThis.Date(value as any).getTime()
     > new globalThis.Date(param).getTime()
 
 export default DateAfter;

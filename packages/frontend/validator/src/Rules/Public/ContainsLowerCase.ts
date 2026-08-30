@@ -1,6 +1,6 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
-const ContainsLowerCase: Validate = (value: unknown): boolean => Regex(value, ".*[a-z].*");
+const ContainsLowerCase: PublicRuleDefinition = (value) => Regex(value, ".*[a-z].*");
 
 export default ContainsLowerCase;

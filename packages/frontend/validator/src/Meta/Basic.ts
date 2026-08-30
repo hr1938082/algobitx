@@ -1,4 +1,3 @@
-import { MetaRecord } from ".";
 import Accepted from "../Rules/Public/Accepted";
 import Alpha from "../Rules/Public/Alpha";
 import AlphaNumeric from "../Rules/Public/AlphaNumeric";
@@ -23,29 +22,29 @@ import Symbol from "../Rules/Public/Symbol";
 import UpperCase from "../Rules/Public/UpperCase";
 
 const Basic = {
-    accepted: { validate: Accepted, params: 0, type: 'public' },
-    alpha: { validate: Alpha, params: 0, type: 'public' },
-    alpha_numeric: { validate: AlphaNumeric, params: 0, type: 'public' },
-    alpha_symbols: { validate: AlphaSymbol, params: 0, type: 'public' },
-    alpha_numeric_symbols: { validate: AlphaNumericSymbol, params: 0, type: 'public' },
-    array: { validate: Array, params: 0, type: 'public' },
-    ascii: { validate: Ascii, params: 0, type: 'public' },
-    boolean: { validate: Boolean, params: 0, type: 'public' },
-    declined: { validate: Declined, params: 0, type: 'public' },
-    required: { validate: Required, params: 0, type: 'public' },
-    date: { validate: Date, params: 0, type: 'public' },
-    email: { validate: Email, params: 0, type: 'public' },
-    plain_object: { validate: PlainObject, params: 0, type: 'public' },
-    upper_case: { validate: UpperCase, params: 0, type: 'public' },
-    contains_upper_case: { validate: ContainsUpperCase, params: 0, type: 'public' },
-    lower_case: { validate: LowerCase, params: 0, type: 'public' },
-    contains_lower_case: { validate: ContainsLowerCase, params: 0, type: 'public' },
-    numeric: { validate: Numeric, params: 0, type: 'public' },
-    contains_numeric: { validate: ContainsNumeric, params: 0, type: 'public' },
-    symbols: { validate: Symbol, params: 0, type: 'public' },
-    contains_symbols: { validate: ContainsSymbol, params: 0, type: 'public' },
-    string: { validate: String, params: 0, type: 'public' },
-} as const satisfies MetaRecord;
+    accepted: Accepted,
+    alpha: Alpha,
+    alpha_numeric: AlphaNumeric,
+    alpha_symbols: AlphaSymbol,
+    alpha_numeric_symbols: AlphaNumericSymbol,
+    array: Array,
+    ascii: Ascii,
+    boolean: Boolean,
+    declined: Declined,
+    required: Required,
+    date: Date,
+    email: Email,
+    plain_object: PlainObject,
+    upper_case: UpperCase,
+    contains_upper_case: ContainsUpperCase,
+    lower_case: LowerCase,
+    contains_lower_case: ContainsLowerCase,
+    numeric: Numeric,
+    contains_numeric: ContainsNumeric,
+    symbols: Symbol,
+    contains_symbols: ContainsSymbol,
+    string: String,
+} as const;
 
 export default Basic
 

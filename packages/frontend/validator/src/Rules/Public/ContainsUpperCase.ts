@@ -1,6 +1,6 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
-const ContainsUpperCase: Validate = (value: unknown): boolean => Regex(value, ".*[A-Z].*");
+const ContainsUpperCase: PublicRuleDefinition = (value) => Regex(value, ".*[A-Z].*");
 
 export default ContainsUpperCase;

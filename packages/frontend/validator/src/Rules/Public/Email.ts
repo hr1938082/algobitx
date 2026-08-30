@@ -1,7 +1,7 @@
-import { Validate } from "../../Meta";
+import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
-const Email: Validate = (value: unknown): boolean =>
+const Email: PublicRuleDefinition = (value) =>
     Regex(value, "^[\\w\\-.]+@([\\w\\-]+\\.)+[\\w\\-]{2,4}$");
 
 export default Email;

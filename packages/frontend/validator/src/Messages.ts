@@ -1,6 +1,6 @@
-import { Keys } from ".";
+import Meta from "./Meta";
 
-const Messages: Record<Keys, string> = {
+const Messages: Record<keyof typeof Meta, string> = {
     accepted: ':key is not accepted',
     accepted_if_accepted: ':key is not accepted',
     accepted_unless: ':key is not accepted',
