@@ -1,4 +1,3 @@
-import { Validate } from "../../Meta";
 import { PublicRuleDefinition } from "../../Meta";
 import Regex from "./Regex";
 
