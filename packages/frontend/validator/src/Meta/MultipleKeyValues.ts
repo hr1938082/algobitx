@@ -1,6 +1,6 @@
 import AcceptedIf from "../Rules/Private/AcceptedIf";
 import AcceptedIfNot from "../Rules/Private/AcceptedIfNot";
-import DeclinedUnless from "../Rules/Private/DeclinedUnless";
+import DeclinedIfNot from "../Rules/Private/DeclinedIfNot";
 import RequiredIf from "../Rules/Private/RequiredIf";
 import RequiredIfNot from "../Rules/Private/RequiredIfNot";
 
@@ -13,7 +13,7 @@ const MultipleKeyValues = {
     accepted_if: AcceptedIf,
     accepted_if_not: AcceptedIfNot,
     declined_if: '',
-    declined_if_not: DeclinedUnless,
+    declined_if_not: DeclinedIfNot,
 } as const;
 
 export default MultipleKeyValues
