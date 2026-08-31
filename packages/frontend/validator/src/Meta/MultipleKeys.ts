@@ -3,12 +3,13 @@ import DeclinedIfDeclined from "../Rules/Private/DeclinedIfDeclined";
 import RequiredIfRequired from "../Rules/Private/RequiredIfRequired";
 import RequiredIfAccepted from "../Rules/Private/RequiredIfAccepted";
 import RequiredIfDeclined from "../Rules/Private/RequiredIfDeclined";
+import RequiredIfNotRequired from "../Rules/Private/RequiredIfNotRequired";
 
 export type MultipleKeyRuleValue<T extends Record<string, unknown>> = (keyof T)[];
 
 const MultipleKeys = {
     required_if_required: RequiredIfRequired,
-    required_if_not_required: '',
+    required_if_not_required: RequiredIfNotRequired,
     required_if_accepted: RequiredIfAccepted,
     required_if_declined: RequiredIfDeclined,
     accepted_if_accepted: AcceptedIfAccepted,
