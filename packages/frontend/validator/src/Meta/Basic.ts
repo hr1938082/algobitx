@@ -14,6 +14,7 @@ import Date from "../Rules/Public/Date";
 import Declined from "../Rules/Public/Declined";
 import Email from "../Rules/Public/Email";
 import LowerCase from "../Rules/Public/LowerCase";
+import NotRequired from "../Rules/Public/NotRequired";
 import Numeric from "../Rules/Public/Numeric";
 import PlainObject from "../Rules/Public/PlainObject";
 import Required from "../Rules/Public/Required";
@@ -40,6 +41,7 @@ const Basic = {
     lower_case: LowerCase,
     contains_lower_case: ContainsLowerCase,
     numeric: Numeric,
+    not_required: NotRequired,
     contains_numeric: ContainsNumeric,
     symbols: Symbol,
     contains_symbols: ContainsSymbol,
