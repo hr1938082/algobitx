@@ -1,15 +1,15 @@
 import Required from "../Public/Required";
 import KeyValueCheck from "./KeyValueCheck";
 
-const RequiredUnless = <
+const RequiredIf = <
     T extends Record<string, unknown>
 >(
     value: unknown,
     values: T,
     ...params: [keyof T, unknown][]
 ) => {
-    if (KeyValueCheck(values, ...params)) return Required(value);
+    if (KeyValueCheck(values, false, ...params)) return Required(value);
     return true;
 }
 
-export default RequiredUnless
+export default RequiredIf
