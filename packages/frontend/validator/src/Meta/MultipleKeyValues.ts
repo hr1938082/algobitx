@@ -6,9 +6,12 @@ export type MultipleKeyValuesRulesValue<T extends Record<string, unknown>> = [ke
 [keyof T, unknown];
 
 const MultipleKeyValues = {
-    accepted_unless: AcceptedUnless,
-    declined_unless: DeclinedUnless,
-    required_unless: RequiredUnless,
+    required_if: '',
+    required_if_not: RequiredUnless,
+    accepted_if: '',
+    accepted_if_not: AcceptedUnless,
+    declined_if: '',
+    declined_if_not: DeclinedUnless,
 } as const;
 
 export default MultipleKeyValues
