@@ -1,13 +1,13 @@
 import AcceptedUnless from "../Rules/Private/AcceptedUnless";
 import DeclinedUnless from "../Rules/Private/DeclinedUnless";
-import RequiredUnless from "../Rules/Private/RequiredUnless";
+import RequiredIf from "../Rules/Private/RequiredIf";
 
 export type MultipleKeyValuesRulesValue<T extends Record<string, unknown>> = [keyof T, unknown][] |
 [keyof T, unknown];
 
 const MultipleKeyValues = {
-    required_if: '',
-    required_if_not: RequiredUnless,
+    required_if: RequiredIf,
+    required_if_not: '',
     accepted_if: '',
     accepted_if_not: AcceptedUnless,
     declined_if: '',
