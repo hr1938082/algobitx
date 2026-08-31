@@ -7,11 +7,18 @@ import RequiredIfDeclined from "../Rules/Private/RequiredIfDeclined";
 export type MultipleKeyRuleValue<T extends Record<string, unknown>> = (keyof T)[];
 
 const MultipleKeys = {
-    accepted_if_accepted: AcceptedIfAccepted,
-    declined_if_declined: DeclinedIfDeclined,
     required_if_required: RequiredIfRequired,
+    required_if_not_required: '',
     required_if_accepted: RequiredIfAccepted,
     required_if_declined: RequiredIfDeclined,
+    accepted_if_accepted: AcceptedIfAccepted,
+    accepted_if_required: '',
+    accepted_if_not_required: '',
+    accepted_if_declined: '',
+    declined_if_declined: DeclinedIfDeclined,
+    declined_if_accepted: '',
+    declined_if_required: '',
+    declined_if_not_required: ''
 } as const;
 
 export default MultipleKeys
