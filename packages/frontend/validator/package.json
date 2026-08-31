@@ -10,10 +10,15 @@
     "package.json"
   ],
   "exports": {
-    "./*": {
-      "import": "./dist/*.js",
-      "require": "./dist/*.js",
-      "types": "./dist/*.d.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./Rules/*": {
+      "import": "./dist/Rules/Public/*.js",
+      "require": "./dist/Rules/Public/*.js",
+      "types": "./dist/Rules/Public/*.d.ts"
     }
   },
   "scripts": {
