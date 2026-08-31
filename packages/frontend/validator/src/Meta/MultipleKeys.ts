@@ -8,6 +8,7 @@ import AcceptedIfRequired from "../Rules/Private/AcceptedIfRequired";
 import AcceptedIfNotRequired from "../Rules/Private/AcceptedIfNotRequired";
 import AcceptedIfDeclined from "../Rules/Private/AcceptedIfDeclined";
 import DeclinedIfAccepted from "../Rules/Private/DeclinedIfAccepted";
+import DeclinedIfRequired from "../Rules/Private/DeclinedIfRequired";
 
 export type MultipleKeyRuleValue<T extends Record<string, unknown>> = (keyof T)[];
 
@@ -22,7 +23,7 @@ const MultipleKeys = {
     accepted_if_declined: AcceptedIfDeclined,
     declined_if_declined: DeclinedIfDeclined,
     declined_if_accepted: DeclinedIfAccepted,
-    declined_if_required: '',
+    declined_if_required: DeclinedIfRequired,
     declined_if_not_required: ''
 } as const;
 
