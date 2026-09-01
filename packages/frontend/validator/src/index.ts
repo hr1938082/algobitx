@@ -91,13 +91,13 @@ class Validator<T extends Record<string, unknown>> {
 
                 let res: boolean = false;
 
-                if (ruleKey in PublicMeta) {
+                if (Object.prototype.hasOwnProperty.call(PublicMeta, ruleKey)) {
                     const meta = Meta[ruleKey as keyof typeof PublicMeta] as (
                         value: unknown,
                         ...params: unknown[]
                     ) => boolean;
                     res = meta(this._values[key], ...ruleParamProcessed);
-                } else if (ruleKey in PrivateMeta) {
+                } else if (Object.prototype.hasOwnProperty.call(PrivateMeta, ruleKey)) {
                     const meta = Meta[ruleKey as keyof typeof PrivateMeta] as (
                         value: unknown,
                         values: T,
