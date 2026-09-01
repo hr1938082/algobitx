@@ -6,9 +6,14 @@ const RequiredIf = <
 >(
     value: unknown,
     values: T,
-    ...params: [keyof T, unknown][]
+    ...params: [keyof T, unknown] | [keyof T, unknown][]
 ) => {
-    if (KeyValueCheck(values, false, ...params)) return Required(value);
+    const newParams = (
+        Array.isArray(params[0])
+            ? params
+            : [params]
+    ) as [keyof T, unknown][];
+    if (KeyValueCheck(values, false, ...newParams)) return Required(value);
     return true;
 }
 
