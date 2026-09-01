@@ -1,4 +1,5 @@
 import NotRequired from "../Public/NotRequired";
+import Required from "../Public/Required";
 
 const RequiredIfNotRequired = <
     T extends Record<string, unknown>
@@ -8,7 +9,7 @@ const RequiredIfNotRequired = <
     ...params: (keyof T)[]
 ) => {
     for (const key of params) if (!NotRequired(values[key])) return true;
-    return NotRequired(value);
+    return Required(value);
 }
 
 export default RequiredIfNotRequired
