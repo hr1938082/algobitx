@@ -2,22 +2,39 @@ import Meta, { AnyRules, PrivateMeta, PublicMeta } from "./Meta";
 import Messages from "./Messages";
 import PlainObject from "./Rules/Public/PlainObject";
 
+type PathValue<T> =
+    T extends readonly unknown[]
+    ? `${number}`
+    | "*"
+    | `${number}.${PathValue<T[number]>}`
+    | `*.${PathValue<T[number]>}`
+    : T extends object
+    ? {
+        [K in keyof T & string]:
+        T[K] extends readonly unknown[] | object
+        ? K | `${K}.${PathValue<T[K]>}`
+        : K
+    }[keyof T & string]
+    : never;
+
+export type Path<T> = PathValue<T>;
+
 export type Rules<T extends Record<string, unknown>> = {
-    [k in keyof T]?: AnyRules<T>
+    [k in Path<T>]?: AnyRules<T>
 }
 
 type Message<T extends Record<string, unknown>> = {
-    [K in keyof T]?: {
+    [K in Path<T>]?: {
         [Rule in keyof typeof Meta]?: string;
     };
 };
 
 type ValidationError<T extends Record<string, unknown>> = {
-    [K in keyof T]?: string[];
+    [K in Path<T>]?: string[];
 }
 
 type Bail<T extends Record<string, unknown>> = {
-    [K in keyof T]?: boolean;
+    [K in Path<T>]?: boolean;
 }
 
 export interface Options<T extends Record<string, unknown>> {
@@ -56,76 +73,77 @@ class Validator<T extends Record<string, unknown>> {
 
     }
 
-    static define<T extends Record<string, unknown>>(
-        options: Options<T>
-    ) {
+    static define<T extends Record<string, unknown>>(options: Options<T>) {
         return new Validator(options);
     }
 
-    validate(...fields: Extract<keyof T, string>[]): ValidationResult<T> {
+    validate(...fields: Path<T>[]): ValidationResult<T> {
         this._failed = false;
         this._validated = {};
         this._errors = {};
 
-        for (const key of Object.keys(this.rules) as (keyof T)[]) {
-            if (fields.length > 0 && !fields.some(field => field === key))
-                continue;
-
-            let currentFails = false;
-
-            const shouldBail = typeof this.bail === 'boolean'
-                ? this.bail
-                : this.bail[key] ?? true;
-
-            const ruleObj = this.rules[key];
+        for (const [rulePath, ruleObj] of Object.entries(this.rules)) {
 
             if (!ruleObj) continue;
 
-            for (const [ruleKey, ruleParams] of Object.entries(ruleObj)) {
+            const resolvedFields = this.resolvePath(rulePath);
 
-                const ruleParamProcessed = ruleParams === true
-                    ? []
-                    : Array.isArray(ruleParams)
-                        ? ruleParams
-                        : [ruleParams]
+            for (const field of resolvedFields) {
+                if (fields.length > 0 && !fields.some(selected => selected === field.path))
+                    continue;
 
-                let res: boolean = false;
+                const shouldBail = typeof this.bail === 'boolean'
+                    ? this.bail
+                    : this.bail[field.path] ?? true;
 
-                if (Object.prototype.hasOwnProperty.call(PublicMeta, ruleKey)) {
-                    const meta = Meta[ruleKey as keyof typeof PublicMeta] as (
-                        value: unknown,
-                        ...params: unknown[]
-                    ) => boolean;
-                    res = meta(this._values[key], ...ruleParamProcessed);
-                } else if (Object.prototype.hasOwnProperty.call(PrivateMeta, ruleKey)) {
-                    const meta = Meta[ruleKey as keyof typeof PrivateMeta] as (
-                        value: unknown,
-                        values: T,
-                        ...params: unknown[]
-                    ) => boolean;
-                    res = meta(this._values[key], this._values, ...ruleParamProcessed);
-                } else {
-                    throw new Error(`Invalid Rule ${ruleKey}`);
-                }
+                let currentFails = false;
 
-                if (!res) {
-                    currentFails = true;
-                    this._failed = true;
-                    const msg = this.resolveMessage(String(key), ruleKey, ruleParamProcessed);
+                for (const [ruleKey, ruleParams] of Object.entries(ruleObj)) {
 
-                    let errMsg = this._errors[key];
-                    if (errMsg) {
-                        errMsg.push(msg);
+                    const ruleParamProcessed = ruleParams === true
+                        ? []
+                        : Array.isArray(ruleParams)
+                            ? ruleParams
+                            : [ruleParams]
+
+                    let res: boolean = false;
+
+                    if (Object.prototype.hasOwnProperty.call(PublicMeta, ruleKey)) {
+                        const meta = Meta[ruleKey as keyof typeof PublicMeta] as (
+                            value: unknown,
+                            ...params: unknown[]
+                        ) => boolean;
+                        res = meta(field.value, ...ruleParamProcessed);
+                    } else if (Object.prototype.hasOwnProperty.call(PrivateMeta, ruleKey)) {
+                        const meta = Meta[ruleKey as keyof typeof PrivateMeta] as (
+                            value: unknown,
+                            values: T,
+                            ...params: unknown[]
+                        ) => boolean;
+                        res = meta(field.value, this._values, ...ruleParamProcessed);
                     } else {
-                        this._errors[key] = [msg];
+                        throw new Error(`Invalid Rule ${ruleKey}`);
                     }
 
-                    if (shouldBail) break;
-                }
-            }
+                    if (!res) {
+                        currentFails = true;
+                        this._failed = true;
+                        const msg = this.resolveMessage(field.path, ruleKey, ruleParamProcessed);
 
-            if (!currentFails)
-                this._validated[key] = this._values[key]
+                        let errMsg = this._errors[field.path];
+                        if (errMsg) {
+                            errMsg.push(msg);
+                        } else {
+                            this._errors[field.path] = [msg];
+                        }
+
+                        if (shouldBail) break;
+                    }
+                }
+
+                if (!currentFails)
+                    this.setNestedValue(field.path, field.value);
+            }
         }
 
         return {
@@ -145,7 +163,61 @@ class Validator<T extends Record<string, unknown>> {
         return this;
     }
 
-    private resolveMessage(key: string, rule: string, params: unknown[]) {
+    private resolvePath(path: string) {
+        const segments = path.split('.');
+        const result: { path: Path<T>, value: unknown }[] = [];
+
+        const walk = (curr: unknown, i: number, currPath: string[]) => {
+            if (i === segments.length) {
+                result.push({
+                    path: currPath.join(".") as Path<T>,
+                    value: curr
+                });
+                return;
+            }
+
+            const segment = segments[i];
+
+            if (segment === '*') {
+                if (Array.isArray(curr)) {
+                    for (let index = 0; index < curr.length; index++)
+                        walk(curr[index], i + 1, [...currPath, String(index)]);
+                    return;
+                } else if (PlainObject(curr)) {
+                    for (const [key, value] of Object.entries(curr))
+                        walk(value, i + 1, [...currPath, key]);
+                    return;
+                } else return;
+            }
+
+            if (
+                curr !== null &&
+                typeof curr === 'object' &&
+                Object.prototype.hasOwnProperty.call(curr, segment)
+            ) {
+                walk(
+                    (curr as Record<string, unknown>)[segment],
+                    i + 1,
+                    [...currPath, segment]
+                );
+                return;
+            }
+
+            const remainingPath = segments.slice(i);
+
+            result.push({
+                path: [...currPath, ...remainingPath].join(".") as Path<T>,
+                value: undefined
+            });
+
+        }
+
+        walk(this._values, 0, []);
+
+        return result;
+    }
+
+    private resolveMessage(key: Path<T>, rule: string, params: unknown[]) {
         let message =
             this.messages?.[key]?.[rule as keyof typeof Meta] ??
             Messages[rule as keyof typeof Meta] ??
@@ -168,6 +240,42 @@ class Validator<T extends Record<string, unknown>> {
         });
 
         return message;
+    }
+
+    private setNestedValue(path: string, value: unknown) {
+        const segments = path.split(".");
+
+        let current: Record<string, unknown> = this._validated;
+
+        for (let i = 0; i < segments.length - 1; i++) {
+            const segment = segments[i];
+            const nextSegment = segments[i + 1];
+
+            const existing = Array.isArray(current)
+                ? current[Number(segment)]
+                : current[segment];
+
+            if (
+                !existing ||
+                typeof existing !== "object"
+            ) {
+                const next = /^\d+$/.test(nextSegment) ? [] : {};
+
+                if (Array.isArray(current))
+                    current[Number(segment)] = next;
+                else
+                    current[segment] = next;
+            }
+            current = Array.isArray(current)
+                ? current[Number(segment)]
+                : current[segment];
+        }
+        const lastSegment = segments[segments.length - 1];
+
+        if (Array.isArray(current))
+            current[Number(lastSegment)] = value;
+        else
+            current[lastSegment] = value;
     }
 
     private get failed() {
