@@ -94,7 +94,7 @@ class Validator<T extends Record<string, unknown>> {
 
                 const shouldBail = typeof this.bail === 'boolean'
                     ? this.bail
-                    : this.bail[field.path] ?? true;
+                    : this.bail[field.path] ?? this.bail[rulePath as Path<T>] ?? true;
 
                 let currentFails = false;
 
@@ -128,7 +128,12 @@ class Validator<T extends Record<string, unknown>> {
                     if (!res) {
                         currentFails = true;
                         this._failed = true;
-                        const msg = this.resolveMessage(field.path, ruleKey, ruleParamProcessed);
+                        const msg = this.resolveMessage(
+                            field.path,
+                            rulePath as Path<T>,
+                            ruleKey as keyof typeof Meta,
+                            ruleParamProcessed
+                        );
 
                         let errMsg = this._errors[field.path];
                         if (errMsg) {
@@ -217,10 +222,11 @@ class Validator<T extends Record<string, unknown>> {
         return result;
     }
 
-    private resolveMessage(key: Path<T>, rule: string, params: unknown[]) {
+    private resolveMessage(key: Path<T>, rulePath: Path<T>, rule: keyof typeof Meta, params: unknown[]) {
         let message =
-            this.messages?.[key]?.[rule as keyof typeof Meta] ??
-            Messages[rule as keyof typeof Meta] ??
+            this.messages?.[key]?.[rule] ??
+            this.messages?.[rulePath]?.[rule] ??
+            Messages[rule] ??
             `${key} is invalid`;
 
         const formatParam = (param: unknown): string => {
