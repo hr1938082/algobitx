@@ -40,6 +40,9 @@
             "@algobitx/exception": [
                 "./packages/backend/exception"
             ],
+            "@algobitx/validator": [
+                "./packages/validator"
+            ],
             "@algobitx/application": [
                 "./packages/backend/application"
             ],
@@ -75,6 +78,9 @@
         },
         {
             "path": "./packages/backend/exception"
+        },
+        {
+            "path": "./packages/validator"
         },
         {
             "path": "./packages/backend/application"
