@@ -89,7 +89,10 @@ class Validator<T extends Record<string, unknown>> {
             const resolvedFields = this.resolvePath(rulePath);
 
             for (const field of resolvedFields) {
-                if (fields.length > 0 && !fields.some(selected => selected === field.path))
+                if (
+                    fields.length > 0 &&
+                    !fields.some(selected => this.matchesPath(selected, field.path))
+                )
                     continue;
 
                 const shouldBail = typeof this.bail === 'boolean'
@@ -146,7 +149,7 @@ class Validator<T extends Record<string, unknown>> {
                     }
                 }
 
-                if (!currentFails)
+                if (!currentFails && field.resolved)
                     this.setNestedValue(field.path, field.value);
             }
         }
@@ -170,13 +173,14 @@ class Validator<T extends Record<string, unknown>> {
 
     private resolvePath(path: string) {
         const segments = path.split('.');
-        const result: { path: Path<T>, value: unknown }[] = [];
+        const result: { path: Path<T>, value: unknown, resolved: boolean }[] = [];
 
         const walk = (curr: unknown, i: number, currPath: string[]) => {
             if (i === segments.length) {
                 result.push({
                     path: currPath.join(".") as Path<T>,
-                    value: curr
+                    value: curr,
+                    resolved: true
                 });
                 return;
             }
@@ -184,18 +188,17 @@ class Validator<T extends Record<string, unknown>> {
             const segment = segments[i];
 
             if (segment === '*') {
-                if (Array.isArray(curr)) {
+                if (Array.isArray(curr) && curr.length > 0) {
                     for (let index = 0; index < curr.length; index++)
                         walk(curr[index], i + 1, [...currPath, String(index)]);
                     return;
-                } else if (PlainObject(curr)) {
+                }
+                if (PlainObject(curr) && Object.keys(curr).length > 0) {
                     for (const [key, value] of Object.entries(curr))
                         walk(value, i + 1, [...currPath, key]);
                     return;
                 } else return;
-            }
-
-            if (
+            } else if (
                 curr !== null &&
                 typeof curr === 'object' &&
                 Object.prototype.hasOwnProperty.call(curr, segment)
@@ -212,7 +215,8 @@ class Validator<T extends Record<string, unknown>> {
 
             result.push({
                 path: [...currPath, ...remainingPath].join(".") as Path<T>,
-                value: undefined
+                value: undefined,
+                resolved: !remainingPath.includes('*')
             });
 
         }
@@ -220,6 +224,20 @@ class Validator<T extends Record<string, unknown>> {
         walk(this._values, 0, []);
 
         return result;
+    }
+
+    private matchesPath(selected: Path<T>, resolved: Path<T>): boolean {
+        const selectedSegments = selected.split(".");
+        const resolvedSegments = resolved.split(".");
+
+        if (selectedSegments.length !== resolvedSegments.length)
+            return false;
+
+        return selectedSegments.every(
+            (segment, index) =>
+                segment === "*" ||
+                segment === resolvedSegments[index]
+        );
     }
 
     private resolveMessage(key: Path<T>, rulePath: Path<T>, rule: keyof typeof Meta, params: unknown[]) {
@@ -248,7 +266,7 @@ class Validator<T extends Record<string, unknown>> {
         return message;
     }
 
-    private setNestedValue(path: string, value: unknown) {
+    private setNestedValue(path: Path<T>, value: unknown) {
         const segments = path.split(".");
 
         let current: Record<string, unknown> = this._validated;
