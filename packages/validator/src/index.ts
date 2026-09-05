@@ -17,29 +17,29 @@ type PathValue<T> =
     }[keyof T & string]
     : never;
 
-export type Path<T> = PathValue<T>;
+type Path<T> = PathValue<T>;
 
 export type Rules<T extends Record<string, unknown>> = {
     [k in Path<T>]?: AnyRules<T>
 }
 
-type Message<T extends Record<string, unknown>> = {
+export type Message<T extends Record<string, unknown>> = {
     [K in Path<T>]?: {
         [Rule in keyof typeof Meta]?: string;
     };
 };
 
-type ValidationError<T extends Record<string, unknown>> = {
-    [K in Path<T>]?: string[];
+export type Bail<T extends Record<string, unknown>> = {
+    [K in Path<T>]?: boolean;
 }
 
-type Bail<T extends Record<string, unknown>> = {
-    [K in Path<T>]?: boolean;
+export type ValidationError<T extends Record<string, unknown>> = {
+    [K in Path<T>]?: string[];
 }
 
 export interface Options<T extends Record<string, unknown>> {
     values: T;
-    rules: Rules<T>;
+    rules?: Rules<T>;
     messages?: Message<T>;
     bail?: boolean | Bail<T>
 }
