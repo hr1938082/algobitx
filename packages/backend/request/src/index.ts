@@ -8,8 +8,15 @@ import IP from './IP';
 import InternalServerException from '@algobitx/exception/http/InternalServerException';
 import { HeaderKey, HeaderValue } from './Header';
 import Config from '@algobitx/config-loader';
+import Validator, { Message, Rules } from '@algobitx/validator';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+type ValidateConfig<T extends Record<string, unknown>> = {
+    rules: Rules<T>;
+    messages?: Message<T>;
+    bail?: boolean | Record<string, boolean>;
+}
 
 class Request {
     private _url?: URL;
@@ -64,15 +71,23 @@ class Request {
         return this._body;
     }
 
+    async validate<T extends Record<string, unknown>>(config: ValidateConfig<T>) {
+        const all = await this.body.all<T>();
+        return Validator.define({
+            values: all,
+            rules: config.rules,
+            messages: config.messages,
+            bail: config.bail
+        })
+    }
+
     enableSession(res: Response) {
-
-        if (!this._cookie) {
+        if (!this._cookie)
             this._cookie = new Cookie(res, this.header('cookie'));
-        }
 
-        if (!this._session && this._cookie) {
+        if (!this._session && this._cookie)
             this._session = new Session(this._cookie);
-        }
+
     }
 
     get cookie() {
