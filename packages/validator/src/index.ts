@@ -44,7 +44,7 @@ export interface Options<T extends Record<string, unknown>> {
     bail?: boolean | Bail<T>
 }
 
-interface ValidationResult<T extends Record<string, unknown>> {
+export interface ValidationResult<T extends Record<string, unknown>> {
     failed: boolean;
     validated: Partial<T>;
     errors: ValidationError<T>;
