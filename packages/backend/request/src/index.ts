@@ -8,14 +8,14 @@ import IP from './IP';
 import InternalServerException from '@algobitx/exception/http/InternalServerException';
 import { HeaderKey, HeaderValue } from './Header';
 import Config from '@algobitx/config-loader';
-import Validator, { Message, Rules } from '@algobitx/validator';
+import Validator, { Bail, Message, Rules } from '@algobitx/validator';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type ValidateConfig<T extends Record<string, unknown>> = {
     rules: Rules<T>;
     messages?: Message<T>;
-    bail?: boolean | Record<string, boolean>;
+    bail?: boolean | Bail<T>;
 }
 
 class Request {
