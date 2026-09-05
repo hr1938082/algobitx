@@ -73,12 +73,13 @@ class Request {
 
     async validate<T extends Record<string, unknown>>(config: ValidateConfig<T>) {
         const all = await this.body.all<T>();
-        return Validator.define({
+        const validator = Validator.define({
             values: all,
             rules: config.rules,
             messages: config.messages,
             bail: config.bail
         })
+        return validator.validate();
     }
 
     enableSession(res: Response) {
