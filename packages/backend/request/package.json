@@ -21,6 +21,7 @@
     "@algobitx/response": "workspace:*",
     "@algobitx/session": "workspace:*",
     "@algobitx/url": "workspace:*",
+    "@algobitx/validator": "workspace:*",
     "ipaddr.js": "^2.5.0"
   },
   "devDependencies": {
