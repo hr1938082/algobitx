@@ -50,6 +50,12 @@ export interface ValidationResult<T extends Record<string, unknown>> {
     errors: ValidationError<T>;
 }
 
+const UNSAFE_KEYS = new Set([
+    "__proto__",
+    "prototype",
+    "constructor"
+]);
+
 
 class Validator<T extends Record<string, unknown>> {
     private _values: T;
@@ -57,8 +63,8 @@ class Validator<T extends Record<string, unknown>> {
     private messages?: Message<T>;
     private bail: boolean | Bail<T>;
     private _failed = false;
-    private _validated: Partial<T> = {};
-    private _errors: ValidationError<T> = {};
+    private _validated: Partial<T> = Object.create(null);
+    private _errors: ValidationError<T> = Object.create(null);
 
     constructor(options: Options<T>) {
         if (!options.values || !PlainObject(options.values))
@@ -79,8 +85,8 @@ class Validator<T extends Record<string, unknown>> {
 
     validate(...fields: Path<T>[]): ValidationResult<T> {
         this._failed = false;
-        this._validated = {};
-        this._errors = {};
+        this._validated = Object.create(null);
+        this._errors = Object.create(null);
 
         for (const [rulePath, ruleObj] of Object.entries(this.rules)) {
 
@@ -166,13 +172,14 @@ class Validator<T extends Record<string, unknown>> {
             throw new Error("Expecting values for validation");
         this._values = values;
         this._failed = false;
-        this._validated = {};
-        this._errors = {};
+        this._validated = Object.create(null);
+        this._errors = Object.create(null);
         return this;
     }
 
     private resolvePath(path: string) {
         const segments = path.split('.');
+
         const result: { path: Path<T>, value: unknown, resolved: boolean }[] = [];
 
         const walk = (curr: unknown, i: number, currPath: string[]) => {
@@ -186,6 +193,9 @@ class Validator<T extends Record<string, unknown>> {
             }
 
             const segment = segments[i];
+
+            if (UNSAFE_KEYS.has(segment))
+                throw new Error(`Unsafe validation path: ${path}`);
 
             if (segment === '*') {
                 if (Array.isArray(curr) && curr.length > 0) {
@@ -275,6 +285,9 @@ class Validator<T extends Record<string, unknown>> {
             const segment = segments[i];
             const nextSegment = segments[i + 1];
 
+            if (UNSAFE_KEYS.has(segment))
+                throw new Error(`Unsafe validation path: ${path}`);
+
             const existing = Array.isArray(current)
                 ? current[Number(segment)]
                 : current[segment];
@@ -283,7 +296,7 @@ class Validator<T extends Record<string, unknown>> {
                 !existing ||
                 typeof existing !== "object"
             ) {
-                const next = /^\d+$/.test(nextSegment) ? [] : {};
+                const next = /^\d+$/.test(nextSegment) ? [] : Object.create(null);
 
                 if (Array.isArray(current))
                     current[Number(segment)] = next;
@@ -295,6 +308,9 @@ class Validator<T extends Record<string, unknown>> {
                 : current[segment];
         }
         const lastSegment = segments[segments.length - 1];
+
+        if (UNSAFE_KEYS.has(lastSegment))
+            throw new Error(`Unsafe validation path: ${path}`);
 
         if (Array.isArray(current))
             current[Number(lastSegment)] = value;
