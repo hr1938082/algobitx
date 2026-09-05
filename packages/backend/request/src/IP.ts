@@ -5,10 +5,10 @@ import ipaddr from "ipaddr.js";
 import { IncomingMessage } from "node:http";
 
 type CIDR = [ipaddr.IPv4 | ipaddr.IPv6, number];
-type TrustedProxy = "*" | string | CIDR;
+type Proxy = string | CIDR;
 
 class IP {
-    private static trustProxies: Set<TrustedProxy>;
+    private static trustProxies: Set<Proxy>;
     private _address?: string;
     private _chain?: string[];
     private _isTrustedProxy?: boolean;
@@ -22,11 +22,6 @@ class IP {
 
         if (!proxies) {
             IP.trustProxies = new Set();
-            return;
-        }
-
-        if (proxies === "*") {
-            IP.trustProxies = new Set(["*"]);
             return;
         }
 
