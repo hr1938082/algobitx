@@ -1,14 +1,23 @@
+import { Path } from "../..";
+import ResolvePath from "../../ResolvePath";
+
 const KeyValueCheck = <
     T extends Record<string, unknown>
 >(
     values: T,
     not: boolean,
-    ...params: [keyof T, unknown][]
+    ...params: [Path<T>, unknown][]
 ) => {
     for (const [key, valueMustBe] of params) {
-        const valueToMatch = values[key];
-        if (not) { if (valueToMatch === valueMustBe) return false; }
-        else { if (valueToMatch !== valueMustBe) return false; }
+        const resolveFields = ResolvePath(values, key);
+        if (resolveFields.length === 0) {
+            if (not) continue;
+            return false;
+        }
+        for (const field of resolveFields) {
+            if (not) { if (field.value === valueMustBe) return false; }
+            else { if (field.value !== valueMustBe) return false; }
+        }
     }
     return true;
 }

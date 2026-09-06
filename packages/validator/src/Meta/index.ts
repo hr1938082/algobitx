@@ -1,5 +1,4 @@
 import Basic from "./Basic";
-import Key, { KeyRuleValue } from "./Key";
 import MultipleKeys, { MultipleKeyRuleValue } from "./MultipleKeys";
 import MultipleKeyValues, { MultipleKeyValuesRulesValue } from "./MultipleKeyValues";
 import MultipleValues from "./MultipleValues";
@@ -29,9 +28,6 @@ type PublicRules = {
     [K in keyof typeof PublicMeta]?: PublicRuleValue<typeof PublicMeta[K]>;
 }
 
-type KeyRules<T extends Record<string, unknown>> = {
-    [K in keyof typeof Key]?: KeyRuleValue<T>;
-}
 type MultipleKeysRules<T extends Record<string, unknown>> = {
     [K in keyof typeof MultipleKeys]?: MultipleKeyRuleValue<T>;
 }
@@ -40,8 +36,7 @@ type MultipleKeyValuesRules<T extends Record<string, unknown>> = {
     [K in keyof typeof MultipleKeyValues]?: MultipleKeyValuesRulesValue<T>;
 }
 
-type PrivateRules<T extends Record<string, unknown>> = KeyRules<T> &
-    MultipleKeysRules<T> &
+type PrivateRules<T extends Record<string, unknown>> = MultipleKeysRules<T> &
     MultipleKeyValuesRules<T>
 
 export type AnyRules<T extends Record<string, unknown>> = PublicRules & PrivateRules<T>;
@@ -54,7 +49,6 @@ export const PublicMeta = {
 }
 
 export const PrivateMeta = {
-    ...Key,
     ...MultipleKeys,
     ...MultipleKeyValues,
 }

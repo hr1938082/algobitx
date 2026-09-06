@@ -1,3 +1,5 @@
+import { Path } from "../..";
+import ResolvePath from "../../ResolvePath";
 import Required from "../Public/Required";
 
 const RequiredIfRequired = <
@@ -5,9 +7,15 @@ const RequiredIfRequired = <
 >(
     value: unknown,
     values: T,
-    ...params: (keyof T)[]
+    ...params: Path<T>[]
 ) => {
-    for (const key of params) if (!Required(values[key])) return true;
+    for (const key of params) {
+        const resolveFields = ResolvePath(values, key);
+        if (resolveFields.length === 0) return false;
+        for (const field of resolveFields) {
+            if (!Required(field.value)) return true;
+        }
+    }
     return Required(value);
 }
 

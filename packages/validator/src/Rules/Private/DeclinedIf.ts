@@ -1,3 +1,4 @@
+import { Path } from "../..";
 import Declined from "../Public/Declined";
 import KeyValueCheck from "./KeyValueCheck";
 
@@ -6,13 +7,13 @@ const DeclinedIf = <
 >(
     value: unknown,
     values: T,
-    ...params: [keyof T, unknown] | [keyof T, unknown][]
+    ...params: [Path<T>, unknown] | [Path<T>, unknown][]
 ) => {
     const newParams = (
         Array.isArray(params[0])
             ? params
             : [params]
-    ) as [keyof T, unknown][];
+    ) as [Path<T>, unknown][];
     if (KeyValueCheck(values, false, ...newParams)) return Declined(value);
     return true;
 }

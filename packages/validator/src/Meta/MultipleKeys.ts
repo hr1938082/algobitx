@@ -10,14 +10,12 @@ import AcceptedIfDeclined from "../Rules/Private/AcceptedIfDeclined";
 import DeclinedIfAccepted from "../Rules/Private/DeclinedIfAccepted";
 import DeclinedIfRequired from "../Rules/Private/DeclinedIfRequired";
 import DeclinedIfNotRequired from "../Rules/Private/DeclinedIfNotRequired";
+import { Path } from "..";
+import Same from "../Rules/Private/Same";
 
-export type MultipleKeyRuleValue<T extends Record<string, unknown>> = (keyof T)[];
+export type MultipleKeyRuleValue<T extends Record<string, unknown>> = Path<T> | Path<T>[];
 
 const MultipleKeys = {
-    required_if_required: RequiredIfRequired,
-    required_if_not_required: RequiredIfNotRequired,
-    required_if_accepted: RequiredIfAccepted,
-    required_if_declined: RequiredIfDeclined,
     accepted_if_accepted: AcceptedIfAccepted,
     accepted_if_required: AcceptedIfRequired,
     accepted_if_not_required: AcceptedIfNotRequired,
@@ -25,7 +23,12 @@ const MultipleKeys = {
     declined_if_declined: DeclinedIfDeclined,
     declined_if_accepted: DeclinedIfAccepted,
     declined_if_required: DeclinedIfRequired,
-    declined_if_not_required: DeclinedIfNotRequired
+    declined_if_not_required: DeclinedIfNotRequired,
+    required_if_required: RequiredIfRequired,
+    required_if_not_required: RequiredIfNotRequired,
+    required_if_accepted: RequiredIfAccepted,
+    required_if_declined: RequiredIfDeclined,
+    same: Same
 } as const;
 
 export default MultipleKeys
