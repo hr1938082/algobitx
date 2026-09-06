@@ -9,6 +9,7 @@ import InternalServerException from '@algobitx/exception/http/InternalServerExce
 import { HeaderKey, HeaderValue } from './Header';
 import Config from '@algobitx/config-loader';
 import Validator, { Bail, Message, Rules } from '@algobitx/validator';
+import UnprocessableContent from '@algobitx/exception/http/UnprocessableContent';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -78,8 +79,9 @@ class Request {
             rules: config.rules,
             messages: config.messages,
             bail: config.bail
-        })
-        return validator.validate();
+        }).validate();
+        if (validator.failed) throw new UnprocessableContent(validator.errors);
+        return validator.validated;
     }
 
     enableSession(res: Response) {
