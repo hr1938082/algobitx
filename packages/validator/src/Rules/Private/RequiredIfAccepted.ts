@@ -4,7 +4,7 @@ import Accepted from "../Public/Accepted";
 import Required from "../Public/Required";
 
 const RequiredIfAccepted = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

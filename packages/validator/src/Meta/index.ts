@@ -28,18 +28,18 @@ type PublicRules = {
     [K in keyof typeof PublicMeta]?: PublicRuleValue<typeof PublicMeta[K]>;
 }
 
-type MultipleKeysRules<T extends Record<string, unknown>> = {
+type MultipleKeysRules<T extends object> = {
     [K in keyof typeof MultipleKeys]?: MultipleKeyRuleValue<T>;
 }
 
-type MultipleKeyValuesRules<T extends Record<string, unknown>> = {
+type MultipleKeyValuesRules<T extends object> = {
     [K in keyof typeof MultipleKeyValues]?: MultipleKeyValuesRulesValue<T>;
 }
 
-type PrivateRules<T extends Record<string, unknown>> = MultipleKeysRules<T> &
+type PrivateRules<T extends object> = MultipleKeysRules<T> &
     MultipleKeyValuesRules<T>
 
-export type AnyRules<T extends Record<string, unknown>> = PublicRules & PrivateRules<T>;
+export type AnyRules<T extends object> = PublicRules & PrivateRules<T>;
 
 export const PublicMeta = {
     ...Basic,

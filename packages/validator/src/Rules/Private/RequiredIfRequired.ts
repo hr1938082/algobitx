@@ -3,7 +3,7 @@ import ResolvePath from "../../ResolvePath";
 import Required from "../Public/Required";
 
 const RequiredIfRequired = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

@@ -13,7 +13,7 @@ import DeclinedIfNotRequired from "../Rules/Private/DeclinedIfNotRequired";
 import { Path } from "..";
 import Same from "../Rules/Private/Same";
 
-export type MultipleKeyRuleValue<T extends Record<string, unknown>> = Path<T> | Path<T>[];
+export type MultipleKeyRuleValue<T extends object> = Path<T> | Path<T>[];
 
 const MultipleKeys = {
     accepted_if_accepted: AcceptedIfAccepted,

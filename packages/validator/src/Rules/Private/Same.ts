@@ -2,7 +2,7 @@ import { Path } from "../.."
 import ResolvePath from "../../ResolvePath";
 
 const Same = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

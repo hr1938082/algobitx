@@ -2,7 +2,7 @@ import { Path } from ".";
 import PlainObject from "./Rules/Public/PlainObject";
 import UnsafeKeys from "./UnsafeKeys";
 
-const ResolvePath = <T extends Record<string, unknown>>(values: T, path: string) => {
+const ResolvePath = <T extends object>(values: T, path: string) => {
     const segments = path.split('.');
 
     const result: { path: Path<T>, value: unknown, resolved: boolean }[] = [];

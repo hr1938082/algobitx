@@ -4,7 +4,7 @@ import Accepted from "../Public/Accepted";
 import Declined from "../Public/Declined";
 
 const AcceptedIfDeclined = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

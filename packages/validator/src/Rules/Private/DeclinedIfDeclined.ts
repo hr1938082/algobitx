@@ -3,7 +3,7 @@ import ResolvePath from "../../ResolvePath";
 import Declined from "../Public/Declined";
 
 const DeclinedIfDeclined = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

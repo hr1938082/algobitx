@@ -3,7 +3,7 @@ import Required from "../Public/Required";
 import KeyValueCheck from "./KeyValueCheck";
 
 const RequiredIf = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

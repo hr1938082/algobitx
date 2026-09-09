@@ -35,38 +35,38 @@ type PathValue<
 
 export type Path<T> = PathValue<T>;
 
-export type Rules<T extends Record<string, unknown>> = {
+export type Rules<T extends object> = {
     [k in Path<T>]?: AnyRules<T>
 }
 
-export type Message<T extends Record<string, unknown>> = {
+export type Message<T extends object> = {
     [K in Path<T>]?: {
         [Rule in keyof typeof Meta]?: string;
     };
 };
 
-export type Bail<T extends Record<string, unknown>> = {
+export type Bail<T extends object> = {
     [K in Path<T>]?: boolean;
 }
 
-export type ValidationError<T extends Record<string, unknown>> = {
+export type ValidationError<T extends object> = {
     [K in Path<T>]?: string[];
 }
 
-export interface Options<T extends Record<string, unknown>> {
+export interface Options<T extends object> {
     values: T;
     rules?: Rules<T>;
     messages?: Message<T>;
     bail?: boolean | Bail<T>
 }
 
-export interface ValidationResult<T extends Record<string, unknown>> {
+export interface ValidationResult<T extends object> {
     failed: boolean;
     validated: Partial<T>;
     errors: ValidationError<T>;
 }
 
-class Validator<T extends Record<string, unknown>> {
+class Validator<T extends object> {
     private _values: T;
     private rules: Rules<T>;
     private messages?: Message<T>;
@@ -88,7 +88,7 @@ class Validator<T extends Record<string, unknown>> {
 
     }
 
-    static define<T extends Record<string, unknown>>(options: Options<T>) {
+    static define<T extends object>(options: Options<T>) {
         return new Validator(options);
     }
 

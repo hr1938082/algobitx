@@ -3,7 +3,7 @@ import Accepted from "../Public/Accepted";
 import KeyValueCheck from "./KeyValueCheck";
 
 const AcceptedIfNot = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

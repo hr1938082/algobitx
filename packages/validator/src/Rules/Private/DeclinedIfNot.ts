@@ -3,7 +3,7 @@ import Declined from "../Public/Declined";
 import KeyValueCheck from "./KeyValueCheck";
 
 const DeclinedIfNot = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

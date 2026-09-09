@@ -3,7 +3,7 @@ import ResolvePath from "../../ResolvePath";
 import Accepted from "../Public/Accepted";
 
 const AcceptedIfAccepted = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

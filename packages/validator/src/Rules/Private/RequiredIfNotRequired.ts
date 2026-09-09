@@ -4,7 +4,7 @@ import NotRequired from "../Public/NotRequired";
 import Required from "../Public/Required";
 
 const RequiredIfNotRequired = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     value: unknown,
     values: T,

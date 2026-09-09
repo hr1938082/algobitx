@@ -6,7 +6,7 @@ import DeclinedIfNot from "../Rules/Private/DeclinedIfNot";
 import RequiredIf from "../Rules/Private/RequiredIf";
 import RequiredIfNot from "../Rules/Private/RequiredIfNot";
 
-export type MultipleKeyValuesRulesValue<T extends Record<string, unknown>> = [Path<T>, unknown][] |
+export type MultipleKeyValuesRulesValue<T extends object> = [Path<T>, unknown][] |
 [Path<T>, unknown];
 
 const MultipleKeyValues = {

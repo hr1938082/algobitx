@@ -2,7 +2,7 @@ import { Path } from "../..";
 import ResolvePath from "../../ResolvePath";
 
 const KeyValueCheck = <
-    T extends Record<string, unknown>
+    T extends object
 >(
     values: T,
     not: boolean,
