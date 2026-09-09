@@ -35,6 +35,7 @@ const Messages: Record<keyof typeof Meta, string> = {
     declined_if_not_required: ':key is not declined',
     declined_if_required: ':key is not declined',
     email: 'Invalid :key',
+    enum: ':key is not in the list of allowed values [:params]',
     lower_case: ':key must be lower case',
     max: ':key should be less than or equal to :param0',
     min: ':key should be greater than or equal to :param0',
