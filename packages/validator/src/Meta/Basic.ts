@@ -13,6 +13,7 @@ import ContainsUpperCase from "../Rules/Public/ContainsUpperCase";
 import Date from "../Rules/Public/Date";
 import Declined from "../Rules/Public/Declined";
 import Email from "../Rules/Public/Email";
+import Integer from "../Rules/Public/Integer";
 import LowerCase from "../Rules/Public/LowerCase";
 import NotRequired from "../Rules/Public/NotRequired";
 import Numeric from "../Rules/Public/Numeric";
@@ -35,6 +36,7 @@ const Basic = {
     required: Required,
     date: Date,
     email: Email,
+    integer: Integer,
     plain_object: PlainObject,
     upper_case: UpperCase,
     contains_upper_case: ContainsUpperCase,
