@@ -26,6 +26,7 @@
     "@algobitx/rate-limiter": "workspace:*",
     "@algobitx/crypt": "workspace:*",
     "@algobitx/url": "workspace:*",
+    "@algobitx/validator": "workspace:*",
     "@algobitx/request": "workspace:*",
     "@algobitx/response": "workspace:*",
     "@algobitx/exception": "workspace:*"
