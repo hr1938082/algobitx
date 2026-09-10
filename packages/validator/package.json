@@ -15,6 +15,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js"
     },
+    "./Rules": {
+      "types": "./dist/Rules/Public/index.d.ts",
+      "import": "./dist/Rules/Public/index.js",
+      "require": "./dist/Rules/Public/index.js"
+    },
     "./Rules/*": {
       "types": "./dist/Rules/Public/*.d.ts",
       "import": "./dist/Rules/Public/*.js",
