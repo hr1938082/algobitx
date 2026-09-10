@@ -1,10 +1,11 @@
 import { RedisOptions, Redis as IORedis } from "ioredis";
-import Config, { PathValue, ConfigData } from "@algobitx/config-loader";
+import Config, { PathValue, ConfigData, defineConfig as DefineConfig } from "@algobitx/config-loader";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 type RedisConfig = {
     default: RedisOptions;
-} & Record<string, RedisOptions>
+    [key: string]: RedisOptions;
+}
 
 type RedisKeys = PathValue<ConfigData, 'redis'>
 
@@ -75,6 +76,10 @@ class Redis {
         });
 
         this.connections.set(key, client);
+    }
+
+    static defineConfig(config: RedisConfig) {
+        DefineConfig({ name: 'redis', values: config });
     }
 
     static connection(key?: keyof RedisKeys) {

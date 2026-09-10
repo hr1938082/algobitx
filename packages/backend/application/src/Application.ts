@@ -1,14 +1,24 @@
-import Config, { Load } from "@algobitx/config-loader";
+import Config, { defineConfig as DefineConfig, Load } from "@algobitx/config-loader";
 import Request from "@algobitx/request";
 import Response from "@algobitx/response";
 import { Server, createServer } from "node:http";
 import { NetworkInterfaceInfo, networkInterfaces } from "node:os";
 import Redis from '@algobitx/redis';
 import Route, { RouteConfig } from "./Routing/Route";
-import Exception from "@algobitx/exception/Exception";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import HttpException from "@algobitx/exception/http/HttpException";
 import BootException from "@algobitx/exception/server/BootException";
+
+interface ApplicationConfig {
+    name: string;
+    key: string;
+    env: string;
+    port: number;
+    url: string;
+    timezone: string;
+    force_https: boolean;
+    trust_proxies: string[];
+}
 
 class Application {
     private server: Server;
@@ -124,6 +134,58 @@ class Application {
         }
 
         return ips;
+    }
+
+    static defineConfig(config: ApplicationConfig) {
+        DefineConfig({
+            name: 'app',
+            values: config,
+            rules: {
+                name: {
+                    required: true,
+                    string: true,
+                    min: 3,
+                    max: 50
+                },
+                key: {
+                    required: true,
+                    string: true,
+                    min: 32,
+                    max: 64
+                },
+                env: {
+                    required: true,
+                    string: true,
+                    enum: ['development', 'production', 'test']
+                },
+                port: {
+                    required: true,
+                    numeric: true,
+                    min: 1,
+                    max: 65535
+                },
+                url: {
+                    required: true,
+                    string: true,
+                },
+                timezone: {
+                    required: true,
+                    string: true,
+                },
+                force_https: {
+                    required: true,
+                    boolean: true
+                },
+                trust_proxies: {
+                    required: true,
+                    array: true,
+                },
+                'trust_proxies.*': {
+                    required: true,
+                    string: true,
+                }
+            }
+        });
     }
 
     start() {

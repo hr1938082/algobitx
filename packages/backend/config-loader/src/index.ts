@@ -4,6 +4,8 @@ import ConfigLoader from "./ConfigLoader";
 export type DotPath<T> = T extends object ? { [K in Extract<keyof T, string>]: T[K] extends object ? K | `${K}.${DotPath<T[K]>}` : K }[Extract<keyof T, string>] : never;
 export type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}` ? K extends keyof T ? PathValue<T[K], Rest> : never : P extends keyof T ? T[P] : never;
 
+const defineConfig = ConfigLoader.defineConfig.bind(ConfigLoader);
+
 /**
  * Loads the environment variables and configuration files.
  *
@@ -111,6 +113,6 @@ const Config = <P extends DotPath<ConfigData>>(key: P): PathValue<ConfigData, P>
     return (ConfigLoader as any).get(key) as PathValue<ConfigData, P>;
 };
 
-export { Load, LoadConfig, ConfigData }
+export { Load, LoadConfig, ConfigData, defineConfig }
 
 export default Config

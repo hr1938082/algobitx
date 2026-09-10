@@ -1,7 +1,6 @@
-import { SessionConfig } from "@algobitx/session/Session";
+import Request from "@algobitx/application/Request";
 
-
-const session: SessionConfig = {
+Request.defineConfig({
     name: process.env.SESSION_NAME || process.env.APP_NAME?.toLowerCase() + "_session" || "algobitx_session",
     lifetime: parseInt(process.env.SESSION_LIFETIME || "120", 10) * 60,
     httpOnly: process.env.SESSION_HTTP_ONLY === 'true',
@@ -9,6 +8,4 @@ const session: SessionConfig = {
     sameSite: process.env.SESSION_SAMESITE as CookieSameSite || 'lax',
     path: process.env.SESSION_PATH || '/',
     domain: process.env.SESSION_DOMAIN || undefined,
-}
-
-export default session;
+});

@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'node:http';
 import Cookie from '@algobitx/session/Cookie';
-import Session from '@algobitx/session/Session';
+import Session, { SessionConfig } from '@algobitx/session/Session';
 import Response from '@algobitx/response';
 import URL from '@algobitx/url';
 import Body from './Body';
@@ -27,6 +27,10 @@ class Request {
     private _session?: Session;
 
     constructor(private readonly raw: IncomingMessage) { }
+
+    static defineConfig(config: SessionConfig) {
+        Session.defineConfig(config);
+    }
 
     header<K extends HeaderKey>(key: K): HeaderValue<K> | undefined {
         return this.raw.headers[key] as HeaderValue<K> | undefined;

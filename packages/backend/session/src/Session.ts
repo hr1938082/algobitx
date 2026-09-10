@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import Config from "@algobitx/config-loader";
+import Config, { defineConfig as DefineConfig } from "@algobitx/config-loader";
 import Crypt from "@algobitx/crypt";
 import Redis from "@algobitx/redis";
 import Cookie, { CookieConfig } from "./Cookie";
@@ -92,6 +92,42 @@ class Session {
             );
 
         this.data = data;
+    }
+
+    static defineConfig(config: SessionConfig) {
+        DefineConfig({
+            name: 'session',
+            values: config,
+            rules: {
+                name: {
+                    required: true,
+                    string: true,
+                    min: 3,
+                    max: 20
+                },
+                lifetime: {
+                    required: true,
+                    integer: true
+                },
+                httpOnly: {
+                    required: true,
+                    boolean: true
+                },
+                secure: {
+                    required: true,
+                    boolean: true
+                },
+                sameSite: {
+                    required: true,
+                    enum: ['none', 'lax', 'strict']
+                },
+                path: {
+                    required: true,
+                    string: true
+                },
+
+            }
+        });
     }
 
     async start(): Promise<void> {

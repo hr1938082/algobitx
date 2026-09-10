@@ -22,9 +22,12 @@
   },
   "dependencies": {
     "@algobitx/config-loader": "workspace:*",
+    "@algobitx/redis": "workspace:*",
+    "@algobitx/rate-limiter": "workspace:*",
+    "@algobitx/crypt": "workspace:*",
+    "@algobitx/url": "workspace:*",
     "@algobitx/request": "workspace:*",
     "@algobitx/response": "workspace:*",
-    "@algobitx/rate-limiter": "workspace:*",
     "@algobitx/exception": "workspace:*"
   },
   "devDependencies": {

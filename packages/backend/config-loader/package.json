@@ -16,7 +16,8 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/type-gen": "workspace:*"
+    "@algobitx/type-gen": "workspace:*",
+    "@algobitx/validator": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

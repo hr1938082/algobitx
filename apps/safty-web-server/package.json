@@ -12,11 +12,7 @@
     "bundle": "pnpm --filter @algobitx/safty-web-server --prod deploy ./bundle --legacy"
   },
   "dependencies": {
-    "@algobitx/application": "workspace:*",
-    "@algobitx/config-loader": "workspace:*",
-    "@algobitx/request": "workspace:*",
-    "@algobitx/response": "workspace:*",
-    "@algobitx/session": "workspace:*"
+    "@algobitx/application": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

@@ -3,6 +3,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import ConfigData from "./ConfigData";
 import { DotPath, PathValue } from ".";
 import TypeGen from "@algobitx/type-gen";
+import PlainObject from "@algobitx/validator/Rules/PlainObject";
+import Validator, { Rules } from "@algobitx/validator";
 
 class ConfigLoader {
     private static loaded = false;
@@ -57,27 +59,33 @@ class ConfigLoader {
         }
     }
 
-    private static deepFreeze<T>(obj: T): T {
-        if (obj && typeof obj === "object" && !Object.isFrozen(obj)) {
+    private static deepFreeze(obj: unknown) {
+        if (obj && PlainObject(obj) && !Object.isFrozen(obj)) {
             Object.freeze(obj);
 
             for (const value of Object.values(obj)) {
                 ConfigLoader.deepFreeze(value);
             }
         }
-
-        return obj;
     }
 
-    private static isPlainObject(value: unknown): value is Record<string, unknown> {
-        if (value === null || typeof value !== "object") return false;
-
-        const prototype = Object.getPrototypeOf(value);
-        return prototype === Object.prototype || prototype === null;
+    static defineConfig<T extends object>(config: { name: string, values: T, rules?: Rules<T> }) {
+        if (config.rules) {
+            const validated = Validator.define({
+                values: config.values,
+                rules: config.rules
+            }).validate();
+            if (validated.failed) throw new Error(
+                `Config validation failed: ${JSON.stringify(validated.errors)}`
+            );
+        }
+        this.config[config.name] = config.values as unknown as ConfigData;
     }
 
     static loadConfig() {
         if (this.config) return;
+
+        this.config = {};
 
         const appDir = process.env.APP_DIR;
 
@@ -94,26 +102,21 @@ class ConfigLoader {
         const files = readdirSync(configDir)
             .filter(file => this.READABLE_EXTENSIONS.includes(extname(file).toLowerCase()));
 
-        const cfg: ConfigData = {};
-
         for (const file of files) {
             const fullPath = join(configDir, file);
             const key = basename(file, extname(file));
 
-            if (Object.hasOwn(cfg, key)) throw new Error(
+            if (Object.hasOwn(this.config, key)) throw new Error(
                 `Duplicate config name detected: ${key}`
             );
 
-            const mod = require(fullPath);
-            cfg[key] = "default" in mod ? mod.default : mod;
+            require(fullPath);
         }
 
-        if (cfg.app !== undefined && !this.isPlainObject(cfg.app))
-            throw new Error("Config 'app' must export an object.");
+        this.config.app = { ...(this.config.app ?? {}), dir: appDir };
 
-        cfg.app = { ...(cfg.app ?? {}), dir: appDir };
+        this.deepFreeze(this.config);
 
-        this.config = this.deepFreeze(cfg);
     }
 
     static load() {
