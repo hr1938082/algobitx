@@ -5,6 +5,7 @@ import { DotPath, PathValue } from ".";
 import TypeGen from "@algobitx/type-gen";
 import PlainObject from "@algobitx/validator/Rules/PlainObject";
 import Validator, { Rules } from "@algobitx/validator";
+import { Array } from "@algobitx/validator/Rules";
 
 class ConfigLoader {
     private static loaded = false;
@@ -60,26 +61,36 @@ class ConfigLoader {
     }
 
     private static deepFreeze(obj: unknown) {
-        if (obj && PlainObject(obj) && !Object.isFrozen(obj)) {
-            Object.freeze(obj);
+        if (obj === undefined || obj === null || typeof obj !== 'object') return;
+        if (Object.isFrozen(obj)) return;
 
-            for (const value of Object.values(obj)) {
+        Object.freeze(obj);
+
+        if (Array(obj)) {
+            for (const value of obj)
                 ConfigLoader.deepFreeze(value);
-            }
+            return;
         }
+
+        if (PlainObject(obj))
+            for (const value of Object.values(obj))
+                ConfigLoader.deepFreeze(value);
     }
 
     static defineConfig<T extends object>(config: { name: string, values: T, rules?: Rules<T> }) {
+        const clone = structuredClone(config.values);
         if (config.rules) {
             const validated = Validator.define({
-                values: config.values,
+                values: clone,
                 rules: config.rules
             }).validate();
             if (validated.failed) throw new Error(
                 `Config validation failed: ${JSON.stringify(validated.errors)}`
             );
+            this.config[config.name] = validated.validated;
+            return;
         }
-        this.config[config.name] = config.values as unknown as ConfigData;
+        this.config[config.name] = clone;
     }
 
     static loadConfig() {
