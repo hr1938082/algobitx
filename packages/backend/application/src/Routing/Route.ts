@@ -163,18 +163,17 @@ class Route {
             throw new BootException(new Error("Invalid Handler"));
         }
 
-        const key = this.routeKey(
-            method,
-            this.normalizePath(
-                this.prefixStack.join('') +
-                this.currentPrefix +
-                path
-            )
+        const normalizedPath = this.normalizePath(
+            this.prefixStack.join('') +
+            this.currentPrefix +
+            path
         );
+
+        const key = this.routeKey(method, normalizedPath);
 
         if (this.routes.has(key))
             throw new BootException(
-                new Error(`Duplicate route: ${method} ${path}`)
+                new Error(`Duplicate route: ${method}:${normalizedPath}`)
             );
 
 
