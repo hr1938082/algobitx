@@ -1,8 +1,8 @@
 import Request from "@algobitx/application/Request";
 
 Request.defineConfig({
-    name: process.env.SESSION_NAME || process.env.APP_NAME?.toLowerCase() + "_session" || "algobitx_session",
-    lifetime: (Number(process.env.SESSION_LIFETIME) || 120) * 60,
+    name: process.env.SESSION_NAME || process.env.APP_NAME?.toLowerCase() || "algobitx" + "_session",
+    lifetime: (process.env.SESSION_LIFETIME ? Number(process.env.SESSION_LIFETIME) : 120) * 60,
     httpOnly: process.env.SESSION_HTTP_ONLY === 'true',
     secure: process.env.SESSION_SECURE === 'true',
     sameSite: process.env.SESSION_SAMESITE as CookieSameSite || 'lax',
