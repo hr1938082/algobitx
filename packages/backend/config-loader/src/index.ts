@@ -35,7 +35,7 @@ const Load = () => ConfigLoader.load();
 /**
  * Loads all configuration files from the `configs` directory.
  *
- * Every supported configuration file (`.js`, `.cjs`, `.mjs`, or `.ts`)
+ * Every supported configuration file (`.js` or `.ts`)
  * is loaded and exposed through the configuration system using its file
  * name as the configuration key.
  *
