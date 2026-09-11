@@ -45,7 +45,6 @@ class IP {
 
     private static isTrustedProxy(ip: string): boolean {
         if (this.trustProxies.size === 0) return false;
-        if (this.trustProxies.has("*")) return true;
         if (this.trustProxies.has(ip)) return true;
 
         const addr = ipaddr.process(ip);
