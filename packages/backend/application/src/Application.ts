@@ -160,7 +160,7 @@ class Application {
                 },
                 port: {
                     required: true,
-                    numeric: true,
+                    integer: true,
                     min: 1,
                     max: 65535
                 },
