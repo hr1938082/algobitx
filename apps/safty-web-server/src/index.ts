@@ -1,6 +1,8 @@
 import Application from '@algobitx/application/Application';
 import Throttle from '@algobitx/application/Routing/Middlewares/Throttle';
 import Web from '@algobitx/application/Routing/Middlewares/Web';
+import TestEvent from './events/TestEvent';
+import TestListener from './listeners/TestListener';
 
 const app = new Application([
     {
@@ -13,6 +15,9 @@ const app = new Application([
         middleware: Throttle(1, 1)
     }
 ]);
+app.onBoot(() => {
+    TestEvent.listen(new TestListener());
+})
 
 app.start();
 
