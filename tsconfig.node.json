@@ -46,6 +46,12 @@
             "@algobitx/application": [
                 "./packages/backend/application"
             ],
+            "@algobitx/event": [
+                "./packages/backend/event"
+            ],
+            "@algobitx/queue": [
+                "./packages/backend/queue"
+            ],
         }
     },
     "references": [
@@ -84,6 +90,12 @@
         },
         {
             "path": "./packages/backend/application"
+        },
+        {
+            "path": "./packages/backend/event"
+        },
+        {
+            "path": "./packages/backend/queue"
         }
     ]
 }
