@@ -21,11 +21,15 @@ interface ApplicationConfig {
 }
 
 class Application {
+    private static ins: Application
     private server: Server;
     private shuttingDown = false;
     private isDev = false;
+    private onBootCallback?: () => void | Promise<void>;
 
     constructor(options: RouteConfig) {
+        if (Application.ins) throw new Error("Application already Initialized");
+        Application.ins = this;
         this.server = this.configure(options)
     }
 
@@ -188,7 +192,16 @@ class Application {
         });
     }
 
-    start() {
+    onBoot(callback: () => void | Promise<void>) {
+        if (this.server.listening)
+            throw new Error("Server Starts Listening call onBoot before start method");
+        this.onBootCallback = callback;
+    }
+
+    async start() {
+        if (this.onBootCallback)
+            await this.onBootCallback();
+
         this.setupGracefulShutdown();
 
         const port = Config('app.port');
