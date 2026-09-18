@@ -42,6 +42,7 @@ const Basic = {
     contains_upper_case: ContainsUpperCase,
     lower_case: LowerCase,
     contains_lower_case: ContainsLowerCase,
+    nullable: Required,
     numeric: Numeric,
     not_required: NotRequired,
     contains_numeric: ContainsNumeric,

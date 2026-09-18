@@ -40,6 +40,7 @@ const Messages: Record<keyof typeof Meta, string> = {
     lower_case: ':key must be lower case',
     max: ':key should be less than or equal to :param0',
     min: ':key should be greater than or equal to :param0',
+    nullable: '',
     numeric: ':key must be a number',
     not_required: ':key is not required',
     plain_object: ':key must be plain object',

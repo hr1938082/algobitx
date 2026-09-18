@@ -127,7 +127,23 @@ class Validator<T extends object> {
 
                 let currentFails = false;
 
-                for (const [ruleKey, ruleParams] of Object.entries(ruleObj)) {
+                const ruleObjEntries = Object.entries(ruleObj);
+
+                const nullableEntry = ruleObjEntries.find(([key]) => key === 'nullable');
+
+                if (nullableEntry) {
+                    const nullable = nullableEntry[1] as (
+                        value: unknown,
+                    ) => boolean;
+
+                    if (!nullable(field.value) && field.resolved) {
+                        this.setNestedValue(field.path, field.value);
+                        continue;
+                    }
+                }
+
+                for (const [ruleKey, ruleParams] of ruleObjEntries) {
+                    if (ruleKey === 'nullable') continue;
 
                     const ruleParamProcessed = ruleParams === true
                         ? []
