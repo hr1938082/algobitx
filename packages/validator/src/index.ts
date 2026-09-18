@@ -4,32 +4,34 @@ import PlainObject from "./Rules/Public/PlainObject";
 import UnsafeKeys from "./UnsafeKeys";
 import ResolvePath from "./ResolvePath";
 
-type PathValue<
-    T,
-    AllowWildcard extends boolean = false
-> =
+type WildcardPath<T> =
     T extends readonly unknown[]
-    ? `${number}`
-    | "*"
-    | `${number}.${PathValue<T[number], true>}`
-    | `*.${PathValue<T[number], true>}`
+    ? "*"
+    | `*.${PathValue<T[number]>}`
 
     : T extends object
-    ? (
-        {
-            [K in keyof T & string]:
-            T[K] extends readonly unknown[] | object
-            ? K | `${K}.${PathValue<T[K], true>}`
-            : K
-        }[keyof T & string]
-        |
-        (
-            AllowWildcard extends true
-            ? "*"
-            | `*.${PathValue<T[keyof T & string], true>}`
-            : never
-        )
-    )
+    ? "*"
+    | `*.${PathValue<T[string & keyof T]>}`
+
+    : never;
+
+type PathValue<T> =
+    T extends readonly unknown[]
+    ? `${number}`
+    | `*`
+    | `${number}.${PathValue<T[number]>}`
+    | `*.${PathValue<T[number]>}`
+
+    : T extends object
+    ? {
+        [K in keyof T & string]:
+        string extends K
+        ? never
+        : T[K] extends readonly unknown[] | object
+        ? K | `${K}.${PathValue<T[K]>}`
+        : K
+    }[keyof T & string]
+    | WildcardPath<T>
 
     : never;
 
