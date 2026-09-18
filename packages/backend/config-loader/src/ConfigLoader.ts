@@ -87,8 +87,6 @@ class ConfigLoader {
             if (validated.failed) throw new Error(
                 `Config validation failed: ${JSON.stringify(validated.errors)}`
             );
-            this.config[config.name] = validated.validated;
-            return;
         }
         this.config[config.name] = clone;
     }
