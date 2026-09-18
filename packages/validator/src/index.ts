@@ -4,8 +4,14 @@ import PlainObject from "./Rules/Public/PlainObject";
 import UnsafeKeys from "./UnsafeKeys";
 import ResolvePath from "./ResolvePath";
 
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+
 type WildcardPath<T> =
-    T extends readonly unknown[]
+    IsAny<T> extends true
+    ? "*"
+    | `*.${string}`
+
+    : T extends readonly unknown[]
     ? "*"
     | `*.${PathValue<T[number]>}`
 
@@ -16,9 +22,12 @@ type WildcardPath<T> =
     : never;
 
 type PathValue<T> =
-    T extends readonly unknown[]
+    IsAny<T> extends true
+    ? never
+
+    : T extends readonly unknown[]
     ? `${number}`
-    | `*`
+    | "*"
     | `${number}.${PathValue<T[number]>}`
     | `*.${PathValue<T[number]>}`
 
