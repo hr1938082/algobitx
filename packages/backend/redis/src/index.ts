@@ -79,7 +79,18 @@ class Redis {
     }
 
     static defineConfig(config: RedisConfig) {
-        DefineConfig({ name: 'redis', values: config });
+        DefineConfig({
+            name: 'redis',
+            values: config,
+            rules: {
+                "*.host": { required: true, string: true },
+                "*.port": { required: true, integer: true },
+                "*.username": { nullable: true, string: true },
+                "*.password": { nullable: true, string: true },
+                "*.db": { required: true, integer: true },
+                "*.keyPrefix": { required: true, string: true }
+            }
+        });
     }
 
     static connection(key?: keyof RedisKeys) {
