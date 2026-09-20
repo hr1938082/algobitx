@@ -1,0 +1,40 @@
+{
+  "name": "@algobitx/queue",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Queue Library",
+  "license": "UNLICENSED",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "package.json"
+  ],
+  "exports": {
+    "./defineConfig": {
+      "types": "./dist/DefineConfig.d.ts",
+      "import": "./dist/DefineConfig.js",
+      "require": "./dist/DefineConfig.js"
+    },
+    "./Producer": {
+      "types": "./dist/Producer.d.ts",
+      "import": "./dist/Producer.js",
+      "require": "./dist/Producer.js"
+    },
+    "./Consumer": {
+      "types": "./dist/Consumer.d.ts",
+      "import": "./dist/Consumer.js",
+      "require": "./dist/Consumer.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "dependencies": {
+    "@algobitx/config-loader": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}
