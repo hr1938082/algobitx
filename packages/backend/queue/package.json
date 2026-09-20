@@ -31,7 +31,8 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/config-loader": "workspace:*"
+    "@algobitx/config-loader": "workspace:*",
+    "@algobitx/queue-driver": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
