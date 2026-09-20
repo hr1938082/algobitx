@@ -1,5 +1,5 @@
-import { QueueKey } from "./DefineConfig";
 import DriverFactory from "./DriverFactory";
+import { QueueKey } from '@algobitx/queue-driver'
 
 abstract class Producer {
     protected queue: QueueKey = 'default';
@@ -9,7 +9,8 @@ abstract class Producer {
         ...args: TArgs
     ) {
         const producer = new this(...args);
-        await DriverFactory(producer.queue).push(producer);
+        const driver = DriverFactory.create(producer.queue);
+        await driver.push(producer);
     }
 
 }

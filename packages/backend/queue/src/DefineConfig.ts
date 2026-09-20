@@ -1,5 +1,5 @@
-import { ConfigData, defineConfig, PathValue } from "@algobitx/config-loader";
-import { DriverType } from "./Driver";
+import { defineConfig } from "@algobitx/config-loader";
+import { DriverType } from "@algobitx/queue-driver";
 
 interface QueueConfig {
     driver: DriverType;
@@ -12,8 +12,6 @@ interface QueueKeyConfig {
     default: QueueConfig;
     [key: string]: QueueConfig
 }
-
-export type QueueKey = Extract<keyof PathValue<ConfigData, 'redis'>, string>
 
 const DefineConfig = (config: QueueKeyConfig) => {
     defineConfig({

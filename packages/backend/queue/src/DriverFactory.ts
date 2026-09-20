@@ -1,18 +1,22 @@
 import Config from "@algobitx/config-loader"
-import { QueueKey } from "./DefineConfig"
-import Driver, { Job } from "./Driver"
-import RedisDriver from "./RedisDriver";
+import { DriverConstructor, Job, QueueKey } from "@algobitx/queue-driver";
 
-const DriverFactory = <TJob extends Job>(queue: QueueKey): Driver<TJob> => {
-    const driver = Config(`queue.${queue}.driver`);
-    switch (driver) {
-        case 'redis':
-            return new RedisDriver<TJob>(queue);
-        case 'kafka':
-            return new RedisDriver<TJob>(queue);
-        default:
-            throw new Error(`Unknown driver: ${driver}`);
+class DriverFactory {
+    private static driver: Map<QueueKey, DriverConstructor> = new Map();
+
+    static register(key: QueueKey, driver: DriverConstructor) {
+        this.driver.set(key, driver);
+    }
+
+    static create<TJob extends Job>(key: QueueKey) {
+        const type = Config(`queue.${key}.driver`);
+
+        const driver = this.driver.get(key);
+        if (!driver) throw new Error(`Driver [${type}] is not registered.`);
+
+        return new driver<TJob>(key);
     }
 }
+
 
 export default DriverFactory

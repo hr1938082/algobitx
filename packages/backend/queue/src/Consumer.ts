@@ -1,12 +1,11 @@
-import { QueueKey } from "./DefineConfig";
-import { ConsumerMeta, Job } from "./Driver";
+import { ConsumerMeta, Job, QueueKey } from "@algobitx/queue-driver";
 import DriverFactory from "./DriverFactory";
 
 abstract class Consumer<TJob extends Job> {
     protected queue: QueueKey = 'default';
 
     async start() {
-        const driver = DriverFactory<TJob>(this.queue);
+        const driver = DriverFactory.create<TJob>(this.queue);
         await driver.pull(this.handle);
     }
 
