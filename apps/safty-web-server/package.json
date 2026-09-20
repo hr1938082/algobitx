@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@algobitx/application": "workspace:*",
-    "@algobitx/event": "workspace:*"
+    "@algobitx/event": "workspace:*",
+    "@algobitx/queue": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
