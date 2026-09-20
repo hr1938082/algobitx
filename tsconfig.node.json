@@ -49,6 +49,12 @@
             "@algobitx/event": [
                 "./packages/backend/event"
             ],
+            "@algobitx/queue-driver": [
+                "./packages/backend/queue-driver"
+            ],
+            "@algobitx/queue-redis-driver": [
+                "./packages/backend/queue-redis-driver"
+            ],
             "@algobitx/queue": [
                 "./packages/backend/queue"
             ],
@@ -93,6 +99,12 @@
         },
         {
             "path": "./packages/backend/event"
+        },
+        {
+            "path": "./packages/backend/queue-driver"
+        },
+        {
+            "path": "./packages/backend/queue-redis-driver"
         },
         {
             "path": "./packages/backend/queue"
