@@ -132,7 +132,7 @@ class Validator<T extends object> {
                 const nullableEntry = ruleObjEntries.find(([key]) => key === 'nullable');
 
                 if (nullableEntry) {
-                    const nullable = nullableEntry[1] as (
+                    const nullable = Meta[nullableEntry[0] as keyof typeof PublicMeta] as (
                         value: unknown,
                     ) => boolean;
 
