@@ -7,10 +7,10 @@ type RedisConfig = {
     [key: string]: RedisOptions;
 }
 
-type RedisKeys = PathValue<ConfigData, 'redis'>
+export type RedisKeys = keyof PathValue<ConfigData, 'redis'>
 
 class Redis {
-    private static connections: Map<keyof RedisKeys, IORedis> = new Map();
+    private static connections: Map<RedisKeys, IORedis> = new Map();
     private static initialized: boolean = false;
     private static isShuttingDown: boolean = false;
 
@@ -39,7 +39,7 @@ class Redis {
 
         try {
             for (const [key, value] of Object.entries(config))
-                this.createInstance(key as keyof RedisKeys, value);
+                this.createInstance(key as RedisKeys, value);
 
             this.initialized = true;
         } catch (error) {
@@ -54,7 +54,7 @@ class Redis {
         }
     }
 
-    private static createInstance(key: keyof RedisKeys, opt: RedisOptions) {
+    private static createInstance(key: RedisKeys, opt: RedisOptions) {
         if (this.connections.has(key)) return;
 
         if (
@@ -93,7 +93,7 @@ class Redis {
         });
     }
 
-    static connection(key?: keyof RedisKeys) {
+    static connection(key?: RedisKeys) {
         if (this.isShuttingDown) throw new InternalServerException(
             new Error(
                 "Redis is shutting down and cannot accept new connections."
@@ -156,4 +156,4 @@ class Redis {
 
 export default Redis;
 
-export { RedisConfig }
+export { RedisConfig, IORedis }

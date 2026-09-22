@@ -1,4 +1,4 @@
-import { PathValue, ConfigData } from "@algobitx/config-loader";
+import Config, { PathValue, ConfigData } from "@algobitx/config-loader";
 import { randomUUID } from "node:crypto";
 
 export type DriverType = 'redis' | 'kafka';
@@ -45,13 +45,30 @@ class Serializer<TJob extends Job> {
 }
 
 abstract class Driver<TJob extends Job> {
-    protected abstract readonly topic: string;
-    protected abstract readonly group: string;
+    protected _topic: string;
+    protected connection: string;
+    protected group: string;
     protected readonly consumerId: string = randomUUID();
-    protected abstract readonly retryInterval: number;
+    protected retryInterval: number;
+    protected maxAttempt: number;
+    protected processingTimeout: number;
     protected serializer = new Serializer<TJob>()
+
+    constructor(queue: QueueKey) {
+        this._topic = Config(`queue.${queue}.topic`);
+        this.connection = Config(`queue.${queue}.connection`);
+        this.group = Config(`queue.${queue}.group`);
+        this.retryInterval = Config(`queue.${queue}.retryInterval`);
+        this.maxAttempt = Config(`queue.${queue}.maxAttempt`)
+        this.processingTimeout = Config(`queue.${queue}.processingTimeout`)
+    }
+
     abstract push(job: TJob): Promise<void>
     abstract pull(consumer: ConsumerCallback<TJob>): Promise<void>
+
+    set topic(topic: string) {
+        this._topic = topic;
+    }
 }
 
 export default Driver
