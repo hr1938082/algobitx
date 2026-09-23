@@ -1,20 +1,28 @@
 import Config from "@algobitx/config-loader"
-import { DriverConstructor, Job, QueueKey } from "@algobitx/queue-driver";
+import Driver, { DriverConstructor, DriverType, Job, QueueKey } from "@algobitx/queue-driver";
 
 class DriverFactory {
-    private static driver: Map<QueueKey, DriverConstructor> = new Map();
+    private static driver: Map<DriverType, DriverConstructor> = new Map();
+    private static driverConnection: Map<QueueKey, Driver<Job>> = new Map();
 
-    static register(key: QueueKey, driver: DriverConstructor) {
+    static register(key: DriverType, driver: DriverConstructor) {
+        if (this.driver.has(key)) throw new Error("Driver already Registered");
         this.driver.set(key, driver);
     }
 
     static create<TJob extends Job>(key: QueueKey) {
         const type = Config(`queue.${key}.driver`);
 
-        const driver = this.driver.get(key);
-        if (!driver) throw new Error(`Driver [${type}] is not registered.`);
+        let driverConnection = this.driverConnection.get(key);
+        if (!driverConnection) {
+            const driver = this.driver.get(type);
+            if (!driver) throw new Error("Driver not Register");
 
-        return new driver<TJob>(key);
+            driverConnection = new driver<TJob>(key);
+            this.driverConnection.set(key, driverConnection);
+        }
+
+        return driverConnection as Driver<TJob>;
     }
 }
 
