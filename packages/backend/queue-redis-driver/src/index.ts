@@ -122,17 +122,15 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
         attempt: number
     ): Promise<void> {
         const job = this.serializer.deserialize(this.fromRedisFields(fields));
-        let timer: NodeJS.Timeout;
-
         try {
             await Promise.race([
                 consumer(job, { attempt }),
                 new Promise((_, reject) => {
-                    timer = setTimeout(() => {
+                    setTimeout(() => {
                         reject(new TimeoutException(this.processingTimeout));
                     }, this.processingTimeout)
                 })
-            ]).finally(() => { if (timer) clearTimeout(timer) });
+            ])
         } catch (error) {
             if (error instanceof TimeoutException) {
                 process.exit(1);
