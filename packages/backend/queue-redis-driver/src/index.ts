@@ -260,16 +260,15 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
             if (result.length === 0) break;
 
             for (const [failedId, fields] of result) {
-                await this.client.xadd(
-                    this._topic,
-                    "*",
-                    ...fields
-                );
-
-                await this.client.xdel(
-                    failedTopic,
-                    failedId
-                );
+                await this.client.multi()
+                    .xadd(
+                        this._topic,
+                        "*",
+                        ...fields
+                    ).xdel(
+                        failedTopic,
+                        failedId
+                    ).exec();
 
                 retried++;
             }
