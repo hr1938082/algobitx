@@ -3,11 +3,13 @@ import DriverFactory from "./DriverFactory";
 
 abstract class Consumer<TJob extends Job> {
     protected queue: QueueKey = 'default';
+    private driver = DriverFactory.create<TJob>(this.queue);
 
     async start() {
-        const driver = DriverFactory.create<TJob>(this.queue);
-        await driver.pull(this.handle);
+        this.driver.group = this.constructor.name;
+        await this.driver.pull(this.handle.bind(this));
     }
+
 
     abstract handle(job: TJob, meta: ConsumerMeta): void | Promise<void>
 }

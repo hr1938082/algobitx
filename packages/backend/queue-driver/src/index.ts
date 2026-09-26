@@ -45,19 +45,18 @@ class Serializer<TJob extends Job> {
 }
 
 abstract class Driver<TJob extends Job> {
-    protected _topic: string;
+    protected topic: string;
     protected connection: string;
-    protected group: string;
+    protected _group!: string;
     protected readonly consumerId: string = randomUUID();
     protected retryInterval: number;
     protected maxAttempt: number;
     protected processingTimeout: number;
-    protected serializer = new Serializer<TJob>()
+    protected serializer = new Serializer<TJob>();
 
     constructor(queue: QueueKey) {
-        this._topic = Config(`queue.${queue}.topic`);
+        this.topic = `queue:${Config(`queue.${queue}.topic`)}`;
         this.connection = Config(`queue.${queue}.connection`);
-        this.group = Config(`queue.${queue}.group`);
         this.retryInterval = Config(`queue.${queue}.retryInterval`);
         this.maxAttempt = Config(`queue.${queue}.maxAttempt`)
         this.processingTimeout = Config(`queue.${queue}.processingTimeout`)
@@ -66,8 +65,8 @@ abstract class Driver<TJob extends Job> {
     abstract push(job: TJob): Promise<void>
     abstract pull(consumer: ConsumerCallback<TJob>): Promise<void>
 
-    set topic(topic: string) {
-        this._topic = topic;
+    set group(group: string) {
+        this._group = `${this.topic}:${group}-group`;
     }
 }
 

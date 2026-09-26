@@ -1,24 +1,23 @@
 import { ConsumerMeta, Job, QueueKey } from "@algobitx/queue-driver";
 import DriverFactory from "./DriverFactory";
 
-abstract class ShouldQueue<TJob extends Job> {
+abstract class ShouldQueue implements Job {
     protected queue: QueueKey = 'default';
+    private driver = DriverFactory.create<ShouldQueue>(this.queue);
 
     async start() {
-        const driver = DriverFactory.create<TJob>(this.queue);
-        await driver.pull(this.handle);
+        this.driver.group = this.constructor.name;
+        await this.driver.pull(this.handle.bind(this));
     }
 
-    abstract handle(job: TJob, meta: ConsumerMeta): void | Promise<void>
+    abstract handle(job: ShouldQueue, meta: ConsumerMeta): void | Promise<void>
 
-    static async dispatch<TJob extends Job, TArgs extends unknown[]>(
-        this: new (...args: TArgs) => ShouldQueue<TJob>,
+    static async dispatch<TArgs extends unknown[]>(
+        this: new (...args: TArgs) => ShouldQueue,
         ...args: TArgs
     ) {
         const producer = new this(...args);
-        const driver = DriverFactory.create(producer.queue);
-        driver.topic = producer.constructor.name;
-        await driver.push(producer);
+        await producer.driver.push(producer);
     }
 }
 
