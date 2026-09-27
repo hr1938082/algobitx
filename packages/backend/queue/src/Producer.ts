@@ -10,6 +10,7 @@ abstract class Producer {
     ) {
         const producer = new this(...args);
         const driver = DriverFactory.create(producer.queue);
+        driver.topic = this.name;
         await driver.push(producer);
     }
 

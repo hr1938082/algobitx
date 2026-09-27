@@ -43,7 +43,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
         const fields = this.serializer.serialize(job);
         const redisFields = this.toRedisFields(fields);
         await this.client.xadd(
-            this.topic,
+            this._topic,
             "*",
             ...redisFields
         );
@@ -72,7 +72,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
                 "BLOCK",
                 5000,
                 "STREAMS",
-                this.topic,
+                this._topic,
                 ">"
             ) as RedisStreamResult;
 
@@ -96,7 +96,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
         try {
             await this.client.xgroup(
                 "CREATE",
-                this.topic,
+                this._topic,
                 this.group,
                 "0",
                 "MKSTREAM"
@@ -140,7 +140,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
         }
 
         await this.client.xack(
-            this.topic,
+            this._topic,
             this.group,
             id
         );
@@ -153,7 +153,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
 
         do {
             const result = await this.client.xautoclaim(
-                this.topic,
+                this._topic,
                 this.group,
                 this.consumerId,
                 this.processingTimeout,
@@ -193,7 +193,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
         id: string
     ): Promise<number> {
         const result = await this.client.xpending(
-            this.topic,
+            this._topic,
             this.group,
             id,
             id,
@@ -210,7 +210,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
 
     private async fail(id: string, fields: string[], attempt: number): Promise<void> {
         await this.client.multi().xadd(
-            `${this.topic}:failed`,
+            `${this._topic}:failed`,
             "*",
             ...this.toRedisFields({
                 ...this.fromRedisFields(fields),
@@ -218,14 +218,14 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
                 failedAttempt: attempt.toString()
             })
         ).xack(
-            this.topic,
+            this._topic,
             this.group,
             id
         ).exec();
     }
 
     async retryFailed() {
-        const failedTopic = `${this.topic}:failed`;
+        const failedTopic = `${this._topic}:failed`;
 
         const latest = await this.client.xrevrange(
             failedTopic,
@@ -260,7 +260,7 @@ class RedisDriver<TJob extends Job> extends Driver<TJob> {
 
             for (const [failedId, fields] of result) {
                 redisMulti.xadd(
-                    this.topic,
+                    this._topic,
                     "*",
                     ...fields
                 ).xdel(

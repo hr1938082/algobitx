@@ -6,6 +6,7 @@ abstract class ShouldQueue implements Job {
     private driver = DriverFactory.create<ShouldQueue>(this.queue);
 
     async start() {
+        this.driver.topic = this.constructor.name;
         this.driver.group = this.constructor.name;
         await this.driver.pull(this.handle.bind(this));
     }
@@ -17,6 +18,7 @@ abstract class ShouldQueue implements Job {
         ...args: TArgs
     ) {
         const producer = new this(...args);
+        producer.driver.topic = this.name;
         await producer.driver.push(producer);
     }
 }

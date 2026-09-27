@@ -4,7 +4,6 @@ import { DriverType } from "@algobitx/queue-driver";
 interface QueueConfig {
     driver: DriverType;
     connection: string;
-    topic: string;
     retryInterval: number;
     maxAttempt: number;
     processingTimeout: number;
@@ -22,7 +21,6 @@ const DefineConfig = (config: QueueKeyConfig) => {
         rules: {
             "*.driver": { required: true, string: true, enum: ['redis', 'kafka'] },
             '*.connection': { required: true, string: true },
-            '*.topic': { required: true, string: true },
             '*.retryInterval': { required: true, integer: true, min: 1000 },
             '*.maxAttempt': { required: true, integer: true, min: 1 },
             '*.processingTimeout': { required: true, integer: true, min: 10000 }
