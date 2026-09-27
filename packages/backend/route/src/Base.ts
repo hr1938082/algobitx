@@ -1,45 +1,38 @@
-import Config from "@algobitx/config-loader";
-import Request, { HttpMethod } from "@algobitx/request";
-import { join } from "node:path";
-import Response from "@algobitx/response";
-import NotFoundException from '@algobitx/exception/http/NotFoundException'
 import BootException from "@algobitx/exception/server/BootException";
+import Route, { Middleware, RouteConfig, ThrottleSymbol } from ".";
+import Config from "@algobitx/config-loader";
+import { join } from "node:path";
+import Request, { HttpMethod } from "@algobitx/request";
+import Response from "@algobitx/response";
+import NotFoundException from "@algobitx/exception/http/NotFoundException";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
-export const ThrottleSymbol = Symbol('throttle');
+type Action = (req: Request, res: Response) => Promise<void> | void
 
-export interface Middleware {
-    (req: Request, res: Response): unknown;
+export type Handler = string | [any, string] | Action;
 
-    [ThrottleSymbol]?: boolean;
-}
-
-type Action = (req: Request, res: Response) => Promise<any> | any
-
-type Handler = string | [any, string] | Action;
-
-interface RouteDefinition {
+interface StaticRouteDefinition {
     middlewares: Middleware[];
     action: Action;
 }
 
-export interface RouteOptions {
-    path: string
-    middleware?: Middleware | Middleware[],
-    prefix?: string
+interface DynamicRouteDefinition {
+    middlewares: Middleware[];
+    action: Action;
+    path: string;
+    regex: RegExp;
+    params: string[]
 }
 
-export type RouteConfig = RouteOptions | RouteOptions[];
-
-
-class Route {
-    private routes: Map<string, RouteDefinition> = new Map();
-    private currentPrefix: string = "";
-    private prefixStack: string[] = [];
-    private currentMiddlewares: Middleware[] = [];
-    private middlewareStack: Middleware[] = [];
+class Base {
+    private staticRoutes: Map<string, StaticRouteDefinition> = new Map();
+    private dynamicRoutes: Map<string, DynamicRouteDefinition[]> = new Map();
+    protected currentPrefix: string = "";
+    protected prefixStack: string[] = [];
+    protected currentMiddlewares: Middleware[] = [];
+    protected middlewareStack: Middleware[] = [];
     private controllerCache: Map<any, any> = new Map();
-    private currentController: any = null;
+    protected currentController: any = null;
     private static ins?: Route;
 
     constructor(config: RouteConfig) {
@@ -51,7 +44,6 @@ class Route {
         Route.ins = this;
 
         try {
-
             const baseDir = Config('app.dir')
             if (Array.isArray(config)) {
                 for (const cf of config) {
@@ -69,6 +61,12 @@ class Route {
         }
     }
 
+
+    protected normalizePath(path: string) {
+        if (path === "/") return "/";
+        return "/" + path.replace(/^\/|\/$/g, "");
+    }
+
     private resolveRouteFiles(path: string, prefix?: string, mw?: Middleware | Middleware[]) {
         if (prefix) this.prefixStack.push(this.normalizePath(prefix));
         if (mw) this.middlewareStack.push(...(Array.isArray(mw) ? mw : [mw]));
@@ -82,27 +80,6 @@ class Route {
             this.currentMiddlewares = [];
             this.currentController = null;
         }
-    }
-
-    private normalizePath(path: string) {
-        if (path === "/") return "/";
-        return "/" + path.replace(/^\/|\/$/g, "");
-    }
-
-    private resolveManyMiddlewares(mws: Middleware[]): Middleware[] {
-        const out: Middleware[] = [];
-        let lastThrottle: Middleware | null = null;
-
-        for (const mw of mws) {
-            if (typeof mw === 'function') {
-                if (mw[ThrottleSymbol] === true) lastThrottle = mw;
-                else out.push(mw);
-            } else throw new BootException(
-                new Error("Invalid Middleware!")
-            );
-        }
-
-        return lastThrottle ? [lastThrottle, ...out] : out;
     }
 
     private resolveHandler(controller: any, handler: string) {
@@ -132,11 +109,64 @@ class Route {
         return fn.bind(instance);
     }
 
+    private dynamicRouteKey(path: string) {
+        return path.replace(/\{([^}]+)\}/g, (_, name) => {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+                throw new BootException(
+                    new Error(`Invalid route parameter: {${name}}`)
+                );
+            }
+
+            return "{}";
+        });
+    }
+
+    private compileDynamicPath(path: string) {
+        const params: string[] = [];
+
+        const pattern = path.replace(
+            /\{([^}]+)\}/g,
+            (_, name: string) => {
+                params.push(name);
+                return "([^/]+)";
+            }
+        );
+
+        return {
+            regex: new RegExp(`^${pattern}$`),
+            params
+        };
+    }
+
+    private resolveManyMiddlewares(mws: Middleware[]): Middleware[] {
+        const out: Middleware[] = [];
+        let lastThrottle: Middleware | null = null;
+
+        for (const mw of mws) {
+            if (typeof mw === 'function') {
+                if (mw[ThrottleSymbol] === true) lastThrottle = mw;
+                else out.push(mw);
+            } else throw new BootException(
+                new Error("Invalid Middleware!")
+            );
+        }
+
+        return lastThrottle ? [lastThrottle, ...out] : out;
+    }
+
     private routeKey(method: HttpMethod, path: string) {
         return method + ":" + path;
     }
 
-    private addRoute(method: HttpMethod, path: string, handler: Handler) {
+    protected static getIns() {
+        if (!this.ins) throw new BootException(
+            new Error("Route has not been initialized call new Route() first")
+        );
+
+        return this.ins
+    }
+
+    protected addRoute(method: HttpMethod, path: string, handler: Handler) {
         let finalHandler: Action;
         if (typeof handler === "string") {
             if (!this.currentController) throw new BootException(
@@ -169,106 +199,62 @@ class Route {
             path
         );
 
-        const key = this.routeKey(method, normalizedPath);
+        if (/\{[^}]+\}/.test(normalizedPath)) {
+            let routes = this.dynamicRoutes.get(method);
 
-        if (this.routes.has(key))
-            throw new BootException(
-                new Error(`Duplicate route: ${method}:${normalizedPath}`)
-            );
+            if (!routes) {
+                routes = [];
+                this.dynamicRoutes.set(method, routes);
+            } else {
+                const dynamicRouteKey = this.dynamicRouteKey(normalizedPath);
 
+                if (routes.some(r => this.dynamicRouteKey(r.path) === dynamicRouteKey))
+                    throw new BootException(
+                        new Error(`Duplicate route: ${method}:${normalizedPath}`)
+                    );
+            }
 
-        this.routes.set(
-            key,
-            {
+            const { regex, params } = this.compileDynamicPath(normalizedPath);
+
+            routes.push({
                 middlewares: this.resolveManyMiddlewares([
                     ...this.middlewareStack,
                     ...this.currentMiddlewares
                 ]),
-                action: finalHandler
-            }
-        );
+                action: finalHandler,
+                path: normalizedPath,
+                regex,
+                params
+            })
 
-        return this;
-    }
+        } else {
+            const key = this.routeKey(method, normalizedPath);
 
-    private static getIns() {
-        if (!this.ins) throw new BootException(
-            new Error("Route has not been initialized call new Route() first")
-        );
+            if (this.staticRoutes.has(key))
+                throw new BootException(
+                    new Error(`Duplicate route: ${method}:${normalizedPath}`)
+                );
 
-        return this.ins
-    }
 
-    static prefix(prefix: string) {
-        const ins = this.getIns();
-        ins.currentPrefix = ins.normalizePath(prefix);
-        return this;
-    }
-
-    static middleware(mw: Middleware | Middleware[]) {
-        const ins = this.getIns();
-        ins.currentMiddlewares = [...(Array.isArray(mw) ? mw : [mw])];
-        return this;
-    }
-
-    static controller(controller: any) {
-        const ins = this.getIns();
-        ins.currentController = controller;
-        return this;
-    }
-
-    static group(callback: () => void) {
-        const ins = this.getIns();
-        const prevStack = {
-            prefix: [...ins.prefixStack],
-            middlewares: [...ins.middlewareStack]
+            this.staticRoutes.set(
+                key,
+                {
+                    middlewares: this.resolveManyMiddlewares([
+                        ...this.middlewareStack,
+                        ...this.currentMiddlewares
+                    ]),
+                    action: finalHandler
+                }
+            );
         }
 
-        ins.prefixStack.push(ins.currentPrefix);
-        ins.middlewareStack.push(...ins.currentMiddlewares);
-
-        ins.currentPrefix = "";
-        ins.currentMiddlewares = [];
-
-        try {
-            callback();
-        } finally {
-            ins.prefixStack = prevStack.prefix;
-            ins.middlewareStack = prevStack.middlewares;
-            ins.currentController = null;
-        }
 
         return this;
-    }
-
-    static get(path: string, handler: Handler) {
-        const ins = this.getIns();
-        ins.addRoute('GET', path, handler)
-    }
-
-    static post(path: string, handler: Handler) {
-        const ins = this.getIns();
-        ins.addRoute('POST', path, handler)
-    }
-
-    static put(path: string, handler: Handler) {
-        const ins = this.getIns();
-        ins.addRoute('PUT', path, handler)
-    }
-
-    static patch(path: string, handler: Handler) {
-        const ins = this.getIns();
-        ins.addRoute('PATCH', path, handler)
-    }
-
-    static delete(path: string, handler: Handler) {
-        const ins = this.getIns();
-        ins.addRoute('DELETE', path, handler)
     }
 
     static async resolve(req: Request, res: Response) {
         const ins = this.getIns();
-        const match = ins.routes.get(ins.routeKey(req.method, req.url.path));
+        const match = ins.staticRoutes.get(ins.routeKey(req.method, req.url.path));
 
         if (!match) throw new NotFoundException();
 
@@ -285,4 +271,4 @@ class Route {
     }
 }
 
-export default Route
+export default Base;

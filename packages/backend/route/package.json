@@ -1,0 +1,28 @@
+{
+  "name": "@algobitx/route",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx Route Library",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "dependencies": {
+    "@algobitx/config-loader": "workspace:*",
+    "@algobitx/exception": "workspace:*",
+    "@algobitx/request": "workspace:*",
+    "@algobitx/response": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}

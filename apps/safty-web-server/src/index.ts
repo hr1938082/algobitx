@@ -1,6 +1,6 @@
 import Application from '@algobitx/application/Application';
-import Throttle from '@algobitx/application/Routing/Middlewares/Throttle';
-import Web from '@algobitx/application/Routing/Middlewares/Web';
+import Throttle from '@algobitx/application/Middlewares/Throttle';
+import Web from '@algobitx/application/Middlewares/Web';
 import TestEvent from './events/TestEvent';
 import TestListener from './listeners/TestListener';
 

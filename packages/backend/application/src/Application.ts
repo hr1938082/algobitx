@@ -4,7 +4,7 @@ import Response from "@algobitx/response";
 import { Server, createServer } from "node:http";
 import { NetworkInterfaceInfo, networkInterfaces } from "node:os";
 import Redis from '@algobitx/redis';
-import Route, { RouteConfig } from "./Routing/Route";
+import Route, { RouteConfig } from "@algobitx/route";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import HttpException from "@algobitx/exception/http/HttpException";
 import BootException from "@algobitx/exception/server/BootException";

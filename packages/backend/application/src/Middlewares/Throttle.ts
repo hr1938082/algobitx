@@ -1,12 +1,11 @@
 import RateLimiter from "@algobitx/rate-limiter";
 import Request from "@algobitx/request";
-import Response from "@algobitx/response";
-import { Middleware, ThrottleSymbol } from "../Route";
+import { Middleware, ThrottleSymbol } from "@algobitx/route";
 import TooManyAttemptsException from '@algobitx/exception/http/TooManyAttemptsException'
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 
 const Throttle = (attempts: number, seconds: number): Middleware => {
-    const middleware = async (req: Request, res: Response) => {
+    const middleware = async (req: Request) => {
         const ip = req.ip.address;
         const url = req.url.path;
         const method = req.method;

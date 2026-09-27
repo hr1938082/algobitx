@@ -43,6 +43,9 @@
             "@algobitx/validator": [
                 "./packages/validator"
             ],
+            "@algobitx/route": [
+                "./packages/backend/route"
+            ],
             "@algobitx/application": [
                 "./packages/backend/application"
             ],
@@ -93,6 +96,9 @@
         },
         {
             "path": "./packages/validator"
+        },
+        {
+            "path": "./packages/backend/route"
         },
         {
             "path": "./packages/backend/application"
