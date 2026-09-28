@@ -6,6 +6,7 @@ import Request, { HttpMethod } from "@algobitx/request";
 import Response from "@algobitx/response";
 import NotFoundException from "@algobitx/exception/http/NotFoundException";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import BadRequestException from "@algobitx/exception/http/BadRequestException";
 
 type Action = (req: Request, res: Response) => Promise<void> | void
 
@@ -20,6 +21,7 @@ interface DynamicRouteDefinition {
     middlewares: Middleware[];
     action: Action;
     path: string;
+    key: string;
     regex: RegExp;
     params: string[]
 }
@@ -123,14 +125,44 @@ class Base {
 
     private compileDynamicPath(path: string) {
         const params: string[] = [];
+        const seen = new Set<string>();
 
-        const pattern = path.replace(
-            /\{([^}]+)\}/g,
-            (_, name: string) => {
-                params.push(name);
-                return "([^/]+)";
+        const escapeRegex = (value: string) =>
+            value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        let pattern = "";
+        let lastIndex = 0;
+
+        for (const match of path.matchAll(/\{([^}]+)\}/g)) {
+
+            const fullMatch = match[0];
+            const name = match[1];
+            const index = match.index!;
+
+            pattern += escapeRegex(
+                path.slice(lastIndex, index)
+            );
+
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+                throw new BootException(
+                    new Error(`Invalid route parameter: {${name}}`)
+                );
             }
-        );
+
+            if (seen.has(name)) {
+                throw new BootException(
+                    new Error(`Duplicate route parameter: {${name}}`)
+                );
+            }
+
+            seen.add(name);
+            params.push(name);
+
+            pattern += "([^/]+)";
+            lastIndex = index + fullMatch.length;
+        }
+
+        pattern += escapeRegex(path.slice(lastIndex));
 
         return {
             regex: new RegExp(`^${pattern}$`),
@@ -205,14 +237,14 @@ class Base {
             if (!routes) {
                 routes = [];
                 this.dynamicRoutes.set(method, routes);
-            } else {
-                const dynamicRouteKey = this.dynamicRouteKey(normalizedPath);
-
-                if (routes.some(r => this.dynamicRouteKey(r.path) === dynamicRouteKey))
-                    throw new BootException(
-                        new Error(`Duplicate route: ${method}:${normalizedPath}`)
-                    );
             }
+
+            const dynamicRouteKey = this.dynamicRouteKey(normalizedPath);
+
+            if (routes.some(r => r.key === dynamicRouteKey))
+                throw new BootException(
+                    new Error(`Duplicate route: ${method}:${normalizedPath}`)
+                );
 
             const { regex, params } = this.compileDynamicPath(normalizedPath);
 
@@ -223,6 +255,7 @@ class Base {
                 ]),
                 action: finalHandler,
                 path: normalizedPath,
+                key: dynamicRouteKey,
                 regex,
                 params
             })
@@ -254,7 +287,34 @@ class Base {
 
     static async resolve(req: Request, res: Response) {
         const ins = this.getIns();
-        const match = ins.staticRoutes.get(ins.routeKey(req.method, req.url.path));
+        let match = ins.staticRoutes.get(ins.routeKey(req.method, req.url.path));
+
+        if (!match) {
+            const dynamicRoutes = ins.dynamicRoutes.get(req.method);
+
+            if (!dynamicRoutes) throw new NotFoundException();
+
+            for (const dynamicRoute of dynamicRoutes) {
+                const dMatch = dynamicRoute.regex.exec(req.url.path);
+
+                if (!dMatch) continue;
+
+                for (let i = 0; i < dynamicRoute.params.length; i++) {
+                    try {
+                        req.params.set(dynamicRoute.params[i], decodeURIComponent(dMatch[i + 1]));
+                    } catch (error) {
+                        throw new BadRequestException("Malformed URI");
+                    }
+                }
+
+                match = {
+                    middlewares: dynamicRoute.middlewares,
+                    action: dynamicRoute.action
+                }
+
+                break;
+            }
+        }
 
         if (!match) throw new NotFoundException();
 

@@ -10,6 +10,7 @@ import { HeaderKey, HeaderValue } from './Header';
 import Config from '@algobitx/config-loader';
 import Validator, { Bail, Message, Rules } from '@algobitx/validator';
 import UnprocessableContent from '@algobitx/exception/http/UnprocessableContent';
+import URLQuery from '@algobitx/url/URLQuery';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -21,6 +22,7 @@ type ValidateConfig<T extends Record<string, unknown>> = {
 
 class Request {
     private _url?: URL;
+    private _params?: URLQuery;
     private _body?: Body;
     private _ip?: IP;
     private _cookie?: Cookie;
@@ -69,6 +71,11 @@ class Request {
             this._url = new URL(this.raw.url || "", origin);
         }
         return this._url;
+    }
+
+    get params() {
+        if (!this._params) this._params = new URLQuery();
+        return this._params;
     }
 
     get body() {
