@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/route",
+  "name": "@algobitx/router",
   "version": "1.0.0",
   "author": "Algobitx",
-  "description": "Algobitx Route Library",
+  "description": "Algobitx Router Library",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,5 +1,5 @@
-import Route from "@algobitx/application/Route";
+import Router from "@algobitx/application/Router";
 
-Route.get('/', (req, res) => {
+Router.get('/', (req, res) => {
     res.json({ test: req.url.href });
 });

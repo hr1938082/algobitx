@@ -29,7 +29,7 @@
     "@algobitx/validator": "workspace:*",
     "@algobitx/request": "workspace:*",
     "@algobitx/response": "workspace:*",
-    "@algobitx/route": "workspace:*",
+    "@algobitx/router": "workspace:*",
     "@algobitx/exception": "workspace:*"
   },
   "devDependencies": {

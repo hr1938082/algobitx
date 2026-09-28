@@ -18,7 +18,7 @@ export interface RouteOptions {
 
 export type RouteConfig = RouteOptions | RouteOptions[];
 
-class Route extends Base {
+class Router extends Base {
     static prefix(prefix: string) {
         const ins = this.getIns();
         ins.currentPrefix = ins.normalizePath(prefix);
@@ -87,4 +87,4 @@ class Route extends Base {
     }
 }
 
-export default Route
+export default Router

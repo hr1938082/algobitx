@@ -1,6 +1,6 @@
 import RateLimiter from "@algobitx/rate-limiter";
 import Request from "@algobitx/request";
-import { Middleware, ThrottleSymbol } from "@algobitx/route";
+import { Middleware, ThrottleSymbol } from "@algobitx/router";
 import TooManyAttemptsException from '@algobitx/exception/http/TooManyAttemptsException'
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 

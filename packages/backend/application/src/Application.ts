@@ -4,7 +4,7 @@ import Response from "@algobitx/response";
 import { Server, createServer } from "node:http";
 import { NetworkInterfaceInfo, networkInterfaces } from "node:os";
 import Redis from '@algobitx/redis';
-import Route, { RouteConfig } from "@algobitx/route";
+import Router, { RouteConfig } from "@algobitx/router";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import HttpException from "@algobitx/exception/http/HttpException";
 import BootException from "@algobitx/exception/server/BootException";
@@ -45,7 +45,7 @@ class Application {
             const request = new Request(req);
             const response = new Response(res);
             try {
-                await Route.resolve(request, response);
+                await Router.resolve(request, response);
             } catch (err) {
                 const ex = err instanceof HttpException
                     ? err
@@ -81,7 +81,7 @@ class Application {
 
         this.isDev = Config('app.env') === 'development';
 
-        new Route(options);
+        new Router(options);
 
         return this.configureServer();
     }

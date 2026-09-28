@@ -1,4 +1,4 @@
-import Route from "@algobitx/application/Route";
+import Router from "@algobitx/application/Router";
 import HomeController from "../controller/HomeController";
 
-Route.get('/', [HomeController, 'index']);
+Router.get('/', [HomeController, 'index']);
