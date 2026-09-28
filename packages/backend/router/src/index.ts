@@ -1,6 +1,7 @@
 import Base, { Handler } from "./Base";
 import Request from "@algobitx/request";
 import Response from "@algobitx/response";
+import NormalizePath from "./Helpers/NormalizePath";
 
 export const ThrottleSymbol = Symbol('throttle');
 
@@ -21,7 +22,7 @@ export type RouteConfig = RouteOptions | RouteOptions[];
 class Router extends Base {
     static prefix(prefix: string) {
         const ins = this.getIns();
-        ins.currentPrefix = ins.normalizePath(prefix);
+        ins.currentPrefix = NormalizePath(prefix);
         return this;
     }
 

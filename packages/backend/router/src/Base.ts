@@ -7,6 +7,12 @@ import Response from "@algobitx/response";
 import NotFoundException from "@algobitx/exception/http/NotFoundException";
 import InternalServerException from "@algobitx/exception/http/InternalServerException";
 import BadRequestException from "@algobitx/exception/http/BadRequestException";
+import ResolveHandler from "./Helpers/ResolveHandler";
+import ResolveMiddlewares from "./Helpers/ResolveMiddlewares";
+import DynamicRouteKey from "./Helpers/DynamicRouteKey";
+import NormalizePath from "./Helpers/NormalizePath";
+import CompileDynamicPath from "./Helpers/CompileDynamicPath";
+import RouteKey from "./Helpers/RouteKey";
 
 type Action = (req: Request, res: Response) => Promise<void> | void
 
@@ -63,14 +69,8 @@ class Base {
         }
     }
 
-
-    protected normalizePath(path: string) {
-        if (path === "/") return "/";
-        return "/" + path.replace(/^\/|\/$/g, "");
-    }
-
     private resolveRouteFiles(path: string, prefix?: string, mw?: Middleware | Middleware[]) {
-        if (prefix) this.prefixStack.push(this.normalizePath(prefix));
+        if (prefix) this.prefixStack.push(NormalizePath(prefix));
         if (mw) this.middlewareStack.push(...(Array.isArray(mw) ? mw : [mw]));
 
         try {
@@ -82,112 +82,6 @@ class Base {
             this.currentMiddlewares = [];
             this.currentController = null;
         }
-    }
-
-    private resolveHandler(controller: any, handler: string) {
-        let instance: any;
-        if (typeof controller === "function") {
-            if (typeof controller[handler] === "function") {
-                instance = controller;
-            } else {
-                instance = this.controllerCache.get(controller);
-                if (!instance) {
-                    instance = new controller();
-                    this.controllerCache.set(controller, instance);
-                }
-            }
-        } else {
-            instance = controller;
-        }
-
-        const fn = instance[handler];
-
-        if (typeof fn !== "function") {
-            throw new BootException(
-                new Error(`Method "${handler}" not found in controller`)
-            );
-        }
-
-        return fn.bind(instance);
-    }
-
-    private dynamicRouteKey(path: string) {
-        return path.replace(/\{([^}]+)\}/g, (_, name) => {
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-                throw new BootException(
-                    new Error(`Invalid route parameter: {${name}}`)
-                );
-            }
-
-            return "{}";
-        });
-    }
-
-    private compileDynamicPath(path: string) {
-        const params: string[] = [];
-        const seen = new Set<string>();
-
-        const escapeRegex = (value: string) =>
-            value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-        let pattern = "";
-        let lastIndex = 0;
-
-        for (const match of path.matchAll(/\{([^}]+)\}/g)) {
-
-            const fullMatch = match[0];
-            const name = match[1];
-            const index = match.index!;
-
-            pattern += escapeRegex(
-                path.slice(lastIndex, index)
-            );
-
-            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-                throw new BootException(
-                    new Error(`Invalid route parameter: {${name}}`)
-                );
-            }
-
-            if (seen.has(name)) {
-                throw new BootException(
-                    new Error(`Duplicate route parameter: {${name}}`)
-                );
-            }
-
-            seen.add(name);
-            params.push(name);
-
-            pattern += "([^/]+)";
-            lastIndex = index + fullMatch.length;
-        }
-
-        pattern += escapeRegex(path.slice(lastIndex));
-
-        return {
-            regex: new RegExp(`^${pattern}$`),
-            params
-        };
-    }
-
-    private resolveManyMiddlewares(mws: Middleware[]): Middleware[] {
-        const out: Middleware[] = [];
-        let lastThrottle: Middleware | null = null;
-
-        for (const mw of mws) {
-            if (typeof mw === 'function') {
-                if (mw[ThrottleSymbol] === true) lastThrottle = mw;
-                else out.push(mw);
-            } else throw new BootException(
-                new Error("Invalid Middleware!")
-            );
-        }
-
-        return lastThrottle ? [lastThrottle, ...out] : out;
-    }
-
-    private routeKey(method: HttpMethod, path: string) {
-        return method + ":" + path;
     }
 
     protected static getIns() {
@@ -204,7 +98,7 @@ class Base {
             if (!this.currentController) throw new BootException(
                 new Error(`Controller not set for handler: ${handler}`)
             );
-            finalHandler = this.resolveHandler(this.currentController, handler);
+            finalHandler = ResolveHandler(this.currentController, handler, this.controllerCache);
         } else if (Array.isArray(handler)) {
             if (handler.length !== 2) throw new BootException(
                 new Error("Invalid Handler Array")
@@ -218,14 +112,14 @@ class Base {
             if (handler[1].trim() === "") throw new BootException(
                 new Error("Method name cannot be empty in Handler Array")
             );
-            finalHandler = this.resolveHandler(handler[0], handler[1]);
+            finalHandler = ResolveHandler(handler[0], handler[1], this.controllerCache);
         } else if (typeof handler === "function") {
             finalHandler = handler;
         } else {
             throw new BootException(new Error("Invalid Handler"));
         }
 
-        const normalizedPath = this.normalizePath(
+        const normalizedPath = NormalizePath(
             this.prefixStack.join('') +
             this.currentPrefix +
             path
@@ -239,17 +133,16 @@ class Base {
                 this.dynamicRoutes.set(method, routes);
             }
 
-            const dynamicRouteKey = this.dynamicRouteKey(normalizedPath);
-
+            const dynamicRouteKey = DynamicRouteKey(normalizedPath);
             if (routes.some(r => r.key === dynamicRouteKey))
                 throw new BootException(
                     new Error(`Duplicate route: ${method}:${normalizedPath}`)
                 );
 
-            const { regex, params } = this.compileDynamicPath(normalizedPath);
+            const { regex, params } = CompileDynamicPath(normalizedPath);
 
             routes.push({
-                middlewares: this.resolveManyMiddlewares([
+                middlewares: ResolveMiddlewares([
                     ...this.middlewareStack,
                     ...this.currentMiddlewares
                 ]),
@@ -261,18 +154,16 @@ class Base {
             })
 
         } else {
-            const key = this.routeKey(method, normalizedPath);
-
+            const key = RouteKey(method, normalizedPath);
             if (this.staticRoutes.has(key))
                 throw new BootException(
                     new Error(`Duplicate route: ${method}:${normalizedPath}`)
                 );
 
-
             this.staticRoutes.set(
                 key,
                 {
-                    middlewares: this.resolveManyMiddlewares([
+                    middlewares: ResolveMiddlewares([
                         ...this.middlewareStack,
                         ...this.currentMiddlewares
                     ]),
@@ -281,14 +172,12 @@ class Base {
             );
         }
 
-
         return this;
     }
 
     static async resolve(req: Request, res: Response) {
         const ins = this.getIns();
-        let match = ins.staticRoutes.get(ins.routeKey(req.method, req.url.path));
-
+        let match = ins.staticRoutes.get(RouteKey(req.method, req.url.path));
         if (!match) {
             const dynamicRoutes = ins.dynamicRoutes.get(req.method);
 
