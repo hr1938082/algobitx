@@ -64,28 +64,29 @@ class Router extends Base {
 
     static get(path: string, handler: Handler) {
         const ins = this.getIns();
-        ins.addRoute('GET', path, handler)
+        return ins.addRoute('GET', path, handler)
     }
 
     static post(path: string, handler: Handler) {
         const ins = this.getIns();
-        ins.addRoute('POST', path, handler)
+        return ins.addRoute('POST', path, handler)
     }
 
     static put(path: string, handler: Handler) {
         const ins = this.getIns();
-        ins.addRoute('PUT', path, handler)
+        return ins.addRoute('PUT', path, handler)
     }
 
     static patch(path: string, handler: Handler) {
         const ins = this.getIns();
-        ins.addRoute('PATCH', path, handler)
+        return ins.addRoute('PATCH', path, handler)
     }
 
     static delete(path: string, handler: Handler) {
         const ins = this.getIns();
-        ins.addRoute('DELETE', path, handler)
+        return ins.addRoute('DELETE', path, handler)
     }
+
 }
 
 export default Router

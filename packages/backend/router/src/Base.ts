@@ -32,9 +32,18 @@ interface DynamicRouteDefinition {
     params: string[]
 }
 
+interface NamedRouteDefinition {
+    path: string;
+    params: string[];
+}
+
+export type RouteParameterValue = string | number | boolean;
+export type RouteParameters = Record<string, RouteParameterValue | readonly RouteParameterValue[]>;
+
 class Base {
     private staticRoutes: Map<string, StaticRouteDefinition> = new Map();
     private dynamicRoutes: Map<string, DynamicRouteDefinition[]> = new Map();
+    protected namedRoutes: Map<string, NamedRouteDefinition> = new Map();
     protected currentPrefix: string = "";
     protected prefixStack: string[] = [];
     protected currentMiddlewares: Middleware[] = [];
@@ -125,6 +134,8 @@ class Base {
             path
         );
 
+        let params: string[] = [];
+
         if (/\{[^}]+\}/.test(normalizedPath)) {
             let routes = this.dynamicRoutes.get(method);
 
@@ -139,7 +150,8 @@ class Base {
                     new Error(`Duplicate route: ${method}:${normalizedPath}`)
                 );
 
-            const { regex, params } = CompileDynamicPath(normalizedPath);
+            const compiledPath = CompileDynamicPath(normalizedPath);
+            params = compiledPath.params;
 
             routes.push({
                 middlewares: ResolveMiddlewares([
@@ -149,7 +161,7 @@ class Base {
                 action: finalHandler,
                 path: normalizedPath,
                 key: dynamicRouteKey,
-                regex,
+                regex: compiledPath.regex,
                 params
             })
 
@@ -172,8 +184,76 @@ class Base {
             );
         }
 
-        return this;
+        return {
+            name: (name: string) => this.name(name, normalizedPath, params)
+        }
     }
+
+    private name(name: string, path: string, params: string[]) {
+        const normalizedName = name.trim();
+
+        if (!normalizedName) throw new BootException(
+            new Error("Route name cannot be empty")
+        );
+
+        if (this.namedRoutes.has(normalizedName)) throw new BootException(
+            new Error(`Duplicate route name: ${normalizedName}`)
+        );
+
+        this.namedRoutes.set(normalizedName, {
+            path,
+            params
+        });
+    }
+
+
+    static url(name: string, parameters: RouteParameters = {}) {
+        const ins = this.getIns();
+        const route = ins.namedRoutes.get(name);
+
+        if (!route) {
+            throw new BootException(
+                new Error(`Route [${name}] not found`)
+            );
+        }
+
+        const used = new Set<string>();
+        const path = route.path.replace(/\{([^}]+)\}/g, (_, parameter: string) => {
+            const value = parameters[parameter];
+            if (
+                value === undefined ||
+                value === null
+            ) {
+                throw new BootException(
+                    new Error(`Missing route parameter: ${parameter}`)
+                );
+            }
+
+            if (Array.isArray(value)) {
+                throw new BootException(
+                    new Error(`Route parameter cannot be an array: ${parameter}`)
+                );
+            }
+
+            used.add(parameter);
+            return encodeURIComponent(String(parameters[parameter]));
+        });
+
+        const query = new URLSearchParams();
+        for (const [key, value] of Object.entries(parameters)) {
+            if (used.has(key) || value === undefined || value === null) continue;
+
+            if (Array.isArray(value)) {
+                for (const item of value) query.append(key, String(item));
+            } else {
+                query.append(key, String(value));
+            }
+        }
+
+        const queryString = query.toString();
+        return queryString ? `${path}?${queryString}` : path;
+    }
+
 
     static async resolve(req: Request, res: Response) {
         const ins = this.getIns();
