@@ -1,6 +1,6 @@
 import BootException from "@algobitx/exception/server/BootException";
 
-const ResolveHandler = (controller: any, handler: string, controllerCache: Map<any, any>) => {
+const ResolveHandler = (controller: any, handler: string, controllerCache: WeakMap<any, any>) => {
     let instance: any;
     if (typeof controller === "function") {
         if (typeof controller[handler] === "function") {
