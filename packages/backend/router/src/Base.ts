@@ -1,5 +1,5 @@
 import BootException from "@algobitx/exception/server/BootException";
-import Route, { Middleware, RouteConfig, ThrottleSymbol } from ".";
+import Route, { Middleware, RouteConfig } from ".";
 import Config from "@algobitx/config-loader";
 import { join } from "node:path";
 import Request, { HttpMethod } from "@algobitx/request";
@@ -13,6 +13,8 @@ import DynamicRouteKey from "./Helpers/DynamicRouteKey";
 import NormalizePath from "./Helpers/NormalizePath";
 import CompileDynamicPath from "./Helpers/CompileDynamicPath";
 import RouteKey from "./Helpers/RouteKey";
+import TypeGenerator from "./Helpers/TypeGenerator";
+import RouteParams from "./RouteParams";
 
 type Action = (req: Request, res: Response) => Promise<void> | void
 
@@ -32,13 +34,16 @@ interface DynamicRouteDefinition {
     params: string[]
 }
 
-interface NamedRouteDefinition {
+export interface NamedRouteDefinition {
     path: string;
     params: string[];
 }
+type RouteName = keyof RouteParams;
 
-export type RouteParameterValue = string | number | boolean;
-export type RouteParameters = Record<string, RouteParameterValue | readonly RouteParameterValue[]>;
+type RouteParameterValue = string | number | boolean;
+type BaseRouteParameters = Record<string, RouteParameterValue | readonly RouteParameterValue[]>;
+type RouteParameters<T extends RouteName> =
+    RouteParams[T] & BaseRouteParameters;
 
 class Base {
     private staticRoutes: Map<string, StaticRouteDefinition> = new Map();
@@ -48,7 +53,7 @@ class Base {
     protected prefixStack: string[] = [];
     protected currentMiddlewares: Middleware[] = [];
     protected middlewareStack: Middleware[] = [];
-    private controllerCache: Map<any, any> = new Map();
+    private controllerCache: WeakMap<any, any> = new WeakMap();
     protected currentController: any = null;
     private static ins?: Route;
 
@@ -61,24 +66,30 @@ class Base {
         Route.ins = this;
 
         try {
-            const baseDir = Config('app.dir')
-            if (Array.isArray(config)) {
-                for (const cf of config) {
-                    const fullPath = join(baseDir, cf.path);
-                    this.resolveRouteFiles(fullPath, cf.prefix, cf.middleware);
-                }
-            } else {
-                const fullPath = join(baseDir, config.path);
-                this.resolveRouteFiles(fullPath, config.prefix, config.middleware);
-            }
-            this.controllerCache.clear();
+            this.resolveRouteFiles(config);
         } catch (error) {
             Route.ins = undefined;
             throw new BootException(error);
         }
+
+        if (process.env.NODE_ENV !== 'development') return;
+        TypeGenerator.writeTypeToFile(this.namedRoutes);
     }
 
-    private resolveRouteFiles(path: string, prefix?: string, mw?: Middleware | Middleware[]) {
+    private resolveRouteFiles(config: RouteConfig) {
+        const baseDir = Config('app.dir')
+        if (Array.isArray(config)) {
+            for (const cf of config) {
+                const fullPath = join(baseDir, cf.path);
+                this.resolveRouteFile(fullPath, cf.prefix, cf.middleware);
+            }
+        } else {
+            const fullPath = join(baseDir, config.path);
+            this.resolveRouteFile(fullPath, config.prefix, config.middleware);
+        }
+    }
+
+    private resolveRouteFile(path: string, prefix?: string, mw?: Middleware | Middleware[]) {
         if (prefix) this.prefixStack.push(NormalizePath(prefix));
         if (mw) this.middlewareStack.push(...(Array.isArray(mw) ? mw : [mw]));
 
@@ -207,9 +218,9 @@ class Base {
     }
 
 
-    static url(name: string, parameters: RouteParameters = {}) {
+    static url<T extends RouteName>(name: T, parameters: RouteParameters<T> = {}) {
         const ins = this.getIns();
-        const route = ins.namedRoutes.get(name);
+        const route = ins.namedRoutes.get(name as string);
 
         if (!route) {
             throw new BootException(
