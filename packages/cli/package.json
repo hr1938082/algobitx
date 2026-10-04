@@ -1,0 +1,22 @@
+{
+  "name": "@algobitx/cli",
+  "version": "1.0.0",
+  "author": "Algobitx",
+  "description": "Algobitx CLI Library",
+  "license": "UNLICENSED",
+  "bin": {
+    "algobitx": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist && rimraf node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

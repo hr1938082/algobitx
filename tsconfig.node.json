@@ -10,6 +10,9 @@
         "resolveJsonModule": true,
         "noImplicitOverride": true,
         "paths": {
+            "@algobitx/cli": [
+                "./packages/backend/cli"
+            ],
             "@algobitx/type-gen": [
                 "./packages/backend/type-gen"
             ],
@@ -64,6 +67,9 @@
         }
     },
     "references": [
+        {
+            "path": "./packages/backend/cli"
+        },
         {
             "path": "./packages/backend/type-gen"
         },
