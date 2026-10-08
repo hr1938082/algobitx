@@ -1,6 +1,6 @@
-import Config from "@algobitx/config-loader";
-import BadRequestException from "@algobitx/exception/http/BadRequestException";
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import Config from "@bitx/config-loader";
+import BadRequestException from "@bitx/exception/http/BadRequestException";
+import InternalServerException from "@bitx/exception/http/InternalServerException";
 import ipaddr from "ipaddr.js";
 import { IncomingMessage } from "node:http";
 

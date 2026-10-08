@@ -1,16 +1,16 @@
 import { IncomingMessage } from 'node:http';
-import Cookie from '@algobitx/session/Cookie';
-import Session, { SessionConfig } from '@algobitx/session/Session';
-import Response from '@algobitx/response';
-import URL from '@algobitx/url';
+import Cookie from '@bitx/session/Cookie';
+import Session, { SessionConfig } from '@bitx/session/Session';
+import Response from '@bitx/response';
+import URL from '@bitx/url';
 import Body from './Body';
 import IP from './IP';
-import InternalServerException from '@algobitx/exception/http/InternalServerException';
+import InternalServerException from '@bitx/exception/http/InternalServerException';
 import { HeaderKey, HeaderValue } from './Header';
-import Config from '@algobitx/config-loader';
-import Validator, { Bail, Message, Rules } from '@algobitx/validator';
-import UnprocessableContent from '@algobitx/exception/http/UnprocessableContent';
-import URLQuery from '@algobitx/url/URLQuery';
+import Config from '@bitx/config-loader';
+import Validator, { Bail, Message, Rules } from '@bitx/validator';
+import UnprocessableContent from '@bitx/exception/http/UnprocessableContent';
+import URLQuery from '@bitx/url/URLQuery';
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

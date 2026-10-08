@@ -1,6 +1,6 @@
 import { RedisOptions, Redis as IORedis } from "ioredis";
-import Config, { PathValue, ConfigData, defineConfig as DefineConfig } from "@algobitx/config-loader";
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import Config, { PathValue, ConfigData, defineConfig as DefineConfig } from "@bitx/config-loader";
+import InternalServerException from "@bitx/exception/http/InternalServerException";
 
 type RedisConfig = {
     default: RedisOptions;

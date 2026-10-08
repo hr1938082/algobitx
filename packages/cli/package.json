@@ -1,11 +1,11 @@
 {
-  "name": "@algobitx/cli",
+  "name": "@bitx/cli",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx CLI Library",
+  "author": "Bitx",
+  "description": "Bitx CLI Library",
   "license": "UNLICENSED",
   "bin": {
-    "algobitx": "./dist/index.js"
+    "bitx": "./dist/index.js"
   },
   "files": [
     "dist/**/*.js",

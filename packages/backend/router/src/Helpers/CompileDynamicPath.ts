@@ -1,4 +1,4 @@
-import BootException from "@algobitx/exception/server/BootException";
+import BootException from "@bitx/exception/server/BootException";
 
 const CompileDynamicPath = (path: string) => {
     const params: string[] = [];

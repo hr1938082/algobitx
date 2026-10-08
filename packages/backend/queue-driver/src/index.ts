@@ -1,4 +1,4 @@
-import Config, { PathValue, ConfigData } from "@algobitx/config-loader";
+import Config, { PathValue, ConfigData } from "@bitx/config-loader";
 import { randomUUID } from "node:crypto";
 
 export type DriverType = 'redis' | 'kafka';

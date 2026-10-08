@@ -1,10 +1,10 @@
 import { randomBytes } from "node:crypto";
-import Config, { defineConfig as DefineConfig } from "@algobitx/config-loader";
-import Crypt from "@algobitx/crypt";
-import Redis from "@algobitx/redis";
+import Config, { defineConfig as DefineConfig } from "@bitx/config-loader";
+import Crypt from "@bitx/crypt";
+import Redis from "@bitx/redis";
 import Cookie, { CookieConfig } from "./Cookie";
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
-import UnAuthenticatedException from "@algobitx/exception/http/UnAuthenticatedException";
+import InternalServerException from "@bitx/exception/http/InternalServerException";
+import UnAuthenticatedException from "@bitx/exception/http/UnAuthenticatedException";
 
 type SessionCookieConfig = Omit<CookieConfig, "signed" | "maxAge" | "expires">;
 

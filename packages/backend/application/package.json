@@ -1,9 +1,9 @@
 {
-  "name": "@algobitx/application",
+  "name": "@bitx/application",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Application Library",
-  "license": "UNLICENSED",
+  "author": "Bitx",
+  "description": "Bitx Application Library",
+  "license": "",
   "files": [
     "dist/**/*.js",
     "dist/**/*.d.ts",
@@ -21,16 +21,16 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/config-loader": "workspace:*",
-    "@algobitx/redis": "workspace:*",
-    "@algobitx/rate-limiter": "workspace:*",
-    "@algobitx/crypt": "workspace:*",
-    "@algobitx/url": "workspace:*",
-    "@algobitx/validator": "workspace:*",
-    "@algobitx/request": "workspace:*",
-    "@algobitx/response": "workspace:*",
-    "@algobitx/router": "workspace:*",
-    "@algobitx/exception": "workspace:*"
+    "@bitx/config-loader": "workspace:*",
+    "@bitx/redis": "workspace:*",
+    "@bitx/rate-limiter": "workspace:*",
+    "@bitx/crypt": "workspace:*",
+    "@bitx/url": "workspace:*",
+    "@bitx/validator": "workspace:*",
+    "@bitx/request": "workspace:*",
+    "@bitx/response": "workspace:*",
+    "@bitx/router": "workspace:*",
+    "@bitx/exception": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

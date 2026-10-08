@@ -10,55 +10,55 @@
         "resolveJsonModule": true,
         "noImplicitOverride": true,
         "paths": {
-            "@algobitx/cli": [
+            "@bitx/cli": [
                 "./packages/backend/cli"
             ],
-            "@algobitx/config-loader": [
+            "@bitx/config-loader": [
                 "./packages/backend/config-loader"
             ],
-            "@algobitx/redis": [
+            "@bitx/redis": [
                 "./packages/backend/redis"
             ],
-            "@algobitx/rate-limiter": [
+            "@bitx/rate-limiter": [
                 "./packages/backend/rate-limiter"
             ],
-            "@algobitx/crypt": [
+            "@bitx/crypt": [
                 "./packages/backend/crypt"
             ],
-            "@algobitx/response": [
+            "@bitx/response": [
                 "./packages/backend/response"
             ],
-            "@algobitx/session": [
+            "@bitx/session": [
                 "./packages/backend/session"
             ],
-            "@algobitx/url": [
+            "@bitx/url": [
                 "./packages/backend/url"
             ],
-            "@algobitx/request": [
+            "@bitx/request": [
                 "./packages/backend/request"
             ],
-            "@algobitx/exception": [
+            "@bitx/exception": [
                 "./packages/backend/exception"
             ],
-            "@algobitx/validator": [
+            "@bitx/validator": [
                 "./packages/validator"
             ],
-            "@algobitx/router": [
+            "@bitx/router": [
                 "./packages/backend/router"
             ],
-            "@algobitx/application": [
+            "@bitx/application": [
                 "./packages/backend/application"
             ],
-            "@algobitx/event": [
+            "@bitx/event": [
                 "./packages/backend/event"
             ],
-            "@algobitx/queue-driver": [
+            "@bitx/queue-driver": [
                 "./packages/backend/queue-driver"
             ],
-            "@algobitx/queue-redis-driver": [
+            "@bitx/queue-redis-driver": [
                 "./packages/backend/queue-redis-driver"
             ],
-            "@algobitx/queue": [
+            "@bitx/queue": [
                 "./packages/backend/queue"
             ],
         }

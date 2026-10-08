@@ -1,6 +1,6 @@
-import Application from '@algobitx/application/Application';
-import Throttle from '@algobitx/application/Middlewares/Throttle';
-import Web from '@algobitx/application/Middlewares/Web';
+import Application from '@bitx/application/Application';
+import Throttle from '@bitx/application/Middlewares/Throttle';
+import Web from '@bitx/application/Middlewares/Web';
 import TestEvent from './events/TestEvent';
 import TestListener from './listeners/TestListener';
 

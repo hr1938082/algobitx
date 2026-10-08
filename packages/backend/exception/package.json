@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/exception",
+  "name": "@bitx/exception",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Exception Library",
+  "author": "Bitx",
+  "description": "Bitx Exception Library",
   "license": "UNLICENSED",
   "files": [
     "dist/**/*.js",
@@ -21,7 +21,7 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/response": "workspace:*"
+    "@bitx/response": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

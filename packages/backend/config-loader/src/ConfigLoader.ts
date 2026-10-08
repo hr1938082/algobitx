@@ -2,9 +2,9 @@ import { basename, dirname, extname, join, resolve } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import ConfigData from "./ConfigData";
 import { DotPath, PathValue } from ".";
-import PlainObject from "@algobitx/validator/Rules/PlainObject";
-import Validator, { Rules } from "@algobitx/validator";
-import { Array } from "@algobitx/validator/Rules";
+import PlainObject from "@bitx/validator/Rules/PlainObject";
+import Validator, { Rules } from "@bitx/validator";
+import { Array } from "@bitx/validator/Rules";
 import TypeGen from "./TypeGen";
 
 class ConfigLoader {

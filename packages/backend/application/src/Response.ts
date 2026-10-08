@@ -1,3 +1,3 @@
-import Response from "@algobitx/response";
+import Response from "@bitx/response";
 
 export default Response

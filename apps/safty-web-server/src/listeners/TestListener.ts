@@ -1,4 +1,4 @@
-import { Listener } from "@algobitx/event";
+import { Listener } from "@bitx/event";
 import TestEvent from "../events/TestEvent";
 
 class TestListener implements Listener<TestEvent> {

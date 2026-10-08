@@ -1,4 +1,4 @@
-import Redis from "@algobitx/redis";
+import Redis from "@bitx/redis";
 
 interface AttemptMethodResult {
     status: boolean;

@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/validator",
+  "name": "@bitx/validator",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Application Library",
+  "author": "Bitx",
+  "description": "Bitx Application Library",
   "license": "UNLICENSED",
   "files": [
     "dist/**/*.js",

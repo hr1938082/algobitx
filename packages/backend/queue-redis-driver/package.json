@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/queue-redis-driver",
+  "name": "@bitx/queue-redis-driver",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Queue Redis Driver Library",
+  "author": "Bitx",
+  "description": "Bitx Queue Redis Driver Library",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,9 +16,9 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/redis": "workspace:*",
-    "@algobitx/queue-driver": "workspace:*",
-    "@algobitx/exception": "workspace:*"
+    "@bitx/redis": "workspace:*",
+    "@bitx/queue-driver": "workspace:*",
+    "@bitx/exception": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

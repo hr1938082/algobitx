@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/event",
+  "name": "@bitx/event",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Event Library",
+  "author": "Bitx",
+  "description": "Bitx Event Library",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

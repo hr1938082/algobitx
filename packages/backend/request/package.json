@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/request",
+  "name": "@bitx/request",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Request Library",
+  "author": "Bitx",
+  "description": "Bitx Request Library",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,12 +16,12 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/config-loader": "workspace:*",
-    "@algobitx/exception": "workspace:*",
-    "@algobitx/response": "workspace:*",
-    "@algobitx/session": "workspace:*",
-    "@algobitx/url": "workspace:*",
-    "@algobitx/validator": "workspace:*",
+    "@bitx/config-loader": "workspace:*",
+    "@bitx/exception": "workspace:*",
+    "@bitx/response": "workspace:*",
+    "@bitx/session": "workspace:*",
+    "@bitx/url": "workspace:*",
+    "@bitx/validator": "workspace:*",
     "ipaddr.js": "^2.5.0"
   },
   "devDependencies": {

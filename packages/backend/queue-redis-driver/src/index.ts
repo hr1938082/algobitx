@@ -1,6 +1,6 @@
-import TimeoutException from "@algobitx/exception/server/TimeoutException";
-import Driver, { ConsumerCallback, Job, QueueKey } from "@algobitx/queue-driver";
-import Redis, { IORedis, RedisKeys } from "@algobitx/redis";
+import TimeoutException from "@bitx/exception/server/TimeoutException";
+import Driver, { ConsumerCallback, Job, QueueKey } from "@bitx/queue-driver";
+import Redis, { IORedis, RedisKeys } from "@bitx/redis";
 
 type RedisStreamMessage = [
     id: string,

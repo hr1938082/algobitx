@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/source",
+  "name": "@bitx/source",
   "version": "1.0.0",
-  "description": "algobitx source code",
-  "author": "algobitx",
+  "description": "bitx source code",
+  "author": "bitx",
   "private": true,
   "license": "UNLICENSED",
   "workspaces": [
@@ -16,8 +16,8 @@
     "bundle": "pnpm install --frozen-lockfile && pnpm -r run bundle",
     "clean-build": "pnpm clean-install && pnpm build",
     "clean-build-bundle": "pnpm clean-build && pnpm bundle",
-    "safty-web-server": "pnpm --filter @algobitx/safty-web-server dev",
-    "safty-web-clinet": "pnpm --filter @algobitx/safty-web-client dev"
+    "safty-web-server": "pnpm --filter @bitx/safty-web-server dev",
+    "safty-web-clinet": "pnpm --filter @bitx/safty-web-client dev"
   },
   "devDependencies": {
     "rimraf": "^6.1.3"

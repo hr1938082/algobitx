@@ -1,4 +1,4 @@
-import BootException from "@algobitx/exception/server/BootException";
+import BootException from "@bitx/exception/server/BootException";
 
 const DynamicRouteKey = (path: string) => {
     return path.replace(/\{([^}]+)\}/g, (_, name) => {

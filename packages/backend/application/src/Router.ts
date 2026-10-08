@@ -1,4 +1,4 @@
-import Router, { Middleware } from '@algobitx/router';
+import Router, { Middleware } from '@bitx/router';
 
 export { Middleware };
 

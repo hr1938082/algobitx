@@ -1,4 +1,4 @@
-import Response from "@algobitx/response";
+import Response from "@bitx/response";
 import Exception from "../Exception";
 
 abstract class HttpException extends Exception {

@@ -1,5 +1,5 @@
-import { defineConfig } from "@algobitx/config-loader";
-import { DriverType } from "@algobitx/queue-driver";
+import { defineConfig } from "@bitx/config-loader";
+import { DriverType } from "@bitx/queue-driver";
 
 interface QueueConfig {
     driver: DriverType;

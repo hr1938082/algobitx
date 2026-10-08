@@ -1,4 +1,4 @@
-import Validator from "@algobitx/validator";
+import Validator from "@bitx/validator";
 
-export * from '@algobitx/validator/Rules';
+export * from '@bitx/validator/Rules';
 export default Validator

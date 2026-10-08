@@ -1,4 +1,4 @@
-import { ConsumerMeta, Job, QueueKey } from "@algobitx/queue-driver";
+import { ConsumerMeta, Job, QueueKey } from "@bitx/queue-driver";
 import DriverFactory from "./DriverFactory";
 
 abstract class Consumer<TJob extends Job> {

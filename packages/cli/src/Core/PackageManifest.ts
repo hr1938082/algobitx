@@ -14,7 +14,7 @@ export interface ManifestType {
 const Manifest: ManifestType = {
     app: {
         owner: "hr1938082",
-        repository: "algobitx",
+        repository: "bitx",
         branch: "main",
         path: "apps/safty-web-server",
         commit: "986b520"

@@ -1,7 +1,7 @@
-import Request from "@algobitx/application/Request";
+import Request from "@bitx/application/Request";
 
 Request.defineConfig({
-    name: process.env.SESSION_NAME || process.env.APP_NAME?.toLowerCase() || "algobitx" + "_session",
+    name: process.env.SESSION_NAME || process.env.APP_NAME?.toLowerCase() || "bitx" + "_session",
     lifetime: (process.env.SESSION_LIFETIME ? Number(process.env.SESSION_LIFETIME) : 120) * 60,
     httpOnly: process.env.SESSION_HTTP_ONLY === 'true',
     secure: process.env.SESSION_SECURE === 'true',

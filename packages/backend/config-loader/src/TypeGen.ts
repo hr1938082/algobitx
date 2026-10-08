@@ -1,4 +1,4 @@
-import { PlainObject } from "@algobitx/validator/Rules";
+import { PlainObject } from "@bitx/validator/Rules";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 

@@ -1,7 +1,7 @@
-import Request from "@algobitx/request";
-import Response from "@algobitx/response";
+import Request from "@bitx/request";
+import Response from "@bitx/response";
 import TestEvent from "../events/TestEvent";
-import Router from "@algobitx/application/Router";
+import Router from "@bitx/application/Router";
 
 class HomeController {
 

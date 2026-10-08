@@ -1,5 +1,5 @@
-import Config from "@algobitx/config-loader"
-import Driver, { DriverConstructor, DriverType, Job, QueueKey } from "@algobitx/queue-driver";
+import Config from "@bitx/config-loader"
+import Driver, { DriverConstructor, DriverType, Job, QueueKey } from "@bitx/queue-driver";
 
 class DriverFactory {
     private static driver: Map<DriverType, DriverConstructor> = new Map();

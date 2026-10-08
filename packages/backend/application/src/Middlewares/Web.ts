@@ -1,5 +1,5 @@
-import Request from "@algobitx/request";
-import Response from "@algobitx/response";
+import Request from "@bitx/request";
+import Response from "@bitx/response";
 
 const Web = async (req: Request, res: Response) => {
     req.enableSession(res);

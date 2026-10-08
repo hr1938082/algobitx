@@ -1,4 +1,4 @@
-import Redis from "@algobitx/application/Redis";
+import Redis from "@bitx/application/Redis";
 
 Redis.defineConfig({
     default: {
@@ -7,7 +7,7 @@ Redis.defineConfig({
         username: process.env.REDIS_USERNAME,
         password: process.env.REDIS_PASSWORD,
         db: process.env.REDIS_DB ? Number(process.env.REDIS_DB) : 0,
-        keyPrefix: (process.env.APP_NAME || 'algobitx').toLowerCase().split(' ').join('_')
+        keyPrefix: (process.env.APP_NAME || 'bitx').toLowerCase().split(' ').join('_')
     },
     queue: {
         host: process.env.REDIS_HOST || '127.0.0.1',
@@ -15,6 +15,6 @@ Redis.defineConfig({
         username: process.env.REDIS_USERNAME,
         password: process.env.REDIS_PASSWORD,
         db: process.env.REDIS_DB ? Number(process.env.REDIS_DB) : 0,
-        keyPrefix: (process.env.APP_NAME || 'algobitx').toLowerCase().split(' ').join('_')
+        keyPrefix: (process.env.APP_NAME || 'bitx').toLowerCase().split(' ').join('_')
     },
 });

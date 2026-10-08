@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/config-loader",
+  "name": "@bitx/config-loader",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Config Loader Library",
+  "author": "Bitx",
+  "description": "Bitx Config Loader Library",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/validator": "workspace:*"
+    "@bitx/validator": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

@@ -1,4 +1,4 @@
-import Config from '@algobitx/config-loader';
+import Config from '@bitx/config-loader';
 import URLQuery from "./URLQuery";
 
 class URL {

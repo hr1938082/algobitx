@@ -1,4 +1,4 @@
-import BootException from "@algobitx/exception/server/BootException";
+import BootException from "@bitx/exception/server/BootException";
 
 const ResolveHandler = (controller: any, handler: string, controllerCache: WeakMap<any, any>) => {
     let instance: any;

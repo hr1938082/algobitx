@@ -1,3 +1,3 @@
-import Request from "@algobitx/request";
+import Request from "@bitx/request";
 
 export default Request;

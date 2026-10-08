@@ -1,7 +1,7 @@
 {
-  "name": "@algobitx/safty-web-server",
+  "name": "@bitx/safty-web-server",
   "version": "1.0.0",
-  "author": "Algobitx",
+  "author": "Bitx",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "scripts": {
@@ -9,12 +9,12 @@
     "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc -b",
     "clean": "rimraf dist && rimraf node_modules && rimraf bundle",
-    "bundle": "pnpm --filter @algobitx/safty-web-server --prod deploy ./bundle --legacy"
+    "bundle": "pnpm --filter @bitx/safty-web-server --prod deploy ./bundle --legacy"
   },
   "dependencies": {
-    "@algobitx/application": "workspace:*",
-    "@algobitx/event": "workspace:*",
-    "@algobitx/queue": "workspace:*"
+    "@bitx/application": "workspace:*",
+    "@bitx/event": "workspace:*",
+    "@bitx/queue": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

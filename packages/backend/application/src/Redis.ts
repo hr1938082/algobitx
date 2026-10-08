@@ -1,3 +1,3 @@
-import Redis from "@algobitx/redis";
+import Redis from "@bitx/redis";
 
 export default Redis;

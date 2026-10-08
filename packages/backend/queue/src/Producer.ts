@@ -1,5 +1,5 @@
 import DriverFactory from "./DriverFactory";
-import { QueueKey } from '@algobitx/queue-driver'
+import { QueueKey } from '@bitx/queue-driver'
 
 abstract class Producer {
     protected queue: QueueKey = 'default';

@@ -1,3 +1,3 @@
-import Config from "@algobitx/config-loader";
+import Config from "@bitx/config-loader";
 
 export default Config;

@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes, CipherGCM, DecipherGCM } from "node:crypto";
-import Config from "@algobitx/config-loader";
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import Config from "@bitx/config-loader";
+import InternalServerException from "@bitx/exception/http/InternalServerException";
 
 class Crypt {
     private static algorithm = "aes-256-gcm";

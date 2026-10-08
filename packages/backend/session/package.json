@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/session",
+  "name": "@bitx/session",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Session Library",
+  "author": "Bitx",
+  "description": "Bitx Session Library",
   "license": "UNLICENSED",
   "files": [
     "dist/**/*.js",
@@ -21,11 +21,11 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/config-loader": "workspace:*",
-    "@algobitx/crypt": "workspace:*",
-    "@algobitx/redis": "workspace:*",
-    "@algobitx/response": "workspace:*",
-    "@algobitx/exception": "workspace:*"
+    "@bitx/config-loader": "workspace:*",
+    "@bitx/crypt": "workspace:*",
+    "@bitx/redis": "workspace:*",
+    "@bitx/response": "workspace:*",
+    "@bitx/exception": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

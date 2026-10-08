@@ -1,8 +1,8 @@
 import { IncomingMessage } from "node:http";
-import BadRequestException from "@algobitx/exception/http/BadRequestException";
-import PayloadTooLargeException from "@algobitx/exception/http/PayloadTooLargeException";
-import RequestAbortedException from "@algobitx/exception/server/RequestAbortedException";
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
+import BadRequestException from "@bitx/exception/http/BadRequestException";
+import PayloadTooLargeException from "@bitx/exception/http/PayloadTooLargeException";
+import RequestAbortedException from "@bitx/exception/server/RequestAbortedException";
+import InternalServerException from "@bitx/exception/http/InternalServerException";
 
 class Body {
     private _maxBodySize: number = 1024 * 1024; // byte

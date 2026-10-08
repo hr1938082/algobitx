@@ -1,4 +1,4 @@
-import DefineConfig from "@algobitx/queue/defineConfig";
+import DefineConfig from "@bitx/queue/defineConfig";
 
 DefineConfig({
     default: {

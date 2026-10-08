@@ -1,6 +1,6 @@
 import Base, { Handler } from "./Base";
-import Request from "@algobitx/request";
-import Response from "@algobitx/response";
+import Request from "@bitx/request";
+import Response from "@bitx/response";
 import NormalizePath from "./Helpers/NormalizePath";
 
 export const ThrottleSymbol = Symbol('throttle');

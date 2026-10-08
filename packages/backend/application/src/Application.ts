@@ -1,13 +1,13 @@
-import Config, { defineConfig as DefineConfig, Load } from "@algobitx/config-loader";
-import Request from "@algobitx/request";
-import Response from "@algobitx/response";
+import Config, { defineConfig as DefineConfig, Load } from "@bitx/config-loader";
+import Request from "@bitx/request";
+import Response from "@bitx/response";
 import { Server, createServer } from "node:http";
 import { NetworkInterfaceInfo, networkInterfaces } from "node:os";
-import Redis from '@algobitx/redis';
-import Router, { RouteConfig } from "@algobitx/router";
-import InternalServerException from "@algobitx/exception/http/InternalServerException";
-import HttpException from "@algobitx/exception/http/HttpException";
-import BootException from "@algobitx/exception/server/BootException";
+import Redis from '@bitx/redis';
+import Router, { RouteConfig } from "@bitx/router";
+import InternalServerException from "@bitx/exception/http/InternalServerException";
+import HttpException from "@bitx/exception/http/HttpException";
+import BootException from "@bitx/exception/server/BootException";
 
 interface ApplicationConfig {
     name: string;

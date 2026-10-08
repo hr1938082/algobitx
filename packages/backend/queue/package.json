@@ -1,8 +1,8 @@
 {
-  "name": "@algobitx/queue",
+  "name": "@bitx/queue",
   "version": "1.0.0",
-  "author": "Algobitx",
-  "description": "Algobitx Queue Library",
+  "author": "Bitx",
+  "description": "Bitx Queue Library",
   "license": "UNLICENSED",
   "files": [
     "dist/**/*.js",
@@ -31,8 +31,8 @@
     "clean": "rimraf dist && rimraf node_modules"
   },
   "dependencies": {
-    "@algobitx/config-loader": "workspace:*",
-    "@algobitx/queue-driver": "workspace:*"
+    "@bitx/config-loader": "workspace:*",
+    "@bitx/queue-driver": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
