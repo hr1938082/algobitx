@@ -5,7 +5,10 @@
         "outDir": "./dist",
         "composite": true,
         "declaration": true,
-        "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+        "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+        "types": [
+            "node"
+        ]
     },
     "include": [
         "src"
