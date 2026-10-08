@@ -13,9 +13,6 @@
             "@algobitx/cli": [
                 "./packages/backend/cli"
             ],
-            "@algobitx/type-gen": [
-                "./packages/backend/type-gen"
-            ],
             "@algobitx/config-loader": [
                 "./packages/backend/config-loader"
             ],
@@ -69,9 +66,6 @@
     "references": [
         {
             "path": "./packages/backend/cli"
-        },
-        {
-            "path": "./packages/backend/type-gen"
         },
         {
             "path": "./packages/backend/config-loader"
